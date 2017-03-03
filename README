@@ -1,0 +1,15 @@
+# scan ssids:
+
+snap connect wifi-connect:network-manager network-manager:service
+knitzsche@localhost:~$ wifi-connect.scan 
+xfinitywifi
+Mywifi 
+Ubuntu
+
+# enable/disable the wifi-ap AP
+
+snap connect wifi-connect:control wifi-ap:control
+
+sudo wifi-connect.wifi-ap -h
+
+
