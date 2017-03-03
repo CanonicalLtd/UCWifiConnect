@@ -11,7 +11,7 @@ apps:
   run: 
     command: bin/server
     plugs: [network, network-control, network-bind, network-manager, control]
-  scan:
+  connect:
     command: bin/ssids
     plugs: [network-manager]
   unixhttpc:
