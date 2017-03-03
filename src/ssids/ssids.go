@@ -9,6 +9,9 @@ import (
 	"github.com/godbus/dbus"
 )
 
+var ap2device map[string]string
+var ssid2ap map[string]string
+
 func getDevices(conn *dbus.Conn) []string {
 	obj := conn.Object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager")
 	var devices []string
@@ -39,6 +42,7 @@ func getWifiDevices(conn *dbus.Conn, devices []string) []string {
 }
 
 func getAccessPoints(conn *dbus.Conn, devices []string) [] string {
+	
 	var APs [] string
 	for _, d := range devices {
 		objPath := dbus.ObjectPath(d)
@@ -49,8 +53,9 @@ func getAccessPoints(conn *dbus.Conn, devices []string) [] string {
 			panic(err)
 		}
 		for _, i := range aps {
-			fmt.Printf("====== device %s ap %s\n", d, i)
+			//fmt.Printf("====== device %s ap %s\n", d, i)
 			APs = append(APs, i )
+			ap2device[i] = d
 		}
 	}
 	return APs
@@ -87,70 +92,38 @@ func getSSIDs(conn *dbus.Conn, APs []string) []SSID {
 			continue
 		}
 
-		lastSeen, err2 := obj.GetProperty("org.freedesktop.NetworkManager.AccessPoint.LastSeen")
-		if err2 != nil {
-			panic(err2)
-		}
-		fmt.Printf("====== %q LastSeen: %v\n", ssidStr, lastSeen)
 		Ssid := SSID{ssid: ssidStr, apPath: ap}
 		SSIDs = append(SSIDs, Ssid)
+		ssid2ap[strings.TrimSpace(ssidStr)] = ap
 		//TODO: exclude ssid of device's own AP (the wifi-ap one)
 	}
 	return SSIDs
 }
 
-func connectAp(conn *dbus.Conn, ssid string, apPath string, devicePath string) {
-/* a python example
-connection_params = {
-        "802-11-wireless": {
-            "security": "802-11-wireless-security",
-        },
-        "802-11-wireless-security": {
-            "key-mgmt": "wpa-psk",
-            "psk": SEEKED_PASSPHRASE
-        },
-    }
-
-    # Establish the connection.
-    settings_path, connection_path = manager.AddAndActivateConnection(
-        connection_params, device_path, our_ap_path)
-    print "settings_path =", settings_path
-    print "connection_path =", connection_path
-
-heres the method sig:
-AddAndActivateConnection (IN  a{sa{sv}} connection,
-                          IN  o         device,
-                          IN  o         specific_object,
-                          OUT o         path,
-                          OUT o         active_connection);
-
-where (i think) a{sa{sv}} is
-an array string:array maps of string: value maps
-	var vals map[string]val
-	var m[string]vals
-	var []m
-
-*/
-
+func connectAp(conn *dbus.Conn, ssid string, p string) {
+	//fmt.Println("OUT ssid|" + ssid + "|ssid")
+	//fmt.Printf("OUR ssid to OUR ap:\n %v\n", ssid2ap[ssid])
+	//fmt.Printf("ap to device:\n%v\n", ap2device)
+	//fmt.Printf("ssid to ap:\n %v\n", ssid2ap)
 
 	inner1 := make(map[string]dbus.Variant)
 	inner1["security"] = dbus.MakeVariant("802-11-wireless-security")
 
 	inner2 := make(map[string]dbus.Variant)
 	inner2["key-mgmt"] = dbus.MakeVariant("wpa-psk")
-	inner2["psk"] = dbus.MakeVariant("Redapple1")
+	inner2["psk"] = dbus.MakeVariant(p)
 
 	outer := make(map[string]map[string]dbus.Variant)
 	outer["802-11-wireless"] = inner1
 	outer["802-11-wireless-security"] = inner2
 	fmt.Printf("%v\n",outer)
+
+	fmt.Printf("dev path: %s\n",ap2device[ssid2ap[ssid]])
+	fmt.Printf("ap path: %s\n",ssid2ap[ssid])
+
 	obj := conn.Object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager")
-	
-	err := obj.Call("org.freedesktop.NetworkManager.AddAndActivateConnection", 0, outer, dbus.ObjectPath(devicePath), dbus.ObjectPath(apPath))
-	if err != nil {
-		fmt.Printf("===== activate call error: %v\n", err)
-		panic(err)
-	}
+	resp := obj.Call("org.freedesktop.NetworkManager.AddAndActivateConnection", 0, outer, dbus.ObjectPath(ap2device[ssid2ap[ssid]]), dbus.ObjectPath(ssid2ap[ssid]))
+	fmt.Printf("===== activate call response:\n%v\n", resp)
 }
 
 func main() {
@@ -159,28 +132,28 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Failed to connect to session bus:", err)
 		os.Exit(1)
 	}
+
+	ap2device = make(map[string]string)
+	ssid2ap = make(map[string]string)
+
 	devices := getDevices(conn)
 	wifiDevices := getWifiDevices(conn, devices)
-	fmt.Printf("==== wifdevices: %v\n", wifiDevices)
+	//fmt.Printf("==== wifdevices: %v\n", wifiDevices)
 	APs := getAccessPoints(conn, wifiDevices)
-	fmt.Printf("==== APs: %v\n", APs)
+	//fmt.Printf("==== APs: %v\n", APs)
 	SSIDs := getSSIDs(conn, APs)
+	fmt.Println("Found SSIDs:")
 	for _, ssid := range SSIDs {
-		fmt.Printf("%v\n", ssid)
+		fmt.Printf("    %v\n", ssid.ssid)
 	}
-
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("SSID: ")
+	fmt.Print("Connect to SSID: ")
 	ssid, _ := reader.ReadString('\n')
 	ssid = strings.TrimSpace(ssid)
-	fmt.Print("Device path: ")
-	dev, _ := reader.ReadString('\n')
-	dev = strings.TrimSpace(dev)
-	fmt.Print("AP path: ")
-	ap, _ := reader.ReadString('\n')
-	ap = strings.TrimSpace(ap)
-	//connectAp(conn, "Mywifi", "/org/freedesktop/NetworkManager/AccessPoint/180", "/org/freedesktop/NetworkManager/Devices/2")
-	connectAp(conn, "Mywifi", ap, dev)
+	fmt.Print("PW: ")
+	pw, _ := reader.ReadString('\n')
+	pw = strings.TrimSpace(pw)
+	connectAp(conn, ssid, pw)
 
 	return
 
