@@ -1,15 +1,68 @@
-# scan ssids:
+Prototype (terminal) Proces
+--------------------------
+
+Works on pi3 with TP-LINK 150Mbpx Wireless N Nano USB Adapter Model TL-WN725N
+
+# Install snaps
+snap install wifi-ap
+snap install network-manager
+
+also install wifi-connect (not in store yet
+
+# Connect interfaces
 
 snap connect wifi-connect:network-manager network-manager:service
-knitzsche@localhost:~$ wifi-connect.scan 
-xfinitywifi
-Mywifi 
-Ubuntu
-
-# enable/disable the wifi-ap AP
-
 snap connect wifi-connect:control wifi-ap:control
 
-sudo wifi-connect.wifi-ap -h
+# Get terminal (ssh) connection to device over ethernet
+
+# Display the ap config
+
+$ sudo wifi-connect.wifi-ap -show
+
+Note the wifi.address: 10.0.60.1. Use this later to ssh to device over the AP
+
+(TODO: add support to configure the AP ip subnet and addr)
+
+# sSet the wifi AP SSID:
+
+sudo wifi-connect.wifi-ap -ssid digit
+
+# Set the AP passphrase:
+
+sudo wifi-connect.wifi-ap -password ubuntuubuntu
+
+# Bring up the device AP:
+
+sudo wifi-connect.wifi-ap -ap-on
+
+# Close your ssh Ethernet connection and disconnect the device from Ethernet
+
+# Join the device's new AP from your workstation
+
+# ssh into the device over that AP using 10.0.60.1 
+
+# Scan for, display, and connect to an APs (by ssid): (TODO: exclude the device hoseted AP)
+
+knitzsche@localhost:~$ wifi-connect.connect 
+Found SSIDs:
+    astro_garden_2
+    xfinitywifi
+    Mywifi 
+    digit
+Connect to SSID: astro_garden_2
+PW: xxxxxxxxxxx 
+
+# Turn off the device AP:
+ 
+(This breaks your current ssh over the AP)
+
+sudo wifi-connect.wifi-ap -ap-off
+
+ADDITIONAL
+* display current wifi status on device with: nmcli d
+* disconnect from a connected wifi with nmcli d disconnect INAME (for example nmcli d disconnect wlan1)
+* turn on a rudimentary http server that scans for then displays APs (by ssids) with sudo wifi-connect.run (TODO, change that command name), then open its page with IP:8080 in a browser
+
 
 
