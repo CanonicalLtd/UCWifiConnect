@@ -164,7 +164,7 @@ func main() {
 		return
 	}
 	for _, ssid := range SSIDs {
-		fmt.Printf("    %v\n", ssid)
+		fmt.Printf("    %v\n", ssid.ssid)
 	}
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("Connect to SSID: ")
