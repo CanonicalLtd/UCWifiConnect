@@ -35,10 +35,8 @@ parts:
   #  prime:
   #    - sockets
   unixhttpc:
-    plugin: dump
+    plugin: go
     source: unixhttpc-tool
-    organize:
-      unixhttpc: bin/unixhttpc
   wifi-ap:
     plugin: go
     source: src-wifi-ap
