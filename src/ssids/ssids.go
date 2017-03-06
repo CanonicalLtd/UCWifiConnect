@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -11,6 +12,10 @@ import (
 
 var ap2device map[string]string
 var ssid2ap map[string]string
+
+type options struct {
+	getSsids bool
+}
 
 func getDevices(conn *dbus.Conn) []string {
 	obj := conn.Object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager")
@@ -42,7 +47,6 @@ func getWifiDevices(conn *dbus.Conn, devices []string) []string {
 }
 
 func getAccessPoints(conn *dbus.Conn, devices []string) [] string {
-	
 	var APs [] string
 	for _, d := range devices {
 		objPath := dbus.ObjectPath(d)
@@ -125,8 +129,16 @@ func connectAp(conn *dbus.Conn, ssid string, p string) {
 	resp := obj.Call("org.freedesktop.NetworkManager.AddAndActivateConnection", 0, outer, dbus.ObjectPath(ap2device[ssid2ap[ssid]]), dbus.ObjectPath(ssid2ap[ssid]))
 	fmt.Printf("===== activate call response:\n%v\n", resp)
 }
+func args() *options {
+	opts := &options{}
+	flag.BoolVar(&opts.getSsids, "get-ssids", false, "Connect to an AP")
+	flag.Parse()
+	return opts
+}
 
 func main() {
+	opts := args()
+
 	conn, err := dbus.SystemBus()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to connect to session bus:", err)
@@ -142,9 +154,17 @@ func main() {
 	APs := getAccessPoints(conn, wifiDevices)
 	//fmt.Printf("==== APs: %v\n", APs)
 	SSIDs := getSSIDs(conn, APs)
-	fmt.Println("Found SSIDs:")
+	//fmt.Println("Found SSIDs:")
+	if opts.getSsids {
+		var out string
+		for _, ssid := range SSIDs {
+			out += strings.TrimSpace(ssid.ssid) + ","
+		}
+		fmt.Printf("%s\n", out[:len(out)-1])
+		return
+	}
 	for _, ssid := range SSIDs {
-		fmt.Printf("    %v\n", ssid.ssid)
+		fmt.Printf("    %v\n", ssid)
 	}
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("Connect to SSID: ")

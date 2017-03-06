@@ -110,8 +110,8 @@ func main() {
 	case len(opts.ssid) > 1:
 		setSsid(opts)
 	case len(opts.passphrase) > 1:
-		if len(ops.passphrase) < 13 {
-			fmt.Prinln("Passphrase must be at least 13 chars in length. Please try again.")
+		if len(opts.passphrase) < 13 {
+			fmt.Println("Passphrase must be at least 13 chars in length. Please try again.")
 			return
 		}
 		setPassphrase(opts)
