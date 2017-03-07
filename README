@@ -9,10 +9,17 @@ snap install network-manager
 
 also install wifi-connect (not in store yet
 
+# Create content sharing dir for wifi-ap:control interfaces
+
+sudo /var/snap/wifi-connect/common
+
+(TODO: provide command for this. final solution will use interface hook script)
+
 # Connect interfaces
 
 snap connect wifi-connect:network-manager network-manager:service
 snap connect wifi-connect:control wifi-ap:control
+
 
 # Get terminal (ssh) connection to device over ethernet
 
