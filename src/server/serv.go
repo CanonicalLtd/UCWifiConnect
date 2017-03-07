@@ -20,25 +20,7 @@ func contains(s []string, e string) bool {
     return false
 }
 
-/*
-func getWifiNM() []string {
-
-	bus = dbus.SystemBus()
-	dbusObj = "/org/freedesktop/NetworkManager/Settings"
-	//ussdstring = sys.argv[2]
-
-	dbusIface = dbus.Interface(bus.get_object('org.freedesktop.NetworkManager', dbusObj),
-                     'org.freedesktop.NetworkManager.Settings.ListConnections')
-	fmt.Printf("connections:\n%v", dbusIface)
-	var res []string
-	//won't work need nmcli in the snap or user dbus
-	//cmd := exec.Command("/snap/bin/network-manager.nmcli dev wifi list")
-	return res
-}
-*/
-
 func getWifi() []string {
-	
 	var essids []string
 	cmd := exec.Command(os.Getenv("SNAP") + "/bin/ssids",  "-get-ssids")
 	var out bytes.Buffer
