@@ -17,7 +17,7 @@ func Enable() {
 	return
 }
 
-func Sisable() {
+func Disable() {
 	path := os.Getenv("SNAP") + "/bin/unixhttpc"
 	_, err := exec.Command(path, "-d", `{"disabled":"true"}`, os.Getenv("SNAP_COMMON") + "/sockets/control", "/v1/configuration").Output()
 	if err != nil {
