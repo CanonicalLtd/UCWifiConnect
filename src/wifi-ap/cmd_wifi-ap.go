@@ -3,8 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
-	"os/exec"
 
 	"github.com/CanonicalLtd/UCWifiConnect/wifiap"
 )
@@ -27,6 +25,7 @@ type options struct {
 	verbose bool
 	err           string
 }
+
 func args() *options {
 
 	opts := &options{}
@@ -51,16 +50,16 @@ func main() {
 	case opts.show:
 		wifiap.Show()
 	case len(opts.ssid) > 1:
-		wifiap.SetSsid(opts)
+		wifiap.SetSsid(opts.ssid)
 	case len(opts.passphrase) > 1:
 		if len(opts.passphrase) < 13 {
 			fmt.Println("Passphrase must be at least 13 chars in length. Please try again.")
 			return
 		}
-		wifiap.SetPassphrase(opts)
+		wifiap.SetPassphrase(opts.passphrase)
 	case opts.enable:
-		wifiap.Enable(opts)
+		wifiap.Enable()
 	case opts.disable:
-		wifiap.Disable(opts)
+		wifiap.Disable()
 	}
 }
