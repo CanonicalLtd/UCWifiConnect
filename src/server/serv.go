@@ -1,16 +1,11 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 	"os"
-	"os/exec"
-	"strings"
 
-	"github.com/knitzsche/wifi-connect/ssids"
-
-	//"github.com/godbus/dbus"
+	"github.com/CanonicalLtd/UCWifiConnect/netman"
 )
 
 func contains(s []string, e string) bool {
@@ -22,7 +17,7 @@ func contains(s []string, e string) bool {
     return false
 }
 
-func getWifi() []string {
+func getWifi() ([]string, map[string]string, map[string]string {
 	SSIDs, ap2device, ssid2ap := netman.Ssids()
 	return SSIDs, ap2device, ssid2app
 	/*
