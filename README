@@ -11,7 +11,7 @@ also install wifi-connect (not in store yet
 
 # Create content sharing dir for wifi-ap:control interfaces
 
-sudo mkdir /var/snap/wifi-connect/common
+sudo mkdir /var/snap/wifi-connect/common/sockets
 
 (TODO: provide command for this. final solution will use interface hook script)
 
