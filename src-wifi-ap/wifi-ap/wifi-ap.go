@@ -8,23 +8,25 @@ import (
 )
 
 func contains(s []string, e string) bool {
-    for _, a := range s {
-        if a == e {
-            return true
-        }
-    }
-    return false
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
+
 type options struct {
-	show bool
-	enable bool
-	disable bool
-	ssid string
+	show       bool
+	enable     bool
+	disable    bool
+	ssid       string
 	passphrase string
-	security string
-	verbose bool
-	err           string
+	security   string
+	verbose    bool
+	err        string
 }
+
 func args() *options {
 
 	opts := &options{}
@@ -40,7 +42,8 @@ func args() *options {
 }
 
 func show() {
-	cmdArgs := []string{os.Getenv("SNAP_COMMON") + "/sockets/control", "/v1/configuration"}
+	//cmdArgs := []string{os.Getenv("SNAP_COMMON") + "/sockets/control", "/v1/configuration"}
+	cmdArgs := []string{"/var/snap/wifi-ap/current/sockets/control", "/v1/configuration"}
 	snapPath := os.Getenv("SNAP")
 	path := snapPath + "/bin/unixhttpc"
 	out, err := exec.Command(path, cmdArgs...).Output()
@@ -48,52 +51,57 @@ func show() {
 		fmt.Printf("Error: '%q %q' failed. %q\n", path, cmdArgs, err)
 		return
 	}
-	fmt.Printf("Wifi-ap Configuration:\n%s\n",out)
+	fmt.Printf("Wifi-ap Configuration:\n%s\n", out)
 	return
 }
 
-func enable(opts * options) {
+func enable(opts *options) {
 	path := os.Getenv("SNAP") + "/bin/unixhttpc"
-	_, err := exec.Command(path, "-d", `{"disabled":"false"}`, os.Getenv("SNAP_COMMON") + "/sockets/control", "/v1/configuration").Output()
+	//_, err := exec.Command(path, "-d", `{"disabled":"false"}`, os.Getenv("SNAP_COMMON")+"/sockets/control", "/v1/configuration").Output()
+	_, err := exec.Command(path, "-d", `{"disabled":"false"}`, "/var/snap/wifi-ap/current/sockets/control", "/v1/configuration").Output()
 	if err != nil {
-		fmt.Printf("Error: '%q' failed. %q\n", path,  err)
+		fmt.Printf("Error: '%q' failed. %q\n", path, err)
 		return
 	}
 	return
 }
 
-func disable(opts * options) {
+func disable(opts *options) {
 	path := os.Getenv("SNAP") + "/bin/unixhttpc"
-	_, err := exec.Command(path, "-d", `{"disabled":"true"}`, os.Getenv("SNAP_COMMON") + "/sockets/control", "/v1/configuration").Output()
+	//_, err := exec.Command(path, "-d", `{"disabled":"true"}`, os.Getenv("SNAP_COMMON")+"/sockets/control", "/v1/configuration").Output()
+	_, err := exec.Command(path, "-d", `{"disabled":"true"}`, "/var/snap/wifi-ap/current/sockets/control", "/v1/configuration").Output()
 	if err != nil {
-		fmt.Printf("Error: '%q' failed. %q\n", path,  err)
+		fmt.Printf("Error: '%q' failed. %q\n", path, err)
 		return
 	}
 	return
 }
 
-func setSsid(opts * options) {
+func setSsid(opts *options) {
 	path := os.Getenv("SNAP") + "/bin/unixhttpc"
-	_, err := exec.Command(path, "-d", `{"wifi.ssid":"` + opts.ssid +`"}`, os.Getenv("SNAP_COMMON") + "/sockets/control", "/v1/configuration").Output()
+	//_, err := exec.Command(path, "-d", `{"wifi.ssid":"`+opts.ssid+`"}`, os.Getenv("SNAP_COMMON")+"/sockets/control", "/v1/configuration").Output()
+	_, err := exec.Command(path, "-d", `{"wifi.ssid":"`+opts.ssid+`"}`, "/var/snap/wifi-ap/current/sockets/control", "/v1/configuration").Output()
 	if err != nil {
-		fmt.Printf("Error: '%q' failed. %q\n", path,  err)
+		fmt.Printf("Error: '%q' failed. %q\n", path, err)
 		return
 	}
 	return
 }
-func setPassphrase(opts * options) {
+func setPassphrase(opts *options) {
 	//for now, let's use wpa2 security
 	path := os.Getenv("SNAP") + "/bin/unixhttpc"
-	_, err := exec.Command(path, "-d", `{"wifi.security":"wpa2"}`, os.Getenv("SNAP_COMMON") + "/sockets/control", "/v1/configuration").Output()
+	//_, err := exec.Command(path, "-d", `{"wifi.security":"wpa2"}`, os.Getenv("SNAP_COMMON")+"/sockets/control", "/v1/configuration").Output()
+	_, err := exec.Command(path, "-d", `{"wifi.security":"wpa2"}`, "/var/snap/wifi-ap/current/sockets/control", "/v1/configuration").Output()
 	if err != nil {
-		fmt.Printf("Error: '%q' failed. %q\n", path,  err)
+		fmt.Printf("Error: '%q' failed. %q\n", path, err)
 		return
 	}
 	//passphrase
 	path = os.Getenv("SNAP") + "/bin/unixhttpc"
-	_, err2 := exec.Command(path, "-d", `{"wifi.security-passphrase":"` + opts.passphrase +`"}`, os.Getenv("SNAP_COMMON") + "/sockets/control", "/v1/configuration").Output()
+	//_, err2 := exec.Command(path, "-d", `{"wifi.security-passphrase":"`+opts.passphrase+`"}`, os.Getenv("SNAP_COMMON")+"/sockets/control", "/v1/configuration").Output()
+	_, err2 := exec.Command(path, "-d", `{"wifi.security-passphrase":"`+opts.passphrase+`"}`, "/var/snap/wifi-ap/current/sockets/control", "/v1/configuration").Output()
 	if err2 != nil {
-		fmt.Printf("Error: '%q' failed. %q\n", path,  err2)
+		fmt.Printf("Error: '%q' failed. %q\n", path, err2)
 		return
 	}
 	return
