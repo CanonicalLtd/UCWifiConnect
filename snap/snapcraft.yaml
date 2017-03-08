@@ -25,7 +25,7 @@ plugs:
   control:
     interface: content
     content: socket-directory
-    target: $SNAP_COMMON/sockets
+    target: sockets
     default-provider: wifi-ap
 
 parts:
