@@ -1,4 +1,4 @@
-package wifi-ap
+package wifiap
 
 import (
 	"fmt"
