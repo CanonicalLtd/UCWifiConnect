@@ -1,4 +1,4 @@
-package ssids
+package netman
 
 import (
 	"fmt"
