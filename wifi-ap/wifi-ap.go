@@ -6,7 +6,6 @@ import (
 	"os/exec"
 )
 
-
 func Enable() {
 	path := os.Getenv("SNAP") + "/bin/unixhttpc"
 	_, err := exec.Command(path, "-d", `{"disabled":"false"}`, os.Getenv("SNAP_COMMON") + "/sockets/control", "/v1/configuration").Output()
@@ -36,6 +35,7 @@ func SetSsid(ssid string) {
 	}
 	return
 }
+
 func SetPassphrase(passphrase string) {
 	//for now, let's use wpa2 security
 	path := os.Getenv("SNAP") + "/bin/unixhttpc"
