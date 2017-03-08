@@ -29,11 +29,6 @@ plugs:
     default-provider: wifi-ap
 
 parts:
-  #controldir:
-  #  plugin: dump
-  #  source: .
-  #  prime:
-  #    - sockets
   unixhttpc:
     plugin: dump
     source: unixhttpc-tool
@@ -45,3 +40,4 @@ parts:
   go:
     plugin: go
     source: src
+

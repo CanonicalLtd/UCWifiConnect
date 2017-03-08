@@ -8,6 +8,8 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/knitzsche/wifi-connect/ssids"
+
 	//"github.com/godbus/dbus"
 )
 
@@ -21,6 +23,9 @@ func contains(s []string, e string) bool {
 }
 
 func getWifi() []string {
+	SSIDs, ap2device, ssid2ap := netman.Ssids()
+	return SSIDs, ap2device, ssid2app
+	/*
 	var essids []string
 	cmd := exec.Command(os.Getenv("SNAP") + "/bin/ssids",  "-get-ssids")
 	var out bytes.Buffer
@@ -34,6 +39,7 @@ func getWifi() []string {
 	res := strings.TrimSpace(out.String())
 	essids = strings.Split(res, ",")
 	return essids
+*/
 
 }
 
@@ -41,10 +47,10 @@ func para(s string) string {
 	return fmt.Sprintf("<p>%s</p>", s)
 }
 
-func form(items []string) string {
+func form(SSIDs []string) string {
 	form_ := "<form>"
-	for _, s := range items {
-		line := fmt.Sprintf("<input type='radio' name='essid' value='%s' checked>%s<br>", s, s)
+	for _, s := range SSIDs {
+		line := fmt.Sprintf("<input type='radio' name='essid' value='%s' checked>%s<br>", s.ssid, s.ssid)
 		fmt.Println(line)
 		form_ = form_ + line 
 	}
@@ -56,7 +62,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	d, _ := os.Getwd()
 	//fmt.Fprintf(w, "<p>URL path: %s</p>", r.URL.Path[1:])
 	fmt.Fprintf(w, "<p>pwd: %s", d)
-	essids := getWifi()
+	essids, _, _ := getWifi()
 	essids_form := form(essids)
 	fmt.Fprintf(w, essids_form)
 	//for _, s := range getWifi() {
