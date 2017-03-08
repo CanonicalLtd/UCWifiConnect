@@ -34,9 +34,6 @@ parts:
     source: unixhttpc-tool
     organize:
       unixhttpc: bin/unixhttpc
-  wifi-ap:
-    plugin: go
-    source: src-wifi-ap
   go:
     plugin: go
     source: src
