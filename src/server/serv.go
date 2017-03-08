@@ -17,27 +17,6 @@ func contains(s []string, e string) bool {
     return false
 }
 
-func getWifi() ([]netman.SSID, map[string]string, map[string]string) {
-	SSIDs, ap2device, ssid2ap := netman.Ssids()
-	return SSIDs, ap2device, ssid2ap
-	/*
-	var essids []string
-	cmd := exec.Command(os.Getenv("SNAP") + "/bin/ssids",  "-get-ssids")
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-		s := fmt.Sprintf("Run error. %s\n", err)
-		return []string{s}
-	}
-	fmt.Printf("SSIDs: %q\n", out.String())
-	res := strings.TrimSpace(out.String())
-	essids = strings.Split(res, ",")
-	return essids
-*/
-
-}
-
 func para(s string) string {
 	return fmt.Sprintf("<p>%s</p>", s)
 }
@@ -57,7 +36,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	d, _ := os.Getwd()
 	//fmt.Fprintf(w, "<p>URL path: %s</p>", r.URL.Path[1:])
 	fmt.Fprintf(w, "<p>pwd: %s", d)
-	ssids, _, _ := getWifi()
+	ssids, _, _ := netman.Ssids()
 	ssids_form := form(ssids)
 	fmt.Fprintf(w, ssids_form)
 	//for _, s := range getWifi() {
