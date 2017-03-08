@@ -6,6 +6,19 @@ import (
 	"os/exec"
 )
 
+func Show() {
+	cmdArgs := []string{os.Getenv("SNAP_COMMON") + "/sockets/control", "/v1/configuration"}
+	snapPath := os.Getenv("SNAP")
+	path := snapPath + "/bin/unixhttpc"
+	out, err := exec.Command(path, cmdArgs...).Output()
+	if err != nil {
+		fmt.Printf("Error: '%q %q' failed. %q\n", path, cmdArgs, err)
+		return
+	}
+	fmt.Printf("Wifi-ap Configuration:\n%s\n",out)
+	return
+}
+
 func Enable() {
 	path := os.Getenv("SNAP") + "/bin/unixhttpc"
 	_, err := exec.Command(path, "-d", `{"disabled":"false"}`, os.Getenv("SNAP_COMMON") + "/sockets/control", "/v1/configuration").Output()
