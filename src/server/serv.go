@@ -1,50 +1,20 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
-	"os"
-	"os/exec"
-	"strings"
 
-	//"github.com/godbus/dbus"
+	"github.com/CanonicalLtd/UCWifiConnect/netman"
 )
-
-func contains(s []string, e string) bool {
-    for _, a := range s {
-        if a == e {
-            return true
-        }
-    }
-    return false
-}
-
-func getWifi() []string {
-	var essids []string
-	cmd := exec.Command(os.Getenv("SNAP") + "/bin/ssids",  "-get-ssids")
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-		s := fmt.Sprintf("Run error. %s\n", err)
-		return []string{s}
-	}
-	fmt.Printf("SSIDs: %q\n", out.String())
-	res := strings.TrimSpace(out.String())
-	essids = strings.Split(res, ",")
-	return essids
-
-}
 
 func para(s string) string {
 	return fmt.Sprintf("<p>%s</p>", s)
 }
 
-func form(items []string) string {
+func form(SSIDs []netman.SSID) string {
 	form_ := "<form>"
-	for _, s := range items {
-		line := fmt.Sprintf("<input type='radio' name='essid' value='%s' checked>%s<br>", s, s)
+	for _, s := range SSIDs {
+		line := fmt.Sprintf("<input type='radio' name='essid' value='%s' checked>%s<br>", s.Ssid, s.Ssid)
 		fmt.Println(line)
 		form_ = form_ + line 
 	}
@@ -53,15 +23,12 @@ func form(items []string) string {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	d, _ := os.Getwd()
-	//fmt.Fprintf(w, "<p>URL path: %s</p>", r.URL.Path[1:])
-	fmt.Fprintf(w, "<p>pwd: %s", d)
-	essids := getWifi()
-	essids_form := form(essids)
-	fmt.Fprintf(w, essids_form)
-	//for _, s := range getWifi() {
-	//	fmt.Fprintf(w, para(s))
-	//}
+	
+	fmt.Fprintf(w, "<html><head></head></body>")
+	ssids, _, _ := netman.Ssids()
+	ssids_form := form(ssids)
+	fmt.Fprintf(w, ssids_form)
+	fmt.Fprintf(w, "</html>")
 }
 
 func main() {
