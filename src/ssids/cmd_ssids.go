@@ -40,7 +40,7 @@ func main() {
 	fmt.Print("Connect to AP. Enter SSID: ")
 	ssid, _ := reader.ReadString('\n')
 	ssid = strings.TrimSpace(ssid)
-	fmt.Print("Entern phasprase:")
+	fmt.Print("Enter phasprase:")
 	pw, _ := reader.ReadString('\n')
 	pw = strings.TrimSpace(pw)
 
