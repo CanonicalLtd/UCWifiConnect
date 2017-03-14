@@ -30,10 +30,8 @@ plugs:
 
 parts:
   unixhttpc:
-    plugin: dump
+    plugin: go
     source: unixhttpc-tool
-    organize:
-      unixhttpc: bin/unixhttpc
   go:
     plugin: go
     source: src
