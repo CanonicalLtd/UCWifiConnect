@@ -35,4 +35,5 @@ parts:
   go:
     plugin: go
     source: src
+    #go-importpath: github.com/CanonicalLtd/UCWifiConnect
 

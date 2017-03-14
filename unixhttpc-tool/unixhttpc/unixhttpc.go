@@ -1,89 +1,69 @@
-/*package main
-
-import (
-	"fmt"
-	"io"
-	"log"
-	"net"
-	"net/http"
-	"os"
-)
-
-func main() {
-	if len(os.Args) != 3 {
-		fmt.Fprintln(os.Stderr, "usage:", os.Args[0], "/path.socket /uri")
-		return
-	}
-	fmt.Println("Unix HTTP client")
-
-	req, err := http.NewRequest("GET", os.Args[3], nil)
-	if err != nil {
-		log.Fatal("New request error", err)
-	}
-
-	var resp *http.Response
-
-	httpc := &http.Client{
-		Transport: &http.Transport{
-			Dial: net.Dial("unix", os.Args[1]),
-		},
-	}
-	resp, err = httpc.Do(req)
-	if err != nil {
-		log.Fatal("Do request error", err)
-	}
-
-	defer resp.Body.Close()
-
-	io.Copy(os.Stdout, resp.Body)
-}*/
-
 package main
 
 import (
-	"fmt"
+	"bufio"
 	"io"
+	"log"
 	"net"
 	"os"
 	"time"
 )
 
 func reader(r io.Reader) {
-	buf := make([]byte, 1024)
-	for {
-		n, err := r.Read(buf[:])
-		if err != nil {
-			return
-		}
-		println("Client got:", string(buf[0:n]))
-
-		//io.Copy(os.Stdout, response.Body)
+	br := bufio.NewReader(r)
+	// output each line.
+	line, _, err := br.ReadLine()
+	for len(line) != 0 && err == nil {
+		line, _, err = br.ReadLine()
 	}
+
+	if err != nil {
+		log.Printf("Error reading response headers: %v\n", err)
+	}
+
+	/*// if not error, next unique line will be the json body
+	line, isPrefix, err = br.ReadLine()
+	body := string(line)
+	for isPrefix == true && err == nil {
+		line, isPrefix, err = br.ReadLine()
+		body += string(line)
+	}
+
+	if err != nil {
+		log.Printf("Error reading response body: %v\n", err)
+	}*/
+
+	io.Copy(os.Stdout, br)
 }
 
 func main() {
 	if len(os.Args) != 3 {
-		fmt.Fprintln(os.Stderr, "usage:", os.Args[0], "/path.socket /uri")
+		log.Println(os.Stderr, "usage:", os.Args[0], "/path.socket /uri")
 		return
 	}
-	fmt.Println("Unix HTTP client.")
+	log.Println("Unix HTTP client requesting")
 
-	c, err := net.Dial("unix", os.Args[1])
+	conn, err := net.Dial("unix", os.Args[1])
 	if err != nil {
-		fmt.Println("Dial error: ", err)
+		log.Println("Dial error: ", err)
 		return
 	}
-	defer c.Close()
+	defer conn.Close()
 
-	go reader(c)
+	// reading here async, as should behave in a library.
+	// If wanted to have the code as is, this should not be a goroutine
+	// but reading sync after sending request
+	go reader(conn)
 
 	requestMsg := "GET http://unix" + os.Args[2] + " HTTP/1.1\r\n" +
 		"Host: localhost\r\n" +
 		"\r\n"
 
-	_, err = c.Write([]byte(requestMsg))
+	_, err = conn.Write([]byte(requestMsg))
 	if err != nil {
-		fmt.Println("write error: ", err)
+		log.Println("write error: ", err)
 		return
 	}
+
+	time.Sleep(1e9)
 }
