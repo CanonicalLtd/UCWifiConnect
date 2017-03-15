@@ -30,7 +30,9 @@ func main() {
 		for _, ssid := range SSIDs {
 			out += strings.TrimSpace(ssid.Ssid) + ","
 		}
-		fmt.Printf("%s\n", out[:len(out)-1])
+		if  len(out) > 0 {
+		       fmt.Printf("%s\n", out[:len(out)-1])
+		}
 		return
 	}
 	for _, ssid := range SSIDs {
