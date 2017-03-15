@@ -1,5 +1,5 @@
 name: wifi-connect 
-version: '0.2'
+version: '0.3'
 summary: simple http server 
 description: |
   simple test server.

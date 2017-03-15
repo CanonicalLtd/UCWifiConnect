@@ -1,6 +1,7 @@
 package wifiap
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -73,7 +74,7 @@ func (restClient *RestClient) sendHTTPRequest(uri string, method string, body io
 	return realResponse, nil
 }
 
-// Show renders
+// Show renders current wifi-ap status
 func (restClient *RestClient) Show() (map[string]interface{}, error) {
 	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
 	response, err := restClient.sendHTTPRequest(uri, "GET", nil)
@@ -82,4 +83,59 @@ func (restClient *RestClient) Show() (map[string]interface{}, error) {
 	}
 
 	return response.Result, nil
+}
+
+// Enable wifi-ap
+func (restClient *RestClient) Enable() error {
+	params := map[string]string{"disabled": "false"}
+	b, err := json.Marshal(params)
+	if err == nil {
+		return err
+	}
+
+	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
+	_, err = restClient.sendHTTPRequest(uri, "POST", bytes.NewReader(b))
+	return err
+}
+
+// Disable wifi-ap
+func (restClient *RestClient) Disable() error {
+	params := map[string]string{"disabled": "true"}
+	b, err := json.Marshal(params)
+	if err == nil {
+		return err
+	}
+
+	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
+	_, err = restClient.sendHTTPRequest(uri, "POST", bytes.NewReader(b))
+	return err
+}
+
+// SetSsid sets wifi SSID
+func (restClient *RestClient) SetSsid(ssid string) error {
+	params := map[string]string{"wifi.ssid": ssid}
+	b, err := json.Marshal(params)
+	if err == nil {
+		return err
+	}
+
+	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
+	_, err = restClient.sendHTTPRequest(uri, "POST", bytes.NewReader(b))
+	return err
+}
+
+// SetPassphrase sets wifi password
+func (restClient *RestClient) SetPassphrase(passphrase string) error {
+	params := map[string]string{
+		"wifi.security":            "wpa2",
+		"wifi.security-passphrase": passphrase,
+	}
+	b, err := json.Marshal(params)
+	if err == nil {
+		return err
+	}
+
+	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
+	_, err = restClient.sendHTTPRequest(uri, "POST", bytes.NewReader(b))
+	return err
 }
