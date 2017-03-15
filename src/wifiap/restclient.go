@@ -89,39 +89,66 @@ func (restClient *RestClient) Show() (map[string]interface{}, error) {
 func (restClient *RestClient) Enable() error {
 	params := map[string]string{"disabled": "false"}
 	b, err := json.Marshal(params)
-	if err == nil {
+	if err != nil {
 		return err
 	}
 
 	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
-	_, err = restClient.sendHTTPRequest(uri, "POST", bytes.NewReader(b))
-	return err
+	response, err := restClient.sendHTTPRequest(uri, "POST", bytes.NewReader(b))
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode != http.StatusOK || response.Status != http.StatusText(http.StatusOK) {
+		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)\n", response.StatusCode, response.Status)
+	}
+
+	fmt.Println("Ok.")
+	return nil
 }
 
 // Disable wifi-ap
 func (restClient *RestClient) Disable() error {
 	params := map[string]string{"disabled": "true"}
 	b, err := json.Marshal(params)
-	if err == nil {
+	if err != nil {
 		return err
 	}
 
 	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
-	_, err = restClient.sendHTTPRequest(uri, "POST", bytes.NewReader(b))
-	return err
+	response, err := restClient.sendHTTPRequest(uri, "POST", bytes.NewReader(b))
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode != http.StatusOK || response.Status != http.StatusText(http.StatusOK) {
+		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)\n", response.StatusCode, response.Status)
+	}
+
+	fmt.Println("Ok.")
+	return nil
 }
 
 // SetSsid sets wifi SSID
 func (restClient *RestClient) SetSsid(ssid string) error {
 	params := map[string]string{"wifi.ssid": ssid}
 	b, err := json.Marshal(params)
-	if err == nil {
+	if err != nil {
 		return err
 	}
 
 	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
-	_, err = restClient.sendHTTPRequest(uri, "POST", bytes.NewReader(b))
-	return err
+	response, err := restClient.sendHTTPRequest(uri, "POST", bytes.NewReader(b))
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode != http.StatusOK || response.Status != http.StatusText(http.StatusOK) {
+		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)\n", response.StatusCode, response.Status)
+	}
+
+	fmt.Println("Ok.")
+	return nil
 }
 
 // SetPassphrase sets wifi password
@@ -131,11 +158,20 @@ func (restClient *RestClient) SetPassphrase(passphrase string) error {
 		"wifi.security-passphrase": passphrase,
 	}
 	b, err := json.Marshal(params)
-	if err == nil {
+	if err != nil {
 		return err
 	}
 
 	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
-	_, err = restClient.sendHTTPRequest(uri, "POST", bytes.NewReader(b))
-	return err
+	response, err := restClient.sendHTTPRequest(uri, "POST", bytes.NewReader(b))
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode != http.StatusOK || response.Status != http.StatusText(http.StatusOK) {
+		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)\n", response.StatusCode, response.Status)
+	}
+
+	fmt.Println("Ok.")
+	return nil
 }

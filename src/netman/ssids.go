@@ -29,6 +29,7 @@ func getWifiDevices(conn *dbus.Conn, devices []string) []string {
 		}
 		var wifiType uint32
 		wifiType = 2
+		if deviceType.Value() == nil { break } 
 		if deviceType.Value() != wifiType {
 			continue
 		}
@@ -47,6 +48,7 @@ func getAccessPoints(conn *dbus.Conn, devices []string, ap2device map[string]str
 		if err != nil {
 			panic(err)
 		}
+		if len(APs) == 0 { break }
 		for _, i := range aps {
 			APs = append(APs, i )
 			ap2device[i] = d
@@ -117,7 +119,7 @@ func ConnectAp(ssid string, p string, ap2device map[string]string, ssid2ap map[s
 func getSystemBus() *dbus.Conn {
 	conn, err := dbus.SystemBus()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to connect to session bus:", err)
+		fmt.Fprintln(os.Stderr, "Failed to connect to system bus:", err)
 		panic(1)
 	}
 	return conn
