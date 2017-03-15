@@ -34,9 +34,6 @@ parts:
     source: unixhttpc-tool
     organize:
       unixhttpc: bin/unixhttpc
-#  netman-pkg:
-#    plugin: go
-#    source: ./netman
   go:
     plugin: go
     source: src
