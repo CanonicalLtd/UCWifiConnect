@@ -48,7 +48,7 @@ func getAccessPoints(conn *dbus.Conn, devices []string, ap2device map[string]str
 		if err != nil {
 			panic(err)
 		}
-		if len(APs) == 0 { break }
+		if len(aps) == 0 { break }
 		for _, i := range aps {
 			APs = append(APs, i )
 			ap2device[i] = d
