@@ -1,14 +1,26 @@
 package wifiap
 
 import (
-	"bufio"
-	"log"
+	"encoding/json"
+	"fmt"
+	"io"
 	"net"
+	"net/http"
+	"path/filepath"
 )
 
-const socketPath = "/var/snap/wifi-ap/current/sockets/control"
-const versionPath = "/v1"
-const configurationPath = "/configuration"
+const (
+	socketPath       = "/var/snap/wifi-ap/current/sockets/control"
+	versionURI       = "/v1"
+	configurationURI = "/configuration"
+)
+
+type serviceResponse struct {
+	Result     map[string]interface{} `json:"result"`
+	Status     string                 `json:"status"`
+	StatusCode int                    `json:"status-code"`
+	Type       string                 `json:"type"`
+}
 
 // RestClient defines client for rest api exposed by a unix socket
 type RestClient struct {
@@ -26,67 +38,48 @@ func DefaultRestClient() *RestClient {
 	return NewRestClient(socketPath) // FIXME this would be better like os.Getenv("SNAP_COMMON") + "/sockets/control", but that's not working
 }
 
-func (restClient *RestClient) newConn() error {
-	var err error
-	restClient.conn, err = net.Dial("unix", restClient.SocketPath)
-	if err != nil {
-		log.Printf("Dial error: %v\n", err)
-	}
-	return err
+func (restClient *RestClient) unixDialer(_, _ string) (net.Conn, error) {
+	return net.Dial("unix", restClient.SocketPath)
 }
 
-func (restClient *RestClient) sendRequest(request string) error {
-	_, err := restClient.conn.Write([]byte(request))
+func (restClient *RestClient) sendHTTPRequest(uri string, method string, body io.Reader) (*serviceResponse, error) {
+	req, err := http.NewRequest(method, uri, body)
 	if err != nil {
-		log.Printf("Write error: %v\n", err)
-		return err
+		return nil, err
 	}
 
-	return nil
+	client := &http.Client{
+		Transport: &http.Transport{
+			Dial: restClient.unixDialer,
+		},
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	realResponse := &serviceResponse{}
+	if err := json.NewDecoder(resp.Body).Decode(&realResponse); err != nil {
+		return nil, err
+	}
+
+	if realResponse.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Failed: %s", realResponse.Result["message"])
+	}
+
+	return realResponse, nil
 }
 
 // Show renders
-func (restClient *RestClient) Show() (string, error) {
-
-	err := restClient.newConn()
+func (restClient *RestClient) Show() (map[string]interface{}, error) {
+	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
+	response, err := restClient.sendHTTPRequest(uri, "GET", nil)
 	if err != nil {
-		return "", err
-	}
-	defer restClient.conn.Close()
-
-	requestMsg := "GET http://unix" + versionPath + configurationPath + " HTTP/1.1\r\n" +
-		"Host: localhost\r\n" +
-		"\r\n"
-
-	err = restClient.sendRequest(requestMsg)
-	if err != nil {
-		log.Printf("Error sending request: %v\n", err)
-		return "", err
+		return nil, err
 	}
 
-	return restClient.getResponse()
-}
-
-func (restClient *RestClient) getResponse() (string, error) {
-	br := bufio.NewReader(restClient.conn)
-	// read header lines and do nothing with them
-	line, _, err := br.ReadLine()
-	for len(line) != 0 && err == nil {
-		line, _, err = br.ReadLine()
-	}
-
-	if err != nil {
-		log.Printf("Error reading response headers: %v\n", err)
-		return "", err
-	}
-
-	// next line is the body
-	// TODO VERIFY in all cases the body comes in only one line
-	body, err := br.ReadString('\n')
-	if err != nil {
-		log.Printf("Error reading response body: %v\n", err)
-		return "", err
-	}
-
-	return body, nil
+	return response.Result, nil
 }

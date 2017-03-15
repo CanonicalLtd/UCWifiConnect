@@ -9,13 +9,13 @@ import (
 
 // Show shows current wifi-ap status
 func Show() {
-	info, err := DefaultRestClient().Show()
+	result, err := DefaultRestClient().Show()
 	if err != nil {
 		log.Printf("wifi-ap show operation failed: %q\n", err)
 		return
 	}
 	// TODO see if needed here to return value or simply showing that in stdout is ok
-	fmt.Print(info)
+	printMapSorted(result)
 }
 
 // Enable enables wifi ap
