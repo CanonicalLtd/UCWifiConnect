@@ -11,8 +11,8 @@ apps:
   run: 
     command: bin/server
     plugs: [network, network-control, network-bind, network-manager, control]
-  connect:
-    command: bin/ssids
+  netman:
+    command: bin/netman
     plugs: [network-manager]
   unixhttpc:
     command: bin/unixhttpc
