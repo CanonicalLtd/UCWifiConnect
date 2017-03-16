@@ -118,7 +118,6 @@ func ConnectAp(ssid string, p string, ap2device map[string]string, ssid2ap map[s
 
 	obj := conn.Object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager")
 	obj.Call("org.freedesktop.NetworkManager.AddAndActivateConnection", 0, outer, dbus.ObjectPath(ap2device[ssid2ap[ssid]]), dbus.ObjectPath(ssid2ap[ssid]))
-	//fmt.Printf("===== activate call response:\n%v\n", resp)
 }
 
 func getSystemBus() *dbus.Conn {
@@ -165,7 +164,6 @@ func DisconnectWifi() {
 	devices := getDevices(conn)
 	wifiDevices := getWifiDevices(conn, devices)
 	for _, d := range wifiDevices {
-		fmt.Printf("DisconnectWifi. d: %s\n", d)
 		objPath := dbus.ObjectPath(d)
 		device := conn.Object("org.freedesktop.NetworkManager", objPath)
 		device.Call("org.freedesktop.NetworkManager.Device.Disconnect", 0)
