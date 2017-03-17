@@ -8,22 +8,23 @@ import (
 )
 
 func contains(s []string, e string) bool {
-    for _, a := range s {
-        if a == e {
-            return true
-        }
-    }
-    return false
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
+
 type options struct {
-	show bool
-	enable bool
-	disable bool
-	ssid string
+	show       bool
+	enable     bool
+	disable    bool
+	ssid       string
 	passphrase string
-	security string
-	verbose bool
-	err           string
+	security   string
+	verbose    bool
+	err        string
 }
 
 func args() *options {

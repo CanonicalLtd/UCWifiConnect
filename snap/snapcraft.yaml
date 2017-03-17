@@ -1,5 +1,5 @@
 name: wifi-connect 
-version: '0.2'
+version: '0.3'
 summary: simple http server 
 description: |
   simple test server.
@@ -14,9 +14,6 @@ apps:
   connect:
     command: bin/ssids
     plugs: [network-manager]
-  unixhttpc:
-    command: bin/unixhttpc
-    plugs: [control]
   wifi-ap:
     command: bin/wifi-ap
     plugs: [control, network]
@@ -29,12 +26,8 @@ plugs:
     default-provider: wifi-ap
 
 parts:
-  unixhttpc:
-    plugin: dump
-    source: unixhttpc-tool
-    organize:
-      unixhttpc: bin/unixhttpc
   go:
     plugin: go
     source: src
     go-importpath: github.com/CanonicalLtd/UCWifiConnect 
+
