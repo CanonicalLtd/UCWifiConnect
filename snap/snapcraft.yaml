@@ -9,13 +9,13 @@ confinement: strict
 
 apps:
   run: 
-    command: bin/server
+    command: server
     plugs: [network, network-control, network-bind, network-manager, control]
   netman:
-    command: bin/netman
+    command: netman
     plugs: [network-manager]
   wifi-ap:
-    command: bin/wifi-ap
+    command: wifi-ap
     plugs: [control, network]
 
 plugs:
