@@ -31,6 +31,11 @@ const (
 
 var socketPath = os.Getenv("SNAP_COMMON") + "/sockets/control"
 
+// TransportClient operations executed by any client requesting server.
+type TransportClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type serviceResponse struct {
 	Result     map[string]interface{} `json:"result"`
 	Status     string                 `json:"status"`
@@ -40,22 +45,24 @@ type serviceResponse struct {
 
 // RestClient defines client for rest api exposed by a unix socket
 type RestClient struct {
-	SocketPath string
-	conn       net.Conn
+	transportClient TransportClient
 }
 
-// NewRestClient creates a RestClient object pointing to socket path set as parameter
-func newRestClient(socketPath string) *RestClient {
-	return &RestClient{SocketPath: socketPath}
+func newRestClient(client TransportClient) *RestClient {
+	return &RestClient{transportClient: client}
+}
+
+func unixDialer(_, _ string) (net.Conn, error) {
+	return net.Dial("unix", socketPath)
 }
 
 // DefaultRestClient created a RestClient object pointing to default socket path
 func defaultRestClient() *RestClient {
-	return newRestClient(socketPath) // FIXME this would be better like os.Getenv("SNAP_COMMON") + "/sockets/control", but that's not working
-}
-
-func (restClient *RestClient) unixDialer(_, _ string) (net.Conn, error) {
-	return net.Dial("unix", restClient.SocketPath)
+	return newRestClient(&http.Client{
+		Transport: &http.Transport{
+			Dial: unixDialer,
+		},
+	})
 }
 
 // SendHTTPRequest sends a HTTP request to certain URI, using certain method and providing json parameters if needed
@@ -65,13 +72,7 @@ func (restClient *RestClient) sendHTTPRequest(uri string, method string, body io
 		return nil, err
 	}
 
-	client := &http.Client{
-		Transport: &http.Transport{
-			Dial: restClient.unixDialer,
-		},
-	}
-
-	resp, err := client.Do(req)
+	resp, err := restClient.transportClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
