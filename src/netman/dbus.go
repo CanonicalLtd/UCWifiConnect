@@ -153,7 +153,6 @@ func ConnectedWifi() bool {
 		return false
 	}
 	if nmConnectivityStatus == 1 {
-		fmt.Println("Connected.")
 		return false //not connected by any netman interfaces
 	}
 	return true
