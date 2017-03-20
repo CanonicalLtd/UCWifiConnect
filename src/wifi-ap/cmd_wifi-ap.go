@@ -47,20 +47,23 @@ func main() {
 		fmt.Printf("%q. Stopping.\n", opts.err)
 		return
 	}
+
+	wifiAPClient := wifiap.DefaultClient()
+
 	switch {
 	case opts.show:
-		wifiap.Show()
+		wifiAPClient.Show()
 	case len(opts.ssid) > 1:
-		wifiap.SetSsid(opts.ssid)
+		wifiAPClient.SetSsid(opts.ssid)
 	case len(opts.passphrase) > 1:
 		if len(opts.passphrase) < 13 {
 			fmt.Println("Passphrase must be at least 13 chars in length. Please try again.")
 			return
 		}
-		wifiap.SetPassphrase(opts.passphrase)
+		wifiAPClient.SetPassphrase(opts.passphrase)
 	case opts.enable:
-		wifiap.Enable()
+		wifiAPClient.Enable()
 	case opts.disable:
-		wifiap.Disable()
+		wifiAPClient.Disable()
 	}
 }

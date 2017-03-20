@@ -24,10 +24,28 @@ import (
 	"path/filepath"
 )
 
+// Client struct exposing wifi-ap operations
+type Client struct {
+	restClient *RestClient
+}
+
+// NewClient returns pointer to a new wifi-ap client using certain transport
+func NewClient(tc TransportClient) *Client {
+	return &Client{restClient: newRestClient(tc)}
+}
+
+// DefaultClient returns pointer to a new wifi-ap client using default transport
+func DefaultClient() *Client {
+	return &Client{restClient: defaultRestClient()}
+}
+
+func defaultServiceURI() string {
+	return fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
+}
+
 // Show shows current wifi-ap status
-func Show() {
-	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
-	response, err := defaultRestClient().sendHTTPRequest(uri, "GET", nil)
+func (client *Client) Show() {
+	response, err := client.restClient.sendHTTPRequest(defaultServiceURI(), "GET", nil)
 	if err != nil {
 		log.Printf("wifi-ap show operation failed: %q\n", err)
 		return
@@ -37,7 +55,7 @@ func Show() {
 }
 
 // Enable enables wifi ap
-func Enable() {
+func (client *Client) Enable() {
 	params := map[string]string{"disabled": "false"}
 	b, err := json.Marshal(params)
 	if err != nil {
@@ -45,8 +63,7 @@ func Enable() {
 		return
 	}
 
-	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
-	response, err := defaultRestClient().sendHTTPRequest(uri, "POST", bytes.NewReader(b))
+	response, err := client.restClient.sendHTTPRequest(defaultServiceURI(), "POST", bytes.NewReader(b))
 	if err != nil {
 		log.Printf("wifi-ap enable operation failed: %q\n", err)
 		return
@@ -58,7 +75,7 @@ func Enable() {
 }
 
 // Disable disables wifi ap
-func Disable() {
+func (client *Client) Disable() {
 	params := map[string]string{"disabled": "true"}
 	b, err := json.Marshal(params)
 	if err != nil {
@@ -66,8 +83,7 @@ func Disable() {
 		return
 	}
 
-	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
-	response, err := defaultRestClient().sendHTTPRequest(uri, "POST", bytes.NewReader(b))
+	response, err := client.restClient.sendHTTPRequest(defaultServiceURI(), "POST", bytes.NewReader(b))
 	if err != nil {
 		log.Printf("wifi-ap disable operation failed: %q\n", err)
 		return
@@ -79,7 +95,7 @@ func Disable() {
 }
 
 // SetSsid sets the ssid for the wifi ap
-func SetSsid(ssid string) {
+func (client *Client) SetSsid(ssid string) {
 	params := map[string]string{"wifi.ssid": ssid}
 	b, err := json.Marshal(params)
 	if err != nil {
@@ -87,8 +103,7 @@ func SetSsid(ssid string) {
 		return
 	}
 
-	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
-	response, err := defaultRestClient().sendHTTPRequest(uri, "POST", bytes.NewReader(b))
+	response, err := client.restClient.sendHTTPRequest(defaultServiceURI(), "POST", bytes.NewReader(b))
 	if err != nil {
 		log.Printf("wifi-ap set SSID operation failed: %q\n", err)
 		return
@@ -100,7 +115,7 @@ func SetSsid(ssid string) {
 }
 
 // SetPassphrase sets the credential to access the wifi ap
-func SetPassphrase(passphrase string) {
+func (client *Client) SetPassphrase(passphrase string) {
 	params := map[string]string{
 		"wifi.security":            "wpa2",
 		"wifi.security-passphrase": passphrase,
@@ -111,8 +126,7 @@ func SetPassphrase(passphrase string) {
 		return
 	}
 
-	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
-	response, err := defaultRestClient().sendHTTPRequest(uri, "POST", bytes.NewReader(b))
+	response, err := client.restClient.sendHTTPRequest(defaultServiceURI(), "POST", bytes.NewReader(b))
 	if err != nil {
 		log.Printf("wifi-ap set passphrase operation failed: %q\n", err)
 		return
