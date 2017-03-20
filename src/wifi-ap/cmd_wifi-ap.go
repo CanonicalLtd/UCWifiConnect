@@ -62,26 +62,28 @@ func main() {
 	}
 
 	wifiAPClient := wifiap.DefaultClient()
+	var err error
+	var result map[string]interface{}
 
 	switch {
 	case opts.show:
-		result, err := wifiAPClient.Show()
+		result, err = wifiAPClient.Show()
 		if result != nil {
 			printMapSorted(result)
 			return
 		}
 	case len(opts.ssid) > 1:
-		err := wifiAPClient.SetSsid(opts.ssid)
+		err = wifiAPClient.SetSsid(opts.ssid)
 	case len(opts.passphrase) > 1:
 		if len(opts.passphrase) < 13 {
 			fmt.Println("Passphrase must be at least 13 chars in length. Please try again.")
 			return
 		}
-		err := wifiAPClient.SetPassphrase(opts.passphrase)
+		err = wifiAPClient.SetPassphrase(opts.passphrase)
 	case opts.enable:
-		err := wifiAPClient.Enable()
+		err = wifiAPClient.Enable()
 	case opts.disable:
-		err := wifiAPClient.Disable()
+		err = wifiAPClient.Disable()
 	}
 
 	if err != nil {
