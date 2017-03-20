@@ -151,7 +151,7 @@ func ConnectedWifi() bool {
 	var nmConnectivityStatus uint32
 	err := nm.Call("org.freedesktop.NetworkManager.CheckConnectivity", 0).Store(&nmConnectivityStatus)
 	if err != nil {
-		fmt.Printf("error connected(): %v\n", err)
+		fmt.Printf("Error in ConnectedWifi(): %v\n", err)
 		return false
 	}
 	if nmConnectivityStatus == 1 {
@@ -170,4 +170,63 @@ func DisconnectWifi() {
 		device.Call("org.freedesktop.NetworkManager.Device.Disconnect", 0)
 	}
 	return
+}
+
+func SetIfaceManaged(iface string) {
+	conn := getSystemBus()
+	devices := getDevices()
+
+	for _, d := range devices {
+		objPath := dbus.ObjectPath(d)
+		device := conn.Object("org.freedesktop.NetworkManager", objPath)
+		//fmt.Printf("destination: %s\n", device)
+		iface_, err2 := device.GetProperty("org.freedesktop.NetworkManager.Device.Interface")
+		if err2 != nil {
+			fmt.Printf("Error in SetIfaceManaged(): %v\n", err2)
+			return
+		}
+		if iface != iface_.Value().(string) {
+			continue
+		}
+		managed, err := device.GetProperty("org.freedesktop.NetworkManager.Device.Managed")
+		if err != nil {
+			fmt.Printf("Error in SetIfaceManaged(): %v\n", err)
+			return
+		}
+		if managed.Value().(bool) == true {
+			return //no need to set as managed
+		}
+
+		device.Call("org.freedesktop.DBus.Properties.Set", 0, "org.freedesktop.NetworkManager.Device", "Managed", dbus.MakeVariant(true))
+		managed, _ = device.GetProperty("org.freedesktop.NetworkManager.Device.Managed")
+
+		return
+	}
+}
+
+func WifisManaged() map[string]string {
+	conn := getSystemBus()
+	devices := getDevices()
+	wifiDevices := getWifiDevices(devices)
+
+	ifaces := make(map[string]string)
+
+	for _, d := range wifiDevices {
+		objPath := dbus.ObjectPath(d)
+		device := conn.Object("org.freedesktop.NetworkManager", objPath)
+		managed, err := device.GetProperty("org.freedesktop.NetworkManager.Device.Managed")
+		if err != nil {
+			fmt.Printf("Error in wifiIfacesManaged(): %v\n", err)
+			return ifaces
+		}
+		iface, err2 := device.GetProperty("org.freedesktop.NetworkManager.Device.Interface")
+		if err2 != nil {
+			fmt.Printf("Error in wifiIfacesManaged(): %v\n", err)
+			return ifaces
+		}
+		if managed.Value().(bool) {
+			ifaces[iface.Value().(string)] = d
+		}
+	}
+	return ifaces
 }

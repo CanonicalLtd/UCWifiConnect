@@ -14,6 +14,8 @@ type options struct {
 	getSsids           bool
 	checkConnectedWifi bool
 	disconnectWifi     bool
+	wifisManaged       bool
+	setIfaceManaged    string
 }
 
 func args() *options {
@@ -21,6 +23,8 @@ func args() *options {
 	flag.BoolVar(&opts.getSsids, "get-ssids", false, "Only display SSIDs (don't connect)")
 	flag.BoolVar(&opts.checkConnectedWifi, "check-connected-wifi", false, "Check if connected to external wifi")
 	flag.BoolVar(&opts.disconnectWifi, "disconnect-wifi", false, "Disconnect from any and all external wifi")
+	flag.BoolVar(&opts.wifisManaged, "wifis-managed", false, "Show list of wifi interfaces that are managed by network-manager")
+	flag.StringVar(&opts.setIfaceManaged, "manage-iface", "", "Set the specified interface to be managed by network-manager.")
 	flag.Parse()
 	return opts
 }
@@ -43,12 +47,22 @@ func main() {
 			fmt.Println("Device is connected to external wifi AP")
 		} else {
 			fmt.Println("Device is not connected to external wifi AP")
-
 		}
 		return
 	}
 	if opts.disconnectWifi {
 		netman.DisconnectWifi()
+		return
+	}
+	if len(opts.setIfaceManaged) > 0 {
+		netman.SetIfaceManaged(opts.setIfaceManaged)
+		return
+	}
+	if opts.wifisManaged {
+		wifis := netman.WifisManaged()
+		for k, v := range wifis {
+			fmt.Printf("%s : %s\n", k, v)
+		}
 		return
 	} else { //connect
 		SSIDs, ap2device, ssid2ap := netman.Ssids()
