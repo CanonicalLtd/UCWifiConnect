@@ -179,7 +179,6 @@ func SetIfaceManaged(iface string) {
 	for _, d := range devices {
 		objPath := dbus.ObjectPath(d)
 		device := conn.Object("org.freedesktop.NetworkManager", objPath)
-		//fmt.Printf("destination: %s\n", device)
 		iface_, err2 := device.GetProperty("org.freedesktop.NetworkManager.Device.Interface")
 		if err2 != nil {
 			fmt.Printf("Error in SetIfaceManaged(): %v\n", err2)
