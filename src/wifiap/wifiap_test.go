@@ -161,7 +161,7 @@ func (mock *mockTransportEnable) Do(req *http.Request) (*http.Response, error) {
 	}
 
 	if req.Method != "POST" {
-		return nil, fmt.Errorf("Methog is not valid. Expected GET, got %v\n", req.Method)
+		return nil, fmt.Errorf("Methog is not valid. Expected POST, got %v\n", req.Method)
 	}
 
 	err := validateHeaders(map[string]string{"disabled": "false"}, req)
@@ -188,7 +188,7 @@ func TestEnable(t *testing.T) {
 	}
 }
 
-// Testing disable
+// Testing Disable()
 type mockTransportDisable struct{}
 
 func (mock *mockTransportDisable) Do(req *http.Request) (*http.Response, error) {
@@ -198,7 +198,7 @@ func (mock *mockTransportDisable) Do(req *http.Request) (*http.Response, error) 
 	}
 
 	if req.Method != "POST" {
-		return nil, fmt.Errorf("Methog is not valid. Expected GET, got %v\n", req.Method)
+		return nil, fmt.Errorf("Methog is not valid. Expected POST, got %v\n", req.Method)
 	}
 
 	err := validateHeaders(map[string]string{"disabled": "true"}, req)
@@ -225,7 +225,7 @@ func TestDisable(t *testing.T) {
 	}
 }
 
-// Testing setSsid
+// Testing SetSsid(ssid)
 type mockTransportSetSsid struct{}
 
 func (mock *mockTransportSetSsid) Do(req *http.Request) (*http.Response, error) {
@@ -235,7 +235,7 @@ func (mock *mockTransportSetSsid) Do(req *http.Request) (*http.Response, error) 
 	}
 
 	if req.Method != "POST" {
-		return nil, fmt.Errorf("Methog is not valid. Expected GET, got %v\n", req.Method)
+		return nil, fmt.Errorf("Methog is not valid. Expected POST, got %v\n", req.Method)
 	}
 
 	err := validateHeaders(map[string]string{"wifi.ssid": "MySsid"}, req)
@@ -262,7 +262,7 @@ func TestSetSsid(t *testing.T) {
 	}
 }
 
-// Testing setPassphrase
+// Testing SetPassphrase(passphrase)
 type mockTransportSetPassphrase struct{}
 
 func (mock *mockTransportSetPassphrase) Do(req *http.Request) (*http.Response, error) {
@@ -272,7 +272,7 @@ func (mock *mockTransportSetPassphrase) Do(req *http.Request) (*http.Response, e
 	}
 
 	if req.Method != "POST" {
-		return nil, fmt.Errorf("Methog is not valid. Expected GET, got %v\n", req.Method)
+		return nil, fmt.Errorf("Methog is not valid. Expected POST, got %v\n", req.Method)
 	}
 
 	err := validateHeaders(map[string]string{"wifi.security": "wpa2", "wifi.security-passphrase": "passphrase123"}, req)

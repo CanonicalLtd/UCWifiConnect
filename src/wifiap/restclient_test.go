@@ -55,7 +55,7 @@ func (mock *mockTransportReturnsNoValue) Do(req *http.Request) (*http.Response, 
 	return &response, nil
 }
 
-func TestResponseWitoutValues(t *testing.T) {
+func TestResponseWithoutValues(t *testing.T) {
 	mock := &mockTransportReturnsNoValue{}
 	restClient := newRestClient(mock)
 	response, _ := restClient.sendHTTPRequest("uri", "GET", nil)
