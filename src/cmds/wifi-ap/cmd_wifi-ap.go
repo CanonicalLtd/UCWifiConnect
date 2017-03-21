@@ -3,9 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
-	"sort"
 
+	"github.com/CanonicalLtd/UCWifiConnect/utils"
 	"github.com/CanonicalLtd/UCWifiConnect/wifiap"
 )
 
@@ -43,17 +42,6 @@ func args() *options {
 	return opts
 }
 
-func printMapSorted(m map[string]interface{}) {
-	sortedKeys := make([]string, 0, len(m))
-	for key := range m {
-		sortedKeys = append(sortedKeys, key)
-	}
-	sort.Strings(sortedKeys)
-	for _, k := range sortedKeys {
-		fmt.Fprintf(os.Stdout, "%s: %v\n", k, m[k])
-	}
-}
-
 func main() {
 	opts := args()
 	if len(opts.err) > 0 {
@@ -69,16 +57,12 @@ func main() {
 	case opts.show:
 		result, err = wifiAPClient.Show()
 		if result != nil {
-			printMapSorted(result)
+			utils.PrintMapSorted(result)
 			return
 		}
 	case len(opts.ssid) > 1:
 		err = wifiAPClient.SetSsid(opts.ssid)
 	case len(opts.passphrase) > 1:
-		if len(opts.passphrase) < 13 {
-			fmt.Println("Passphrase must be at least 13 chars in length. Please try again.")
-			return
-		}
 		err = wifiAPClient.SetPassphrase(opts.passphrase)
 	case opts.enable:
 		err = wifiAPClient.Enable()

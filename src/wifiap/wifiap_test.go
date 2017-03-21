@@ -1,3 +1,19 @@
+// -*- Mode: Go; indent-tabs-mode: t -*-
+//
+// Copyright (C) 2017 Canonical Ltd
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License version 3 as
+// published by the Free Software Foundation.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 package wifiap
 
 import (
@@ -14,8 +30,9 @@ type mockTransportShow struct{}
 
 func (mock *mockTransportShow) Do(req *http.Request) (*http.Response, error) {
 
-	if req.URL.String() != "http://unix/v1/configuration" {
-		return nil, fmt.Errorf("Not valid request URL")
+	url := req.URL.String()
+	if url != "http://unix/v1/configuration" {
+		return nil, fmt.Errorf("Not valid request URL: %v", url)
 	}
 
 	if req.Method != "GET" {
@@ -156,12 +173,13 @@ type mockTransportEnable struct{}
 
 func (mock *mockTransportEnable) Do(req *http.Request) (*http.Response, error) {
 
-	if req.URL.String() != "http://unix/v1/configuration" {
-		return nil, fmt.Errorf("Not valid request URL")
+	url := req.URL.String()
+	if url != "http://unix/v1/configuration" {
+		return nil, fmt.Errorf("Not valid request URL: %v", url)
 	}
 
 	if req.Method != "POST" {
-		return nil, fmt.Errorf("Methog is not valid. Expected POST, got %v\n", req.Method)
+		return nil, fmt.Errorf("Method is not valid. Expected POST, got %v\n", req.Method)
 	}
 
 	err := validateHeaders(map[string]string{"disabled": "false"}, req)
@@ -193,12 +211,13 @@ type mockTransportDisable struct{}
 
 func (mock *mockTransportDisable) Do(req *http.Request) (*http.Response, error) {
 
-	if req.URL.String() != "http://unix/v1/configuration" {
-		return nil, fmt.Errorf("Not valid request URL")
+	url := req.URL.String()
+	if url != "http://unix/v1/configuration" {
+		return nil, fmt.Errorf("Not valid request URL: %v", url)
 	}
 
 	if req.Method != "POST" {
-		return nil, fmt.Errorf("Methog is not valid. Expected POST, got %v\n", req.Method)
+		return nil, fmt.Errorf("Method is not valid. Expected POST, got %v\n", req.Method)
 	}
 
 	err := validateHeaders(map[string]string{"disabled": "true"}, req)
@@ -230,12 +249,13 @@ type mockTransportSetSsid struct{}
 
 func (mock *mockTransportSetSsid) Do(req *http.Request) (*http.Response, error) {
 
-	if req.URL.String() != "http://unix/v1/configuration" {
-		return nil, fmt.Errorf("Not valid request URL")
+	url := req.URL.String()
+	if url != "http://unix/v1/configuration" {
+		return nil, fmt.Errorf("Not valid request URL: %v", url)
 	}
 
 	if req.Method != "POST" {
-		return nil, fmt.Errorf("Methog is not valid. Expected POST, got %v\n", req.Method)
+		return nil, fmt.Errorf("Method is not valid. Expected POST, got %v\n", req.Method)
 	}
 
 	err := validateHeaders(map[string]string{"wifi.ssid": "MySsid"}, req)
@@ -267,12 +287,13 @@ type mockTransportSetPassphrase struct{}
 
 func (mock *mockTransportSetPassphrase) Do(req *http.Request) (*http.Response, error) {
 
-	if req.URL.String() != "http://unix/v1/configuration" {
-		return nil, fmt.Errorf("Not valid request URL")
+	url := req.URL.String()
+	if url != "http://unix/v1/configuration" {
+		return nil, fmt.Errorf("Not valid request URL: %v", url)
 	}
 
 	if req.Method != "POST" {
-		return nil, fmt.Errorf("Methog is not valid. Expected POST, got %v\n", req.Method)
+		return nil, fmt.Errorf("Method is not valid. Expected POST, got %v\n", req.Method)
 	}
 
 	err := validateHeaders(map[string]string{"wifi.security": "wpa2", "wifi.security-passphrase": "passphrase123"}, req)

@@ -1,3 +1,4 @@
+// -*- Mode: Go; indent-tabs-mode: t -*-
 //
 // Copyright (C) 2017 Canonical Ltd
 //
@@ -114,6 +115,10 @@ func (client *Client) SetSsid(ssid string) error {
 
 // SetPassphrase sets the credential to access the wifi ap
 func (client *Client) SetPassphrase(passphrase string) error {
+	if len(passphrase) < 13 {
+		return fmt.Errorf("Passphrase must be at least 13 chars in length. Please try again.")
+	}
+
 	params := map[string]string{
 		"wifi.security":            "wpa2",
 		"wifi.security-passphrase": passphrase,
