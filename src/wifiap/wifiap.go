@@ -1,3 +1,4 @@
+// -*- Mode: Go; indent-tabs-mode: t -*-
 //
 // Copyright (C) 2017 Canonical Ltd
 //
@@ -19,106 +20,122 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"path/filepath"
 )
 
+// Client struct exposing wifi-ap operations
+type Client struct {
+	restClient *RestClient
+}
+
+// NewClient returns pointer to a new wifi-ap client using certain transport
+func NewClient(tc TransportClient) *Client {
+	return &Client{restClient: newRestClient(tc)}
+}
+
+// DefaultClient returns pointer to a new wifi-ap client using default transport
+func DefaultClient() *Client {
+	return &Client{restClient: defaultRestClient()}
+}
+
+func defaultServiceURI() string {
+	return fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
+}
+
 // Show shows current wifi-ap status
-func Show() {
-	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
-	response, err := defaultRestClient().sendHTTPRequest(uri, "GET", nil)
+func (client *Client) Show() (map[string]interface{}, error) {
+	response, err := client.restClient.sendHTTPRequest(defaultServiceURI(), "GET", nil)
 	if err != nil {
-		log.Printf("wifi-ap show operation failed: %q\n", err)
-		return
+		return nil, fmt.Errorf("wifi-ap show operation failed: %q\n", err)
 	}
 
-	printMapSorted(response.Result)
+	return response.Result, nil
 }
 
 // Enable enables wifi ap
-func Enable() {
+func (client *Client) Enable() error {
 	params := map[string]string{"disabled": "false"}
 	b, err := json.Marshal(params)
 	if err != nil {
-		log.Printf("wifi-ap enable operation failed when marshalling input parameters: %q\n", err)
-		return
+		return fmt.Errorf("wifi-ap enable operation failed when marshalling input parameters: %q\n", err)
 	}
 
-	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
-	response, err := defaultRestClient().sendHTTPRequest(uri, "POST", bytes.NewReader(b))
+	response, err := client.restClient.sendHTTPRequest(defaultServiceURI(), "POST", bytes.NewReader(b))
 	if err != nil {
-		log.Printf("wifi-ap enable operation failed: %q\n", err)
-		return
+		return fmt.Errorf("wifi-ap enable operation failed: %q\n", err)
 	}
 
 	if response.StatusCode != http.StatusOK || response.Status != http.StatusText(http.StatusOK) {
-		log.Printf("Failed to set configuration, service returned: %d (%s)\n", response.StatusCode, response.Status)
+		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)\n", response.StatusCode, response.Status)
 	}
+
+	return nil
 }
 
 // Disable disables wifi ap
-func Disable() {
+func (client *Client) Disable() error {
 	params := map[string]string{"disabled": "true"}
 	b, err := json.Marshal(params)
 	if err != nil {
-		log.Printf("wifi-ap disable operation failed when marshalling input parameters: %q\n", err)
-		return
+		return fmt.Errorf("wifi-ap disable operation failed when marshalling input parameters: %q\n", err)
 	}
 
-	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
-	response, err := defaultRestClient().sendHTTPRequest(uri, "POST", bytes.NewReader(b))
+	response, err := client.restClient.sendHTTPRequest(defaultServiceURI(), "POST", bytes.NewReader(b))
 	if err != nil {
-		log.Printf("wifi-ap disable operation failed: %q\n", err)
-		return
+		return fmt.Errorf("wifi-ap disable operation failed: %q\n", err)
 	}
 
 	if response.StatusCode != http.StatusOK || response.Status != http.StatusText(http.StatusOK) {
-		log.Printf("Failed to set configuration, service returned: %d (%s)\n", response.StatusCode, response.Status)
+		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)\n", response.StatusCode, response.Status)
 	}
+
+	return nil
 }
 
 // SetSsid sets the ssid for the wifi ap
-func SetSsid(ssid string) {
+func (client *Client) SetSsid(ssid string) error {
 	params := map[string]string{"wifi.ssid": ssid}
 	b, err := json.Marshal(params)
 	if err != nil {
-		log.Printf("wifi-ap set SSID operation failed when marshalling input parameters: %q\n", err)
-		return
+		return fmt.Errorf("wifi-ap set SSID operation failed when marshalling input parameters: %q\n", err)
 	}
 
-	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
-	response, err := defaultRestClient().sendHTTPRequest(uri, "POST", bytes.NewReader(b))
+	response, err := client.restClient.sendHTTPRequest(defaultServiceURI(), "POST", bytes.NewReader(b))
 	if err != nil {
-		log.Printf("wifi-ap set SSID operation failed: %q\n", err)
-		return
+		return fmt.Errorf("wifi-ap set SSID operation failed: %q\n", err)
 	}
 
 	if response.StatusCode != http.StatusOK || response.Status != http.StatusText(http.StatusOK) {
-		log.Printf("Failed to set configuration, service returned: %d (%s)\n", response.StatusCode, response.Status)
+		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)\n", response.StatusCode, response.Status)
 	}
+
+	return nil
 }
 
 // SetPassphrase sets the credential to access the wifi ap
-func SetPassphrase(passphrase string) {
+func (client *Client) SetPassphrase(passphrase string) error {
+	if len(passphrase) < 13 {
+		return fmt.Errorf("Passphrase must be at least 13 chars in length. Please try again.")
+	}
+
 	params := map[string]string{
 		"wifi.security":            "wpa2",
 		"wifi.security-passphrase": passphrase,
 	}
 	b, err := json.Marshal(params)
 	if err != nil {
-		log.Printf("wifi-ap set passphrase operation failed when marshalling input parameters: %q\n", err)
-		return
+		return fmt.Errorf("wifi-ap set passphrase operation failed when marshalling input parameters: %q\n", err)
 	}
 
-	uri := fmt.Sprintf("http://unix%s", filepath.Join(versionURI, configurationURI))
-	response, err := defaultRestClient().sendHTTPRequest(uri, "POST", bytes.NewReader(b))
+	response, err := client.restClient.sendHTTPRequest(defaultServiceURI(), "POST", bytes.NewReader(b))
 	if err != nil {
-		log.Printf("wifi-ap set passphrase operation failed: %q\n", err)
-		return
+		return fmt.Errorf("wifi-ap set passphrase operation failed: %q\n", err)
 	}
 
 	if response.StatusCode != http.StatusOK || response.Status != http.StatusText(http.StatusOK) {
-		log.Printf("Failed to set configuration, service returned: %d (%s)\n", response.StatusCode, response.Status)
+		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)\n", response.StatusCode, response.Status)
 	}
+
+	return nil
 }

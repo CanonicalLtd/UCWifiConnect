@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/CanonicalLtd/UCWifiConnect/utils"
 	"github.com/CanonicalLtd/UCWifiConnect/wifiap"
 )
 
@@ -47,20 +48,29 @@ func main() {
 		fmt.Printf("%q. Stopping.\n", opts.err)
 		return
 	}
+
+	wifiAPClient := wifiap.DefaultClient()
+	var err error
+	var result map[string]interface{}
+
 	switch {
 	case opts.show:
-		wifiap.Show()
-	case len(opts.ssid) > 1:
-		wifiap.SetSsid(opts.ssid)
-	case len(opts.passphrase) > 1:
-		if len(opts.passphrase) < 13 {
-			fmt.Println("Passphrase must be at least 13 chars in length. Please try again.")
+		result, err = wifiAPClient.Show()
+		if result != nil {
+			utils.PrintMapSorted(result)
 			return
 		}
-		wifiap.SetPassphrase(opts.passphrase)
+	case len(opts.ssid) > 1:
+		err = wifiAPClient.SetSsid(opts.ssid)
+	case len(opts.passphrase) > 1:
+		err = wifiAPClient.SetPassphrase(opts.passphrase)
 	case opts.enable:
-		wifiap.Enable()
+		err = wifiAPClient.Enable()
 	case opts.disable:
-		wifiap.Disable()
+		err = wifiAPClient.Disable()
+	}
+
+	if err != nil {
+		fmt.Println(err)
 	}
 }

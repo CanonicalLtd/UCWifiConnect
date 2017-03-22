@@ -1,3 +1,4 @@
+// -*- Mode: Go; indent-tabs-mode: t -*-
 //
 // Copyright (C) 2017 Canonical Ltd
 //
@@ -13,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package wifiap
+package utils
 
 import (
 	"fmt"
@@ -21,7 +22,8 @@ import (
 	"sort"
 )
 
-func printMapSorted(m map[string]interface{}) {
+// PrintMapSorted prints to stdout a map sorting content by keys
+func PrintMapSorted(m map[string]interface{}) {
 	sortedKeys := make([]string, 0, len(m))
 	for key := range m {
 		sortedKeys = append(sortedKeys, key)

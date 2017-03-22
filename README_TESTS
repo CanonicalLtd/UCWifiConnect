@@ -1,0 +1,17 @@
+# UCWifiConnect Tests
+
+In order to run specific package test, you can:
+      cd src && go test -v ./<package>
+
+you can also go into package folder and run:
+      cd src/<package> && go test -v
+
+to run a specific test:
+      cd src/<package> && go test -v -run <testname> 
+
+for example:
+      cd src && go test -v ./wifiap
+      cd src && go test -v ./wifiap -run TestShow
+
+
+more info in https://golang.org/pkg/testing
