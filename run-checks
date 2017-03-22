@@ -102,7 +102,7 @@ if [ ! -z "$UNIT" ]; then
     echo "mode: set" > .coverage/coverage.out
 
     echo Building
-    #go build -v ./...
+    go build -v ./...
 
     # tests
     echo Running tests from $(pwd)
