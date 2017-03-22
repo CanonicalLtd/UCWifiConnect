@@ -47,7 +47,7 @@ func defaultServiceURI() string {
 func (client *Client) Show() (map[string]interface{}, error) {
 	response, err := client.restClient.sendHTTPRequest(defaultServiceURI(), "GET", nil)
 	if err != nil {
-		return nil, fmt.Errorf("wifi-ap show operation failed: %q\n", err)
+		return nil, fmt.Errorf("wifi-ap show operation failed: %q", err)
 	}
 
 	return response.Result, nil
@@ -58,16 +58,16 @@ func (client *Client) Enable() error {
 	params := map[string]string{"disabled": "false"}
 	b, err := json.Marshal(params)
 	if err != nil {
-		return fmt.Errorf("wifi-ap enable operation failed when marshalling input parameters: %q\n", err)
+		return fmt.Errorf("wifi-ap enable operation failed when marshalling input parameters: %q", err)
 	}
 
 	response, err := client.restClient.sendHTTPRequest(defaultServiceURI(), "POST", bytes.NewReader(b))
 	if err != nil {
-		return fmt.Errorf("wifi-ap enable operation failed: %q\n", err)
+		return fmt.Errorf("wifi-ap enable operation failed: %q", err)
 	}
 
 	if response.StatusCode != http.StatusOK || response.Status != http.StatusText(http.StatusOK) {
-		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)\n", response.StatusCode, response.Status)
+		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)", response.StatusCode, response.Status)
 	}
 
 	return nil
@@ -78,16 +78,16 @@ func (client *Client) Disable() error {
 	params := map[string]string{"disabled": "true"}
 	b, err := json.Marshal(params)
 	if err != nil {
-		return fmt.Errorf("wifi-ap disable operation failed when marshalling input parameters: %q\n", err)
+		return fmt.Errorf("wifi-ap disable operation failed when marshalling input parameters: %q", err)
 	}
 
 	response, err := client.restClient.sendHTTPRequest(defaultServiceURI(), "POST", bytes.NewReader(b))
 	if err != nil {
-		return fmt.Errorf("wifi-ap disable operation failed: %q\n", err)
+		return fmt.Errorf("wifi-ap disable operation failed: %q", err)
 	}
 
 	if response.StatusCode != http.StatusOK || response.Status != http.StatusText(http.StatusOK) {
-		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)\n", response.StatusCode, response.Status)
+		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)", response.StatusCode, response.Status)
 	}
 
 	return nil
@@ -98,16 +98,16 @@ func (client *Client) SetSsid(ssid string) error {
 	params := map[string]string{"wifi.ssid": ssid}
 	b, err := json.Marshal(params)
 	if err != nil {
-		return fmt.Errorf("wifi-ap set SSID operation failed when marshalling input parameters: %q\n", err)
+		return fmt.Errorf("wifi-ap set SSID operation failed when marshalling input parameters: %q", err)
 	}
 
 	response, err := client.restClient.sendHTTPRequest(defaultServiceURI(), "POST", bytes.NewReader(b))
 	if err != nil {
-		return fmt.Errorf("wifi-ap set SSID operation failed: %q\n", err)
+		return fmt.Errorf("wifi-ap set SSID operation failed: %q", err)
 	}
 
 	if response.StatusCode != http.StatusOK || response.Status != http.StatusText(http.StatusOK) {
-		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)\n", response.StatusCode, response.Status)
+		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)", response.StatusCode, response.Status)
 	}
 
 	return nil
@@ -125,16 +125,16 @@ func (client *Client) SetPassphrase(passphrase string) error {
 	}
 	b, err := json.Marshal(params)
 	if err != nil {
-		return fmt.Errorf("wifi-ap set passphrase operation failed when marshalling input parameters: %q\n", err)
+		return fmt.Errorf("wifi-ap set passphrase operation failed when marshalling input parameters: %q", err)
 	}
 
 	response, err := client.restClient.sendHTTPRequest(defaultServiceURI(), "POST", bytes.NewReader(b))
 	if err != nil {
-		return fmt.Errorf("wifi-ap set passphrase operation failed: %q\n", err)
+		return fmt.Errorf("wifi-ap set passphrase operation failed: %q", err)
 	}
 
 	if response.StatusCode != http.StatusOK || response.Status != http.StatusText(http.StatusOK) {
-		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)\n", response.StatusCode, response.Status)
+		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)", response.StatusCode, response.Status)
 	}
 
 	return nil
