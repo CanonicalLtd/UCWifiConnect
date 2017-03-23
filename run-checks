@@ -67,6 +67,9 @@ godeps -u dependencies.tsv
 
 if [ ! -z "$STATIC" ]; then
 
+    echo Checking docs
+    ./mdlint.py *.md
+
     echo Checking formatting
     fmt=$(gofmt -l .)
 
