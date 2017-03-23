@@ -9,7 +9,8 @@ env:
     - TEST_SUITE="--static"
     - TEST_SUITE="--unit"
 before_install:
-  - go get github.com/godbus/dbus 
+  - go get github.com/godbus/dbus
+  - go get github.com/gorilla/mux
 
 install:
   - echo "Skip. Install is done by the test script."
