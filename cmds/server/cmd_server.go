@@ -15,7 +15,14 @@ const (
 
 func handler() *mux.Router {
 	router := mux.NewRouter()
+
+	// Pages routes
 	router.HandleFunc("/", server.SsidsHandler).Methods("GET")
+
+	// Resources path
+	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(server.ResourcesPath)))
+	router.PathPrefix("/static/").Handler(fs)
+
 	return router
 }
 
