@@ -93,6 +93,18 @@ if [ ! -z "$STATIC" ]; then
         exit 1
     fi
 
+    echo Checking spelling errors
+    go get -u github.com/client9/misspell/cmd/misspell
+    for file in $(ls | xargs -I % find % -type f); do
+        ${GOBIN:-$GOPATH/bin}/misspell -error -i auther $file
+    done
+
+    echo Checking for ineffective assignments
+    go get -u github.com/gordonklaus/ineffassign
+    for file in $(ls | xargs -I % find % -type f); do
+        ${GOBIN:-$GOPATH/bin}/ineffassign $file
+    done
+
 fi
 
 if [ ! -z "$UNIT" ]; then
