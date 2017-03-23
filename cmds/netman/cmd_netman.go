@@ -64,21 +64,23 @@ func main() {
 			fmt.Printf("%s : %s\n", k, v)
 		}
 		return
-	} else { //connect
-		SSIDs, ap2device, ssid2ap := netman.Ssids()
-
-		for _, ssid := range SSIDs {
-			fmt.Printf("    %v\n", ssid.Ssid)
-		}
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("Connect to AP. Enter SSID: ")
-		ssid, _ := reader.ReadString('\n')
-		ssid = strings.TrimSpace(ssid)
-		fmt.Print("Enter phasprase: ")
-		pw, _ := reader.ReadString('\n')
-		pw = strings.TrimSpace(pw)
-
-		netman.ConnectAp(ssid, pw, ap2device, ssid2ap)
 	}
+
+	//connect
+	SSIDs, ap2device, ssid2ap := netman.Ssids()
+
+	for _, ssid := range SSIDs {
+		fmt.Printf("    %v\n", ssid.Ssid)
+	}
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Connect to AP. Enter SSID: ")
+	ssid, _ := reader.ReadString('\n')
+	ssid = strings.TrimSpace(ssid)
+	fmt.Print("Enter phasprase: ")
+	pw, _ := reader.ReadString('\n')
+	pw = strings.TrimSpace(pw)
+
+	netman.ConnectAp(ssid, pw, ap2device, ssid2ap)
+
 	return
 }

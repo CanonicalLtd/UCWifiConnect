@@ -64,6 +64,7 @@ func getAccessPoints(devices []string, ap2device map[string]string) []string {
 	return APs
 }
 
+// SSID struct holds wireless SSID details
 type SSID struct {
 	Ssid   string
 	ApPath string
@@ -103,6 +104,7 @@ func getSSIDs(APs []string, ssid2ap map[string]string) []SSID {
 	return SSIDs
 }
 
+// ConnectAp connects to a specifid AP
 func ConnectAp(ssid string, p string, ap2device map[string]string, ssid2ap map[string]string) {
 	conn := getSystemBus()
 	inner1 := make(map[string]dbus.Variant)
@@ -133,6 +135,7 @@ func getSystemBus() *dbus.Conn {
 	return conn
 }
 
+// Ssids returns an array of available ssids
 func Ssids() ([]SSID, map[string]string, map[string]string) {
 	ap2device := make(map[string]string)
 	ssid2ap := make(map[string]string)
@@ -144,6 +147,7 @@ func Ssids() ([]SSID, map[string]string, map[string]string) {
 	return SSIDs, ap2device, ssid2ap
 }
 
+// ConnectedWifi returns true if connected to network by a netman interface
 func ConnectedWifi() bool {
 	conn := getSystemBus()
 	objPath := dbus.ObjectPath("/org/freedesktop/NetworkManager")
@@ -160,6 +164,7 @@ func ConnectedWifi() bool {
 	return true
 }
 
+// DisconnectWifi disconnect current network
 func DisconnectWifi() {
 	conn := getSystemBus()
 	devices := getDevices()
@@ -172,6 +177,7 @@ func DisconnectWifi() {
 	return
 }
 
+// SetIfaceManaged sets certain interface managed by netman
 func SetIfaceManaged(iface string) {
 	conn := getSystemBus()
 	devices := getDevices()
@@ -179,12 +185,12 @@ func SetIfaceManaged(iface string) {
 	for _, d := range devices {
 		objPath := dbus.ObjectPath(d)
 		device := conn.Object("org.freedesktop.NetworkManager", objPath)
-		iface_, err2 := device.GetProperty("org.freedesktop.NetworkManager.Device.Interface")
+		deviceIface, err2 := device.GetProperty("org.freedesktop.NetworkManager.Device.Interface")
 		if err2 != nil {
 			fmt.Printf("Error in SetIfaceManaged(): %v\n", err2)
 			return
 		}
-		if iface != iface_.Value().(string) {
+		if iface != deviceIface.Value().(string) {
 			continue
 		}
 		managed, err := device.GetProperty("org.freedesktop.NetworkManager.Device.Managed")
@@ -203,6 +209,7 @@ func SetIfaceManaged(iface string) {
 	}
 }
 
+// WifisManaged list current netman managed wifis
 func WifisManaged() map[string]string {
 	conn := getSystemBus()
 	devices := getDevices()

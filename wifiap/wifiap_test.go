@@ -36,7 +36,7 @@ func (mock *mockTransportShow) Do(req *http.Request) (*http.Response, error) {
 	}
 
 	if req.Method != "GET" {
-		return nil, fmt.Errorf("Methog is not valid. Expected GET, got %v\n", req.Method)
+		return nil, fmt.Errorf("Method is not valid. Expected GET, got %v", req.Method)
 	}
 
 	rawBody := `{"result":{
@@ -71,7 +71,7 @@ func TestShow(t *testing.T) {
 	client := NewClient(&mockTransportShow{})
 	response, err := client.Show()
 	if err != nil {
-		t.Errorf("Failed to show current config: %v\n", err)
+		t.Errorf("Failed to show current config: %v", err)
 	}
 
 	if len(response) != 17 {
@@ -152,7 +152,7 @@ func validateHeaders(m map[string]string, req *http.Request) error {
 	buf, _ := ioutil.ReadAll(req.Body)
 	var headers map[string]interface{}
 	if err := json.Unmarshal(buf, &headers); err != nil {
-		return fmt.Errorf("Error reading request headers: %v\n", err)
+		return fmt.Errorf("Error reading request headers: %v", err)
 	}
 
 	n := len(m)
@@ -179,7 +179,7 @@ func (mock *mockTransportEnable) Do(req *http.Request) (*http.Response, error) {
 	}
 
 	if req.Method != "POST" {
-		return nil, fmt.Errorf("Method is not valid. Expected POST, got %v\n", req.Method)
+		return nil, fmt.Errorf("Method is not valid. Expected POST, got %v", req.Method)
 	}
 
 	err := validateHeaders(map[string]string{"disabled": "false"}, req)
@@ -217,7 +217,7 @@ func (mock *mockTransportDisable) Do(req *http.Request) (*http.Response, error) 
 	}
 
 	if req.Method != "POST" {
-		return nil, fmt.Errorf("Method is not valid. Expected POST, got %v\n", req.Method)
+		return nil, fmt.Errorf("Method is not valid. Expected POST, got %v", req.Method)
 	}
 
 	err := validateHeaders(map[string]string{"disabled": "true"}, req)
@@ -255,7 +255,7 @@ func (mock *mockTransportSetSsid) Do(req *http.Request) (*http.Response, error) 
 	}
 
 	if req.Method != "POST" {
-		return nil, fmt.Errorf("Method is not valid. Expected POST, got %v\n", req.Method)
+		return nil, fmt.Errorf("Method is not valid. Expected POST, got %v", req.Method)
 	}
 
 	err := validateHeaders(map[string]string{"wifi.ssid": "MySsid"}, req)
@@ -293,7 +293,7 @@ func (mock *mockTransportSetPassphrase) Do(req *http.Request) (*http.Response, e
 	}
 
 	if req.Method != "POST" {
-		return nil, fmt.Errorf("Method is not valid. Expected POST, got %v\n", req.Method)
+		return nil, fmt.Errorf("Method is not valid. Expected POST, got %v", req.Method)
 	}
 
 	err := validateHeaders(map[string]string{"wifi.security": "wpa2", "wifi.security-passphrase": "passphrase123"}, req)
