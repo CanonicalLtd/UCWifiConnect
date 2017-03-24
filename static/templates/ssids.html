@@ -4,29 +4,58 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-	<title>SSIDs</title>
+	<title>Select WIFI</title>
 
-	<link rel="stylesheet" href="/static/css/application.css" />
-
+	<!--<link rel="stylesheet" href="/static/css/application.css" />-->
+    <link rel="stylesheet" href="/static/css/app.css" />
+    <link rel="stylesheet" type="text/css" href="https://assets.ubuntu.com/latest-redirects/vanilla-framework.css" />
 </head>
+
 <body>
-    <form>
+<form>      
+    <fieldset>   
     <table>
         <thead>
             <tr>
-              <th style="text-align:center" colspan="2">Select Wifi to connect to:</th>
+                <th>Select WIFI to connect to:</th>
             </tr>
         </thead>
         <tbody>
-        {{with .Ssids}}
-            {{range .}}
-            <tr>
-                <td style="text-align:right"><input type="radio" name="essid" value="{{.Ssid}}"/></td><td style="text-align:left">{{.Ssid}}</td>
-            <tr>
-            {{end}}
+        {{range $i, $ssid := .Ssids}}
+        <tr>
+            <td>
+                <label class="collapse" for="radio{{$i}}">{{$ssid.Ssid}}</label>
+                <input id="radio{{$i}}" type="radio" name="c1">
+                <div>
+                    <label for="password">Enter password:</label>
+                    <input type="password" name="password" id="password{{$i}}"/>
+                    <input type="checkbox" name="showpassword" id="showpassword{{$i}}" onchange="show_password({{$i}});"/>
+                    <label for="showpassword">visible</label>
+                    <input type="button" value="Ok"/>
+                    <input type="button" value="Cancel" onclick="clear_row({{$i}});"/>
+                </div>
+            </td>
+        </tr>
         {{end}}
         </tbody>
     </table>
-    </form>	
+    </fieldset>
+<form>
+
+<script>
+function clear_row(i) {
+    document.getElementById('password'+i).value='';
+    document.getElementById('password'+i).type='password';
+    document.getElementById('showpassword'+i).checked=false;
+    document.getElementById('radio'+i).checked=false;
+}
+function show_password(i) {
+    if (document.getElementById('showpassword'+i).checked) {
+        document.getElementById('password'+i).type = 'text';
+    } else {
+        document.getElementById('password'+i).type = 'password';
+    }
+}
+</script>
 </body>
 </html>
