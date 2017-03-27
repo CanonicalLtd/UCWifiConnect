@@ -3,6 +3,16 @@ Snap to be able to switch a wireless card of a UC device into AP mode and use it
 
 ## Development Environment
 
+### Install snapd and snapcraft
+```bash
+sudo apt install snapd snapcraft
+
+# Verify snapcraft is installed ok by printing out the version
+snapcraft -v
+2.27.1
+```
+should output current version. More information on [snapcraft.io](https://snapcraft.io)
+
 ### Install Go
 Follow the instructions to [install Go](https://golang.org/doc/install).
 
