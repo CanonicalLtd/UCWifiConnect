@@ -44,16 +44,16 @@
 
 <script>
 function clear_row(i) {
-    document.getElementById('password'+i).value='';
-    document.getElementById('password'+i).type='password';
-    document.getElementById('showpassword'+i).checked=false;
-    document.getElementById('radio'+i).checked=false;
+    document.querySelector('#password'+i).value='';
+    document.querySelector('#password'+i).type='password';
+    document.querySelector('#showpassword'+i).checked=false;
+    document.querySelector('#radio'+i).checked=false;
 }
 function show_password(i) {
-    if (document.getElementById('showpassword'+i).checked) {
-        document.getElementById('password'+i).type = 'text';
+    if (document.querySelector('#showpassword'+i).checked) {
+        document.querySelector('#password'+i).type = 'text';
     } else {
-        document.getElementById('password'+i).type = 'password';
+        document.querySelector('#password'+i).type = 'password';
     }
 }
 </script>
