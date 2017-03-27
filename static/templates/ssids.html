@@ -6,41 +6,52 @@
 
 	<title>Select WIFI</title>
 
-	<!--<link rel="stylesheet" href="/static/css/application.css" />-->
-    <link rel="stylesheet" href="/static/css/app.css" />
-    <link rel="stylesheet" type="text/css" href="https://assets.ubuntu.com/latest-redirects/vanilla-framework.css" />
+    <link rel="stylesheet" href="/static/css/application.css" />
 </head>
 
 <body>
-<form>      
-    <fieldset>   
-    <table>
-        <thead>
-            <tr>
-                <th>Select WIFI to connect to:</th>
-            </tr>
-        </thead>
-        <tbody>
-        {{range $i, $ssid := .Ssids}}
-        <tr>
-            <td>
-                <label class="collapse" for="radio{{$i}}">{{$ssid.Ssid}}</label>
-                <input id="radio{{$i}}" type="radio" name="c1">
-                <div>
-                    <label for="password">Enter password:</label>
-                    <input type="password" name="password" id="password{{$i}}"/>
-                    <input type="checkbox" name="showpassword" id="showpassword{{$i}}" onchange="show_password({{$i}});"/>
-                    <label for="showpassword">visible</label>
-                    <input type="button" value="Cancel" onclick="clear_row({{$i}});"/>
-                    <input type="button" value="Ok"/>
+    <div class="wrapper">
+        <div id="main-content" class="inner-wrapper">
+            <div class="row no-border" id="grid">
+                <h2>Select WIFI to connect to</h2>
+                <form>
+                <fieldset>
+                <div class="twelve-col">
+                <table>
+                <tbody>
+                {{range $i, $ssid := .Ssids}}
+                <tr>
+                    <th scope="row">
+                        <label class="collapse" for="radio{{$i}}">{{$ssid.Ssid}}</label>
+                        <input id="radio{{$i}}" type="radio" name="c1">
+                        <div class="six-col">
+                        <fieldset>
+                        <ul>
+                            <li>
+                                <input type="password" name="password" id="password{{$i}}"/>
+                            </li>
+                            <li>
+                                <input type="checkbox" name="showpassword" id="showpassword{{$i}}" onchange="show_password({{$i}})"/>
+                                <label for="showpassword">show password</label>
+                            </li>
+                            <li>
+                                <input type="button" value="Cancel" onclick="clear_row({{$i}})"/>
+                                <button class="button--primary">Connect</button>
+                            </li>
+                        </ul>
+                        </fieldset>
+                        </div>
+                    </th>
+                </tr>
+                {{end}}
+                </tbody>
+                </table>
                 </div>
-            </td>
-        </tr>
-        {{end}}
-        </tbody>
-    </table>
-    </fieldset>
-<form>
+                </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
 
 <script>
 function clear_row(i) {

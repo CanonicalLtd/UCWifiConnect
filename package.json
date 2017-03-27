@@ -1,0 +1,24 @@
+{
+  "name": "ucwificonnect",
+  "version": "1.0.0",
+  "description": "Management UI to be able to switch a wireless card of a UC device into AP mode and use it to configure wireless",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CanonicalLtd/UCWifiConnect.git"
+  },
+  "author": "",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/CanonicalLtd/UCWifiConnect/issues"
+  },
+  "homepage": "https://github.com/CanonicalLtd/UCWifiConnect#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-sass": "^3.1.0",
+    "ubuntu-vanilla-theme": "0.0.35"
+  }
+}

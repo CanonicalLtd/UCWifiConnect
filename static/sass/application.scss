@@ -1,14 +1,18 @@
+// Import the theme
+@import '../../node_modules/ubuntu-vanilla-theme/scss/theme';
+// Run the theme
+@include ubuntu-vanilla-theme;
+
 .collapse{
   cursor: pointer;
   display: block;
-  color: #dd4814;
 }
 .collapse + input{
   display: none; /* hide the checkboxes */
 }
 .collapse + input + div{
-  display:none;
+  display: none;
 }
 .collapse + input:checked + div{
-  display:block;
+  display: block;
 }
