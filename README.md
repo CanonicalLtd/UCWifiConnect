@@ -36,6 +36,5 @@ nvm use v4.4.3
 
 - Install the nodejs dependencies
 ```bash
-cd identity-vault
 npm install
 ```
