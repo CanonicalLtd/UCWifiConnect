@@ -27,7 +27,7 @@
                 {{range $i, $network := .Networks}}
                 <tr>
                     <th scope="row">
-                        <label class="collapse" for="radio{{$i}}">{{$network.Ssid}}</label>
+                        <label class="collapse {{$network.Status}}" for="radio{{$i}}">{{$network.Ssid}}</label>
                         <input id="radio{{$i}}" type="radio" name="c1">
                         <div class="six-col">
                         <fieldset>
