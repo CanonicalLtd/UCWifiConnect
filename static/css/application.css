@@ -2945,19 +2945,9 @@ body {
 blockquote {
   padding: inherit 1em; }
 
-div.alert {
-  color: #df382c;
-  border-color: #df382c; }
-
 .collapse {
   cursor: pointer;
   display: block; }
-
-.collapse.connected {
-  color: #38b44a; }
-
-.collapse.connecting {
-  color: #eca918; }
 
 .collapse + input {
   display: none;
@@ -2968,3 +2958,6 @@ div.alert {
 
 .collapse + input:checked + div {
   display: block; }
+
+.cheshire {
+  display: none; }

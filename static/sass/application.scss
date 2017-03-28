@@ -4,22 +4,9 @@
 @include ubuntu-vanilla-theme;
 
 // Customise theme
-div.alert {
-	color: $error;
-	border-color: $error;
-}
-
 .collapse{
   cursor: pointer;
   display: block;
-}
-
-.collapse.connected{
-  color: $success;
-}
-
-.collapse.connecting{
-  color: $warning;
 }
 
 .collapse + input{
@@ -30,4 +17,8 @@ div.alert {
 }
 .collapse + input:checked + div{
   display: block;
+}
+
+.cheshire {
+  display: none;
 }

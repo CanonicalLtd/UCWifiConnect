@@ -14,12 +14,6 @@
         <div id="main-content" class="inner-wrapper">
             <div class="row no-border" id="grid">
                 <h2>Select WIFI to connect to</h2>
-                <!-- Show alert box if an alert message comes in page data-->
-                {{if ne .Alert ""}}
-                <div class="box alert">
-                    <p>{{.Alert}}</p>
-                </div>
-                {{end}}
                 <fieldset>
                 <div class="twelve-col">
                 <table>
@@ -27,23 +21,30 @@
                 {{range $i, $network := .Networks}}
                 <tr>
                     <th scope="row">
-                        <label class="collapse {{$network.Status}}" for="radio{{$i}}">{{$network.Ssid}}</label>
+                        <label class="collapse" for="radio{{$i}}">{{$network.Ssid}}</label>
                         <input id="radio{{$i}}" type="radio" name="c1">
                         <div class="six-col">
                         <fieldset>
                         <ul class="no-bullets">
                             <li>
                                 <input type="hidden" id="ssid{{$i}}" value="{{$network.Ssid}}"/>
-                                <input type="password" name="password" id="password{{$i}}"/>
+                                <input type="password" id="password{{$i}}"/>
                             </li>
                             <li>
-                                <input type="checkbox" name="showpassword" id="showpassword{{$i}}" onchange="show_password({{$i}})"/>
+                                <input type="checkbox" id="showpassword{{$i}}" onchange="show_password({{$i}})"/>
                                 <label for="showpassword">show password</label>
                             </li>
                             <li>
-                                <button class="button--primary" onclick="clear_row({{$i}})">Cancel</button>
-                                <button class="button--primary" onclick="do_connect({{$i}})">Connect</button>
+                                 <div id="alert{{$i}}" class="cheshire box" style="background-color: #eee">
+                                    <h3>Caution!</h3>
+                                     <p>While connecting to an external network you won't be able to manage device. Proceed?.</p>    
+                                </div>
                             </li>
+                            <li>
+                                <input type="button" value="Cancel" class="button--primary" onclick="clear_row({{$i}})"/>
+                                <input type="button" id="connect{{$i}}" value="Connect" class="button--primary" onclick="show_preconnect_alert({{$i}})"/>
+                            </li>
+                            
                         </ul>
                         </fieldset>
                         </div>
@@ -66,27 +67,34 @@
 
 <script>
 function clear_row(i) {
-    document.querySelector('#password'+i).value='';
-    document.querySelector('#password'+i).type='password';
-    document.querySelector('#showpassword'+i).checked=false;
-    document.querySelector('#radio'+i).checked=false;
+    pwdElement = document.getElementById('password'+i)
+    pwdElement.value='';
+    pwdElement.type='password';
+    document.getElementById('showpassword'+i).checked=false;
+    document.getElementById('radio'+i).checked=false;
+    document.getElementById('alert'+i).style.display='none';
+    document.getElementById('connect'+i).value='Connect';
 }
+
 function show_password(i) {
-    if (document.querySelector('#showpassword'+i).checked) {
-        document.querySelector('#password'+i).type = 'text';
-    } else {
-        document.querySelector('#password'+i).type = 'password';
-    }
+    var type = document.getElementById('showpassword'+i).checked ? 'text' : 'password' 
+    document.getElementById('password'+i).type = type
 }
+
 function do_connect(i) {
-    var ssid = document.querySelector('#ssid'+i).value;
-    var pwd = document.querySelector('#password'+i).value;
+    var ssid = document.getElementById('ssid'+i).value;
+    var pwd = document.getElementById('password'+i).value;
     if (ssid != '') {
-        var form = document.querySelector("#wifi-form");
+        var form = document.getElementById("wifi-form");
         form.ssid.value = ssid
         form.pwd.value = pwd
         form.submit()
     }
+}
+
+function show_preconnect_alert(i) {
+    document.getElementById('alert'+i).style.display='block';
+    document.getElementById('connect'+i).value='Yes';
 }
 </script>
 </body>

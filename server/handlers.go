@@ -17,38 +17,16 @@ const (
 // ResourcesPath absolute path to web static resources
 var ResourcesPath = filepath.Join(os.Getenv("SNAP"), "static")
 
-// Network entry for a wifi network in page data
-type Network struct {
-	Ssid   string
-	Status string
-}
-
 // PageData dynamic data to fulfill the template
 type PageData struct {
-	Networks []Network
-	Alert    string
+	Networks []netman.SSID
 }
 
 // SsidsHandler lists the current available SSIDs
 func SsidsHandler(w http.ResponseWriter, r *http.Request) {
 
-	var connectedWifi = ""
-	if netman.ConnectedWifi() {
-		//TODO get here the network we are connected to
-		connectedWifi = "<TheWifiWeAreConnectedTo>"
-	}
-
 	// build dynamic data object
-	ssids, _, _ := netman.Ssids()
-	networks := make([]Network, len(ssids))
-	for i := range ssids {
-		status := "disconnected"
-		if ssids[i].Ssid == connectedWifi {
-			status = "connected"
-		}
-		networks[i] = Network{Ssid: ssids[i].Ssid, Status: status}
-	}
-
+	networks, _, _ := netman.Ssids()
 	data := PageData{Networks: networks}
 
 	// parse template
