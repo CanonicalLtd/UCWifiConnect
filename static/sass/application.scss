@@ -3,10 +3,25 @@
 // Run the theme
 @include ubuntu-vanilla-theme;
 
+// Customise theme
+div.alert {
+	color: $error;
+	border-color: $error;
+}
+
 .collapse{
   cursor: pointer;
   display: block;
 }
+
+.collapse.connected{
+  color: $success
+}
+
+.collapse.connecting{
+  color: $warning
+}
+
 .collapse + input{
   display: none; /* hide the checkboxes */
 }

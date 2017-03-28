@@ -14,20 +14,26 @@
         <div id="main-content" class="inner-wrapper">
             <div class="row no-border" id="grid">
                 <h2>Select WIFI to connect to</h2>
-                <form>
+                <!-- Show alert box if an alert message comes in page data-->
+                {{if ne .Alert ""}}
+                <div class="box alert">
+					<p>{{.Alert}}</p>
+				</div>
+                {{end}}
                 <fieldset>
                 <div class="twelve-col">
                 <table>
                 <tbody>
-                {{range $i, $ssid := .Ssids}}
+                {{range $i, $network := .Networks}}
                 <tr>
                     <th scope="row">
-                        <label class="collapse" for="radio{{$i}}">{{$ssid.Ssid}}</label>
+                        <label class="collapse" for="radio{{$i}}">{{$network.Ssid}}</label>
                         <input id="radio{{$i}}" type="radio" name="c1">
                         <div class="six-col">
                         <fieldset>
-                        <ul>
+                        <ul class="no-bullets">
                             <li>
+                                <input type="hidden" id="ssid{{$i}}" value="{{$network.Ssid}}"/>
                                 <input type="password" name="password" id="password{{$i}}"/>
                             </li>
                             <li>
@@ -35,8 +41,8 @@
                                 <label for="showpassword">show password</label>
                             </li>
                             <li>
-                                <input type="button" value="Cancel" onclick="clear_row({{$i}})"/>
-                                <button class="button--primary">Connect</button>
+                                <button class="button--primary" onclick="clear_row({{$i}})">Cancel</button>
+                                <button class="button--primary" onclick="do_connect({{$i}})">Connect</button>
                             </li>
                         </ul>
                         </fieldset>
@@ -48,10 +54,15 @@
                 </table>
                 </div>
                 </fieldset>
-                </form>
             </div>
         </div>
     </div>
+
+    <form id="wifi-form" action="connect" method="POST">
+        <!-- hidden fields to be sent to service-->
+        <input type="hidden" name="ssid"/>
+        <input type="hidden" name="pwd"/>
+    </form>
 
 <script>
 function clear_row(i) {
@@ -65,6 +76,16 @@ function show_password(i) {
         document.querySelector('#password'+i).type = 'text';
     } else {
         document.querySelector('#password'+i).type = 'password';
+    }
+}
+function do_connect(i) {
+    var ssid = document.querySelector('#ssid'+i).value;
+    var pwd = document.querySelector('#password'+i).value;
+    if (ssid != '') {
+        var form = document.querySelector("#wifi-form");
+        form.ssid.value = ssid
+        form.pwd.value = pwd
+        form.submit()
     }
 }
 </script>
