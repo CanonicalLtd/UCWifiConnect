@@ -38,3 +38,14 @@ nvm use v4.4.3
 ```bash
 npm install
 ```
+
+- Update css
+In case you need to update css, as gulp.js is used in this project, you would need to install it in case you haven't done that previously
+```bash
+npm install -g gulp
+```
+and execute sass task
+```bash
+gulp sass
+```
+
