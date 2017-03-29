@@ -1,1 +1,3 @@
 .coverage
+netman/.dbus.go.swp
+cmds/netman/.cmd_netman.go.swp

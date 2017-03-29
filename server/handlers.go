@@ -24,9 +24,9 @@ type PageData struct {
 
 // SsidsHandler lists the current available SSIDs
 func SsidsHandler(w http.ResponseWriter, r *http.Request) {
-
+	c := netman.DefaultClient()
 	// build dynamic data object
-	networks, _, _ := netman.Ssids()
+	networks, _, _ := c.Ssids()
 	data := PageData{Networks: networks}
 
 	// parse template
@@ -67,8 +67,9 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Connecting to %v...", ssid)
 
 	//connect
-	_, ap2device, ssid2ap := netman.Ssids()
-	netman.ConnectAp(ssid, pwd, ap2device, ssid2ap)
+	c := netman.DefaultClient()
+	_, ap2device, ssid2ap := c.Ssids()
+	c.ConnectAp(ssid, pwd, ap2device, ssid2ap)
 
 	// redirect to result web
 	http.Redirect(w, r, "/static/templates/connect_result.html", http.StatusMovedPermanently)
