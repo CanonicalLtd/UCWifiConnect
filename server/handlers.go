@@ -24,9 +24,9 @@ type PageData struct {
 
 // SsidsHandler lists the current available SSIDs
 func SsidsHandler(w http.ResponseWriter, r *http.Request) {
-
+	c := netman.DefaultClient()
 	// build dynamic data object
-	ssids, _, _ := netman.Ssids()
+	ssids, _, _ := c.Ssids()
 	data := PageData{ssids}
 
 	// parse template
