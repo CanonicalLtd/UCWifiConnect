@@ -70,6 +70,6 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 	_, ap2device, ssid2ap := netman.Ssids()
 	netman.ConnectAp(ssid, pwd, ap2device, ssid2ap)
 
-	// redirect to list
-	http.Redirect(w, r, "/", http.StatusMovedPermanently)
+	// redirect to result web
+	http.Redirect(w, r, "/static/templates/connect_result.html", http.StatusMovedPermanently)
 }

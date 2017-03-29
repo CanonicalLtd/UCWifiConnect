@@ -42,7 +42,7 @@
                             </li>
                             <li>
                                 <input type="button" value="Cancel" class="button--primary" onclick="clear_row({{$i}})"/>
-                                <input type="button" id="connect{{$i}}" value="Connect" class="button--primary" onclick="show_preconnect_alert({{$i}})"/>
+                                <input type="button" id="connect{{$i}}" value="Connect" class="button--primary" onclick="do_connect({{$i}})"/>
                             </li>
                             
                         </ul>
@@ -82,19 +82,24 @@ function show_password(i) {
 }
 
 function do_connect(i) {
-    var ssid = document.getElementById('ssid'+i).value;
-    var pwd = document.getElementById('password'+i).value;
-    if (ssid != '') {
-        var form = document.getElementById("wifi-form");
-        form.ssid.value = ssid
-        form.pwd.value = pwd
-        form.submit()
-    }
-}
-
-function show_preconnect_alert(i) {
-    document.getElementById('alert'+i).style.display='block';
-    document.getElementById('connect'+i).value='Yes';
+    // if connect button has "Connect" as label, show the alert previous to 
+    // connecting. Connect if that alert is already visible
+    var connectButton = document.getElementById('connect'+i)
+    if (connectButton.value == "Connect") {
+        document.getElementById('alert'+i).style.display='block';
+        connectButton.value = 'Yes'
+    } else {
+        var ssid = document.getElementById('ssid'+i).value;
+        var pwd = document.getElementById('password'+i).value;
+        if (ssid != '') {
+            var form = document.getElementById("wifi-form");
+            form.ssid.value = ssid
+            form.pwd.value = pwd
+            form.submit()
+        } else {
+            alert("No SSID provided to connect to")
+        }
+    }  
 }
 </script>
 </body>
