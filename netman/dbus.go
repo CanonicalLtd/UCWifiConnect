@@ -271,7 +271,7 @@ func (c *Client) SetIfaceManaged(iface string, devices []string) string {
 		}
 		managed, err := c.dbusClient.BusObj.GetProperty("org.freedesktop.NetworkManager.Device.Managed")
 		if err != nil {
-			fmt.Printf("Error in SetIfaceManaged() fetting device managed: %v\n", err)
+			fmt.Printf("Error in SetIfaceManaged() fetching device managed: %v\n", err)
 			return ""
 		}
 		if managed.Value().(bool) == true {
@@ -293,12 +293,12 @@ func (c *Client) WifisManaged(wifiDevices []string) (map[string]string, error) {
 		setObject(c, "org.freedesktop.NetworkManager", objPath)
 		managed, err := c.dbusClient.BusObj.GetProperty("org.freedesktop.NetworkManager.Device.Managed")
 		if err != nil {
-			fmt.Printf("Error 1 in WifisManaged(): %v\n", err)
+			fmt.Printf("Error in WifisManaged() getting device managed : %v\n", err)
 			return ifaces, err
 		}
 		iface, err2 := c.dbusClient.BusObj.GetProperty("org.freedesktop.NetworkManager.Device.Interface")
 		if err2 != nil {
-			fmt.Printf("Error 2 in WifisManaged(): %v\n", err)
+			fmt.Printf("Error in WifisManaged() getting device interface: %v\n", err)
 			return ifaces, err2
 		}
 		if managed.Value().(bool) == true {
