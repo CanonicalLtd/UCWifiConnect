@@ -9,6 +9,7 @@ import (
 	"github.com/godbus/dbus"
 )
 
+// Make a dbus Call object for testing
 func makeCall() *dbus.Call {
 	objPath := dbus.ObjectPath("objpath")
 	args2 := make([]interface{}, 3)
@@ -174,7 +175,7 @@ func TestGetSsids(t *testing.T) {
 	ap2device := make(map[string]string)
 	ssid2ap := make(map[string]string)
 	aps := client.GetAccessPoints(wifiDevices, ap2device)
-	ssids := client.GetSsids(aps, ssid2ap)
+	ssids := client.getSsids(aps, ssid2ap)
 	if len(ssids) != 4 {
 		t.Errorf("4 SSIDs should have been found, but found: %d", len(ssids))
 	}
@@ -227,11 +228,11 @@ func TestSetIfaceManaged(t *testing.T) {
 	client := NewClient(mock)
 	res := client.SetIfaceManaged("notaniface", []string{})
 	if res != "" {
-		t.Errorf("No Disconnect call expected, but found: %d", res)
+		t.Errorf("No Disconnect call expected, but found: %s", res)
 	}
 	res = client.SetIfaceManaged("iface2", []string{"d0", "d1"})
 	if res != "" {
-		t.Errorf("No Disconnect call expected, but found: %d", res)
+		t.Errorf("No Disconnect call expected, but found: %s", res)
 	}
 	mock.ifaces = mock.ifaces[:0]
 	res = client.SetIfaceManaged("iface0", []string{"d0"})
@@ -258,15 +259,15 @@ func TestWifisManaged(t *testing.T) {
 	res, _ := client.WifisManaged([]string{"d0", "d1"})
 
 	if res["iface0"] != "d0" {
-		t.Errorf("Expected map[iface]device not returned. Got: %d", res)
+		t.Errorf("Expected map[iface]device not returned. Got: %v", res)
 	}
 	if res["iface1"] != "d1" {
-		t.Errorf("Expected map[iface]device not returned. Got: %d", res)
+		t.Errorf("Expected map[iface]device not returned. Got: %v", res)
 	}
 	mock.managed = false
 	mock.ifaces = mock.ifaces[:0]
 	res, _ = client.WifisManaged([]string{"d0", "d1"})
 	if res["iface0"] == "d0" {
-		t.Errorf("Expected  no result, since no ifaces are managed. Got: %d", res)
+		t.Errorf("Expected  no result, since no ifaces are managed. Got: %v", res)
 	}
 }
