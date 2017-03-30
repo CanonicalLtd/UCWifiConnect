@@ -16,6 +16,8 @@ should output current version. More information on [snapcraft.io](https://snapcr
 ### Install Go
 Follow the instructions to [install Go](https://golang.org/doc/install).
 
+### Install web development environment
+
 - Install NVM
 Install the [Node Version Manager](https://github.com/creationix/nvm) that will allow a specific
 version of Node.js to be installed. Follow the installation instructions.
