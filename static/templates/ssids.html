@@ -28,11 +28,12 @@
                         <ul class="no-bullets">
                             <li>
                                 <input type="hidden" id="ssid{{$i}}" value="{{$ssid.Ssid}}"/>
-                                <input type="password" id="password{{$i}}"/>
+                                <label for="passphrase">Enter passphrase:</label>
+                                <input type="password" id="passphrase{{$i}}"/>
                             </li>
                             <li>
-                                <input type="checkbox" id="showpassword{{$i}}" onchange="show_password({{$i}})"/>
-                                <label for="showpassword">show password</label>
+                                <input type="checkbox" id="showpassphrase{{$i}}" onchange="show_passphrase({{$i}})"/>
+                                <label for="showpassphrase">show passphrase</label>
                             </li>
                             <li>
                                  <div id="alert{{$i}}" class="cheshire box" style="background-color: #eee">
@@ -67,18 +68,18 @@
 
 <script>
 function clear_row(i) {
-    pwdElement = document.getElementById('password'+i)
+    pwdElement = document.getElementById('passphrase'+i)
     pwdElement.value='';
     pwdElement.type='password';
-    document.getElementById('showpassword'+i).checked=false;
+    document.getElementById('showpassphrase'+i).checked=false;
     document.getElementById('radio'+i).checked=false;
     document.getElementById('alert'+i).style.display='none';
     document.getElementById('connect'+i).value='Connect';
 }
 
-function show_password(i) {
-    var type = document.getElementById('showpassword'+i).checked ? 'text' : 'password' 
-    document.getElementById('password'+i).type = type
+function show_passphrase(i) {
+    var type = document.getElementById('showpassphrase'+i).checked ? 'text' : 'password' 
+    document.getElementById('passphrase'+i).type = type
 }
 
 function do_connect(i) {
@@ -90,7 +91,7 @@ function do_connect(i) {
         connectButton.value = 'Yes'
     } else {
         var ssid = document.getElementById('ssid'+i).value;
-        var pwd = document.getElementById('password'+i).value;
+        var pwd = document.getElementById('passphrase'+i).value;
         if (ssid != '') {
             var form = document.getElementById("wifi-form");
             form.ssid.value = ssid
