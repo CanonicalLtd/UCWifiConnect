@@ -18,16 +18,16 @@
                 <div class="twelve-col">
                 <table>
                 <tbody>
-                {{range $i, $network := .Networks}}
+                {{range $i, $ssid := .Ssids}}
                 <tr>
                     <th scope="row">
-                        <label class="collapse" for="radio{{$i}}">{{$network.Ssid}}</label>
+                        <label class="collapse" for="radio{{$i}}">{{$ssid.Ssid}}</label>
                         <input id="radio{{$i}}" type="radio" name="c1">
                         <div class="six-col">
                         <fieldset>
                         <ul class="no-bullets">
                             <li>
-                                <input type="hidden" id="ssid{{$i}}" value="{{$network.Ssid}}"/>
+                                <input type="hidden" id="ssid{{$i}}" value="{{$ssid.Ssid}}"/>
                                 <input type="password" id="password{{$i}}"/>
                             </li>
                             <li>

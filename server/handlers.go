@@ -19,15 +19,15 @@ var ResourcesPath = filepath.Join(os.Getenv("SNAP"), "static")
 
 // PageData dynamic data to fulfill the template
 type PageData struct {
-	Networks []netman.SSID
+	Ssids []netman.SSID
 }
 
 // SsidsHandler lists the current available SSIDs
 func SsidsHandler(w http.ResponseWriter, r *http.Request) {
 	c := netman.DefaultClient()
 	// build dynamic data object
-	networks, _, _ := c.Ssids()
-	data := PageData{Networks: networks}
+	ssids, _, _ := c.Ssids()
+	data := PageData{Ssids: ssids}
 
 	// parse template
 	templateAbsPath := filepath.Join(ResourcesPath, templatePath)
