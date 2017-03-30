@@ -11,25 +11,27 @@ import (
 )
 
 const (
-	templatePath = "/templates/ssids.html"
+	ssidsTemplatePath      = "/templates/ssids.html"
+	connectingTemplatePath = "/templates/connecting.html"
 )
 
 // ResourcesPath absolute path to web static resources
 var ResourcesPath = filepath.Join(os.Getenv("SNAP"), "static")
 
-// PageData dynamic data to fulfill the template
-type PageData struct {
+// Data interface representing any data included in a template
+type Data interface{}
+
+// SsidsData dynamic data to fulfill the SSIDs page template
+type SsidsData struct {
 	Ssids []netman.SSID
 }
 
-// SsidsHandler lists the current available SSIDs
-func SsidsHandler(w http.ResponseWriter, r *http.Request) {
-	c := netman.DefaultClient()
-	// build dynamic data object
-	ssids, _, _ := c.Ssids()
-	data := PageData{Ssids: ssids}
+// ConnectingData dynamic data to fulfill the connect result page template
+type ConnectingData struct {
+	Ssid string
+}
 
-	// parse template
+func execTemplate(w http.ResponseWriter, templatePath string, data Data) {
 	templateAbsPath := filepath.Join(ResourcesPath, templatePath)
 	t, err := template.ParseFiles(templateAbsPath)
 	if err != nil {
@@ -44,6 +46,17 @@ func SsidsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+// SsidsHandler lists the current available SSIDs
+func SsidsHandler(w http.ResponseWriter, r *http.Request) {
+	c := netman.DefaultClient()
+	// build dynamic data object
+	ssids, _, _ := c.Ssids()
+	data := SsidsData{Ssids: ssids}
+
+	// parse template
+	execTemplate(w, ssidsTemplatePath, data)
 }
 
 // ConnectHandler reads form got ssid and password and tries to connect to that network
@@ -71,6 +84,6 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 	_, ap2device, ssid2ap := c.Ssids()
 	c.ConnectAp(ssid, pwd, ap2device, ssid2ap)
 
-	// redirect to result web
-	http.Redirect(w, r, "/static/templates/connect_result.html", http.StatusMovedPermanently)
+	data := ConnectingData{ssid}
+	execTemplate(w, connectingTemplatePath, data)
 }
