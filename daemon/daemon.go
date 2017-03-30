@@ -15,14 +15,17 @@ func main() {
 	ssidsFile := os.Getenv("SNAP_COMMON") + "/ssids"
 	for {
 		SSIDs, _, _ := c.Ssids()
-		var out string
-		for _, ssid := range SSIDs {
-			out += strings.TrimSpace(ssid.Ssid) + ","
-		}
-		out = out[:len(out)-1]
-		err := ioutil.WriteFile(ssidsFile, []byte(out), 0644)
-		if err != nil {
-			fmt.Println("Error writing ssids to ", ssidsFile)
+		//only write SSIDs when found
+		if len(SSIDs) > 0 {
+			var out string
+			for _, ssid := range SSIDs {
+				out += strings.TrimSpace(ssid.Ssid) + ","
+			}
+			out = out[:len(out)-1]
+			err := ioutil.WriteFile(ssidsFile, []byte(out), 0644)
+			if err != nil {
+				fmt.Println("Error writing ssids to ", ssidsFile)
+			}
 		}
 		// wait 5 seconds
 		time.Sleep(5000 * time.Millisecond)
