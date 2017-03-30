@@ -4,29 +4,106 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-	<title>SSIDs</title>
+	<title>Select WIFI</title>
 
-	<link rel="stylesheet" href="/static/css/application.css" />
-
+    <link rel="stylesheet" href="/static/css/application.css" />
 </head>
+
 <body>
-    <form>
-    <table>
-        <thead>
-            <tr>
-              <th style="text-align:center" colspan="2">Select Wifi to connect to:</th>
-            </tr>
-        </thead>
-        <tbody>
-        {{with .Ssids}}
-            {{range .}}
-            <tr>
-                <td style="text-align:right"><input type="radio" name="essid" value="{{.Ssid}}"/></td><td style="text-align:left">{{.Ssid}}</td>
-            <tr>
-            {{end}}
-        {{end}}
-        </tbody>
-    </table>
-    </form>	
+    <div class="wrapper">
+        <div id="main-content" class="inner-wrapper">
+            <div class="row no-border" id="grid">
+                <h2>Select WIFI to connect to</h2>
+                <fieldset>
+                <div class="twelve-col">
+                <table>
+                <tbody>
+                {{range $i, $ssid := .Ssids}}
+                <tr>
+                    <th scope="row">
+                        <label class="collapse" for="radio{{$i}}">{{$ssid.Ssid}}</label>
+                        <input id="radio{{$i}}" type="radio" name="c1">
+                        <div class="six-col">
+                        <fieldset>
+                        <ul class="no-bullets">
+                            <li>
+                                <input type="hidden" id="ssid{{$i}}" value="{{$ssid.Ssid}}"/>
+                                <label for="passphrase">Enter passphrase:</label>
+                                <input type="password" id="passphrase{{$i}}"/>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="showpassphrase{{$i}}" onchange="show_passphrase({{$i}})"/>
+                                <label for="showpassphrase">show passphrase</label>
+                            </li>
+                            <li>
+                                 <div id="alert{{$i}}" class="cheshire box" style="background-color: #eee">
+                                    <h3>Caution!</h3>
+                                    <p>Continuing will disconnect you from the device by taking down its WIFI network. 
+                                        This page will be unavailable. After continuing, you may connect to the device 
+                                        through its new WIFI connection. Proceed?.</p>    
+                                </div>
+                            </li>
+                            <li>
+                                <input type="button" value="Cancel" class="button--primary" onclick="clear_row({{$i}})"/>
+                                <input type="button" id="connect{{$i}}" value="Connect" class="button--primary" onclick="do_connect({{$i}})"/>
+                            </li>
+                            
+                        </ul>
+                        </fieldset>
+                        </div>
+                    </th>
+                </tr>
+                {{end}}
+                </tbody>
+                </table>
+                </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <form id="wifi-form" action="connect" method="POST">
+        <!-- hidden fields to be sent to service-->
+        <input type="hidden" name="ssid"/>
+        <input type="hidden" name="pwd"/>
+    </form>
+
+<script>
+function clear_row(i) {
+    pwdElement = document.getElementById('passphrase'+i)
+    pwdElement.value='';
+    pwdElement.type='password';
+    document.getElementById('showpassphrase'+i).checked=false;
+    document.getElementById('radio'+i).checked=false;
+    document.getElementById('alert'+i).style.display='none';
+    document.getElementById('connect'+i).value='Connect';
+}
+
+function show_passphrase(i) {
+    var type = document.getElementById('showpassphrase'+i).checked ? 'text' : 'password' 
+    document.getElementById('passphrase'+i).type = type
+}
+
+function do_connect(i) {
+    // if connect button has "Connect" as label, show the alert previous to 
+    // connecting. Connect if that alert is already visible
+    var connectButton = document.getElementById('connect'+i)
+    if (connectButton.value == "Connect") {
+        document.getElementById('alert'+i).style.display='block';
+        connectButton.value = 'Yes'
+    } else {
+        var ssid = document.getElementById('ssid'+i).value;
+        var pwd = document.getElementById('passphrase'+i).value;
+        if (ssid != '') {
+            var form = document.getElementById("wifi-form");
+            form.ssid.value = ssid
+            form.pwd.value = pwd
+            form.submit()
+        } else {
+            alert("No SSID provided to connect to")
+        }
+    }  
+}
+</script>
 </body>
 </html>

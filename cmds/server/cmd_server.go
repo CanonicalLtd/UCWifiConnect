@@ -18,6 +18,7 @@ func handler() *mux.Router {
 
 	// Pages routes
 	router.HandleFunc("/", server.SsidsHandler).Methods("GET")
+	router.HandleFunc("/connect", server.ConnectHandler).Methods("POST")
 
 	// Resources path
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(server.ResourcesPath)))

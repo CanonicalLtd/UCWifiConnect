@@ -1,0 +1,24 @@
+// Import the theme
+@import '../../node_modules/ubuntu-vanilla-theme/scss/theme';
+// Run the theme
+@include ubuntu-vanilla-theme;
+
+// Customise theme
+.collapse{
+  cursor: pointer;
+  display: block;
+}
+
+.collapse + input{
+  display: none; /* hide the checkboxes */
+}
+.collapse + input + div{
+  display: none;
+}
+.collapse + input:checked + div{
+  display: block;
+}
+
+.cheshire {
+  display: none;
+}
