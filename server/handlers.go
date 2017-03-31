@@ -27,7 +27,7 @@ type Data interface{}
 
 // SsidsData dynamic data to fulfill the SSIDs page template
 type SsidsData struct {
-	Ssids []netman.SSID
+	Ssids []string
 }
 
 // ConnectingData dynamic data to fulfill the connect result page template
@@ -66,19 +66,14 @@ func readSsidsFile() ([]string, error) {
 
 // SsidsHandler lists the current available SSIDs
 func SsidsHandler(w http.ResponseWriter, r *http.Request) {
-	c := netman.DefaultClient()
-	// build dynamic data object
-	//FIXME: Instead of getting ssids directly using netman, we better read from $SNAP_COMMON/ssids file
-	// where daemon will put available ssids to connect to. Otherwise they could not be retrieved
-	// if in AP mode.
-	// NOTE: Ssids file is in CSV format. There is a specific golang csv package to manage it.
-	_, err := readSsidsFile()
+	// daemon stores current available ssids in a file
+	ssids, err := readSsidsFile()
 	if err != nil {
 		log.Printf("Error reading SSIDs file: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	ssids, _, _ := c.Ssids()
+
 	data := SsidsData{Ssids: ssids}
 
 	// parse template
