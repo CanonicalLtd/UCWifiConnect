@@ -8,10 +8,21 @@ import (
 	"time"
 
 	"github.com/CanonicalLtd/UCWifiConnect/netman"
+	"github.com/CanonicalLtd/UCWifiConnect/wifiap"
 )
 
-func checkSsids(c *netman.Client) bool {
-	ssidsFile := os.Getenv("SNAP_COMMON") + "/ssids"
+func scanSsids(path string, c *netman.Client) bool {
+	// set wlan- to managed if needed
+	wifis, _ := c.WifisManaged(c.GetWifiDevices(c.GetDevices()))
+	found := false
+	for k, _ := range wifis {
+		if k == "wlan0" {
+			found = true
+		}
+	}
+	if !found {
+		c.SetIfaceManaged("wlan0", c.GetWifiDevices(c.GetDevices()))
+	}
 	SSIDs, _, _ := c.Ssids()
 	//only write SSIDs when found
 	if len(SSIDs) > 0 {
@@ -20,9 +31,9 @@ func checkSsids(c *netman.Client) bool {
 			out += strings.TrimSpace(ssid.Ssid) + ","
 		}
 		out = out[:len(out)-1]
-		err := ioutil.WriteFile(ssidsFile, []byte(out), 0644)
+		err := ioutil.WriteFile(path, []byte(out), 0644)
 		if err != nil {
-			fmt.Println("Error writing ssids to ", ssidsFile)
+			fmt.Println("Error writing ssids to ", path)
 		} else {
 			return true
 		}
@@ -30,42 +41,54 @@ func checkSsids(c *netman.Client) bool {
 	return false
 }
 
+const (
+	unknown = iota
+	managed
+	operational
+)
+
 func main() {
 	first := true
 	c := netman.DefaultClient()
-	// add code
-
+	cw := wifiap.DefaultClient()
+	ssidsPath := os.Getenv("SNAP_COMMON") + "/ssids"
+	mode := unknown
 	for {
 		if first {
 			first = false
-			//wait one minute on first run to allow wifi connections
-			//TODO: time period to be refined
+			//wait time period (TBD) on first run to allow wifi connections
 			time.Sleep(10000 * time.Millisecond)
-			//time.Sleep(60000 * time.Millisecond)
 		}
-		//if not connected to external wifi, set to Management Mode
-		if !c.ConnectedWifi(c.GetWifiDevices(c.GetDevices())) {
+		if c.ConnectedWifi(c.GetWifiDevices(c.GetDevices())) {
+			fmt.Println("====  Have network manager wifi connection")
+			mode = operational
+		}
+
+		//if not connected to external wifi: Management Mode
+		if mode != operational {
 			fmt.Println("==== No network manager wifi connection")
-			// if wlan0 not managed by network manager, set to managed
-			wifis, _ := c.WifisManaged(c.GetWifiDevices(c.GetDevices()))
-			found := false
-			for k, _ := range wifis {
-				if k == "wlan0" {
-					found = true
+			if mode == unknown {
+				if scanSsids(ssidsPath, c) {
+					mode = managed
+				} else { // recheck ssids on next iter
+					continue
 				}
 			}
-			if !found {
-				c.SetIfaceManaged("wlan0", c.GetWifiDevices(c.GetDevices()))
+			fmt.Println("==== Management Mode")
+			res, err := cw.Enabled()
+			if err != nil {
+				fmt.Println("====== err:", err)
+				continue
 			}
-			// check for ssids, if any found, take steps
-			if checkSsids(c) {
+			if !res {
 				//TODO: start Management Mode http server. requires new pkg funcs
-				fmt.Println("==== Start Management Mode http server...")
-				//TODO: start wifi-ap
 				fmt.Println("==== Start wifi-ap AP...")
+				cw.Enable()
 			}
-		} else { //Set to operational mode
+			fmt.Println("==== Start Management Mode http server...")
+		} else { // Operational mode
 			//TODO create operational mode server
+			mode = operational
 			fmt.Println("==== Start Operational Mode http server...")
 		}
 		// wait 5 seconds

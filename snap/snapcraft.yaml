@@ -20,7 +20,7 @@ apps:
   daemon:
     command: daemon
     daemon: simple
-    plugs: [network-manager]
+    plugs: [network-manager, control]
 
 plugs:
   control:
