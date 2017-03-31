@@ -17,6 +17,10 @@ apps:
   wifi-ap:
     command: wifi-ap
     plugs: [control, network]
+  daemon:
+    command: daemon
+    daemon: simple
+    plugs: [network-manager]
 
 plugs:
   control:
