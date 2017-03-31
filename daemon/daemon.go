@@ -30,5 +30,4 @@ func main() {
 		// wait 5 seconds
 		time.Sleep(5000 * time.Millisecond)
 	}
-	return
 }
