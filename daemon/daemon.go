@@ -59,14 +59,15 @@ func main() {
 			//wait time period (TBD) on first run to allow wifi connections
 			time.Sleep(10000 * time.Millisecond)
 		}
+		//if an external wifi connection, set to Operational mode
 		if c.ConnectedWifi(c.GetWifiDevices(c.GetDevices())) {
 			fmt.Println("====  Have network manager wifi connection")
 			mode = operational
 		}
-
 		//if not connected to external wifi: Management Mode
 		if mode != operational {
 			fmt.Println("==== No network manager wifi connection")
+			//before mode is managed, get ssids
 			if mode == unknown {
 				if scanSsids(ssidsPath, c) {
 					mode = managed
@@ -75,23 +76,25 @@ func main() {
 				}
 			}
 			fmt.Println("==== Management Mode")
-			res, err := cw.Enabled()
+			//if wifi-ap is not enabled, enable it
+			enabled, err := cw.Enabled()
 			if err != nil {
-				fmt.Println("====== err:", err)
-				continue
+				fmt.Println("====== Error checking wifi-ap.Enabled():", err)
+				continue // try again since no better course of action
 			}
-			if !res {
-				//TODO: start Management Mode http server. requires new pkg funcs
+			if !enabled {
 				fmt.Println("==== Start wifi-ap AP...")
 				cw.Enable()
 			}
+			//need api for to start the management http server
 			fmt.Println("==== Start Management Mode http server...")
 		} else { // Operational mode
 			//TODO create operational mode server
 			mode = operational
+			//need api for to start the management http server
 			fmt.Println("==== Start Operational Mode http server...")
 		}
-		// wait 5 seconds
+		// wait 5 seconds on each iter
 		time.Sleep(5000 * time.Millisecond)
 	}
 }
