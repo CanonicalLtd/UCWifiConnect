@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/csv"
 	"log"
 	"net/http"
 	"os"
@@ -18,12 +19,15 @@ const (
 // ResourcesPath absolute path to web static resources
 var ResourcesPath = filepath.Join(os.Getenv("SNAP"), "static")
 
+// SsidsFile path to the file filled by daemon with available ssids in csv format
+var SsidsFile = filepath.Join(os.Getenv("SNAP_COMMON"), "ssids")
+
 // Data interface representing any data included in a template
 type Data interface{}
 
 // SsidsData dynamic data to fulfill the SSIDs page template
 type SsidsData struct {
-	Ssids []netman.SSID
+	Ssids []string
 }
 
 // ConnectingData dynamic data to fulfill the connect result page template
@@ -48,11 +52,28 @@ func execTemplate(w http.ResponseWriter, templatePath string, data Data) {
 	}
 }
 
+func readSsidsFile() ([]string, error) {
+	f, err := os.Open(SsidsFile)
+	if err != nil {
+		return nil, err
+	}
+
+	reader := csv.NewReader(f)
+	// all ssids are in the same record
+	record, err := reader.Read()
+	return record, err
+}
+
 // SsidsHandler lists the current available SSIDs
 func SsidsHandler(w http.ResponseWriter, r *http.Request) {
-	c := netman.DefaultClient()
-	// build dynamic data object
-	ssids, _, _ := c.Ssids()
+	// daemon stores current available ssids in a file
+	ssids, err := readSsidsFile()
+	if err != nil {
+		log.Printf("Error reading SSIDs file: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	data := SsidsData{Ssids: ssids}
 
 	// parse template

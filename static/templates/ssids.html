@@ -21,13 +21,13 @@
                 {{range $i, $ssid := .Ssids}}
                 <tr>
                     <th scope="row">
-                        <label class="collapse" for="radio{{$i}}">{{$ssid.Ssid}}</label>
+                        <label class="collapse" for="radio{{$i}}">{{$ssid}}</label>
                         <input id="radio{{$i}}" type="radio" name="c1">
                         <div class="six-col">
                         <fieldset>
                         <ul class="no-bullets">
                             <li>
-                                <input type="hidden" id="ssid{{$i}}" value="{{$ssid.Ssid}}"/>
+                                <input type="hidden" id="ssid{{$i}}" value="{{$ssid}}"/>
                                 <label for="passphrase">Enter passphrase:</label>
                                 <input type="password" id="passphrase{{$i}}"/>
                             </li>
