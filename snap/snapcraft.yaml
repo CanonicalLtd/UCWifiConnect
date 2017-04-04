@@ -13,14 +13,14 @@ apps:
     plugs: [network, network-control, network-bind, network-manager, control]
   netman:
     command: netman
-    plugs: [network-manager]
+    plugs: [network-manager, network-control]
   wifi-ap:
     command: wifi-ap
     plugs: [control, network]
   daemon:
     command: daemon
     daemon: simple
-    plugs: [network-manager, control]
+    plugs: [network-manager, control, network-bind]
 
 plugs:
   control:
