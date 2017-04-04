@@ -284,6 +284,37 @@ func (c *Client) SetIfaceManaged(iface string, devices []string) string {
 	return ran
 }
 
+//TODO unit test
+// SetIfaceUnmanaged sets passed device to be unmanaged by network manager, return iface set, if any
+func (c *Client) SetIfaceUnmanaged(iface string, devices []string) string {
+	ran := ""
+	for _, d := range devices {
+		objPath := dbus.ObjectPath(d)
+		c.dbusClient.Object("org.freedesktop.NetworkManager", objPath)
+		setObject(c, "org.freedesktop.NetworkManager", objPath)
+		intface, err2 := c.dbusClient.BusObj.GetProperty("org.freedesktop.NetworkManager.Device.Interface")
+		if err2 != nil {
+			fmt.Printf("Error in SetIfaceUnmanaged() geting interface: %v\n", err2)
+			return ""
+		}
+		if iface != intface.Value().(string) {
+			continue
+		}
+		managed, err := c.dbusClient.BusObj.GetProperty("org.freedesktop.NetworkManager.Device.Managed")
+		if err != nil {
+			fmt.Printf("Error in SetIfaceManaged() fetching device managed: %v\n", err)
+			return ""
+		}
+		if managed.Value().(bool) == false {
+			return "" //no need to set, already unmanaged
+		}
+		c.dbusClient.BusObj.Call("org.freedesktop.DBus.Properties.Set", 0, "org.freedesktop.NetworkManager.Device", "Managed", dbus.MakeVariant(false))
+		ran = iface
+		break
+	}
+	return ran
+}
+
 // WifisManaged returns  map[iface]device of wifi iterfaces that are managed by network manager
 func (c *Client) WifisManaged(wifiDevices []string) (map[string]string, error) {
 	ifaces := make(map[string]string)
