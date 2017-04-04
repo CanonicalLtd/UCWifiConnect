@@ -9,6 +9,7 @@ import (
 	"text/template"
 
 	"github.com/CanonicalLtd/UCWifiConnect/netman"
+	"github.com/CanonicalLtd/UCWifiConnect/wifiap"
 )
 
 const (
@@ -100,9 +101,14 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Connecting to %v...", ssid)
 
+	cw := wifiap.DefaultClient()
+	cw.Disable()
+
 	//connect
 	c := netman.DefaultClient()
 	_, ap2device, ssid2ap := c.Ssids()
+
+	c.SetIfaceManaged("wlan0", c.GetWifiDevices(c.GetDevices()))
 	c.ConnectAp(ssid, pwd, ap2device, ssid2ap)
 
 	data := ConnectingData{ssid}
