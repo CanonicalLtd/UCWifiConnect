@@ -16,8 +16,6 @@ const (
 	MANAGEMENT
 	// OPERATIONAL only operational portal is up. Rest are down
 	OPERATIONAL
-	// ALL operational and management portals are both up.
-	ALL
 )
 
 // RunningServer enum defining which server is up and running
@@ -40,6 +38,7 @@ func StartManagementServer() error {
 		managementCloser = nil
 		return err
 	}
+	currentlyRunning = MANAGEMENT
 	return nil
 }
 
@@ -51,6 +50,7 @@ func StartOperationalServer() error {
 		operationalCloser = nil
 		return err
 	}
+	currentlyRunning = OPERATIONAL
 	return nil
 }
 
@@ -62,8 +62,15 @@ func ShutdownManagementServer() error {
 	}
 
 	err := managementCloser.Close()
+	if err != nil {
+		return err
+	}
 	managementCloser = nil
-	return err
+	// TODO for now we only have one server up at a time. Later, if happens
+	// that more than one can be up at the same time it would be needed manage this
+	// state changes in a better way
+	currentlyRunning = NONE
+	return nil
 }
 
 // ShutdownOperationalServer shutdown server operational mode. If server is up in management mode, it does nothing
@@ -74,8 +81,15 @@ func ShutdownOperationalServer() error {
 	}
 
 	err := operationalCloser.Close()
+	if err != nil {
+		return err
+	}
 	operationalCloser = nil
-	return err
+	// TODO for now we only have one server up at a time. Later, if happens
+	// that more than one can be up at the same time it would be needed manage this
+	// state changes in a better way
+	currentlyRunning = NONE
+	return nil
 }
 
 // ShutdownServer shutdown server no matter the mode it is up
@@ -88,5 +102,6 @@ func ShutdownServer() error {
 	if err2 != nil {
 		return err2
 	}
+	currentlyRunning = NONE
 	return nil
 }
