@@ -16,6 +16,8 @@ const (
 	MANAGEMENT
 	// OPERATIONAL only operational portal is up. Rest are down
 	OPERATIONAL
+	// ALL operational and management portals are both up.
+	ALL
 )
 
 // RunningServer enum defining which server is up and running
@@ -87,34 +89,4 @@ func ShutdownServer() error {
 		return err2
 	}
 	return nil
-}
-
-// SwitchToOperationalServer shutdowns management server if up and start operational one
-func SwitchToOperationalServer() error {
-	if Running() == OPERATIONAL {
-		log.Println("Server already in operational mode. Skipping")
-		return nil
-	}
-
-	err := ShutdownManagementServer()
-	if err != nil {
-		return err
-	}
-
-	return StartOperationalServer()
-}
-
-// SwitchToManagementServer shutdowns operational server if up and start management one
-func SwitchToManagementServer() error {
-	if Running() == MANAGEMENT {
-		log.Println("Server already in management mode. Skipping")
-		return nil
-	}
-
-	err := ShutdownOperationalServer()
-	if err != nil {
-		return err
-	}
-
-	return StartManagementServer()
 }
