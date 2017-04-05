@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/csv"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -55,12 +56,20 @@ func execTemplate(w http.ResponseWriter, templatePath string, data Data) {
 func readSsidsFile() ([]string, error) {
 	f, err := os.Open(SsidsFile)
 	if err != nil {
+
+		//TODO TRACE
+		log.Printf("ERROR:%v", err)
+
 		return nil, err
 	}
 
 	reader := csv.NewReader(f)
 	// all ssids are in the same record
 	record, err := reader.Read()
+	if err == io.EOF {
+		empty := make([]string, 0)
+		return empty, nil
+	}
 	return record, err
 }
 

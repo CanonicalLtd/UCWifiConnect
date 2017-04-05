@@ -86,3 +86,40 @@ func TestReadSsidsFile(t *testing.T) {
 		t.Error("hisnetwork value not found")
 	}
 }
+
+func TestReadSsidsFileWithOnlyOne(t *testing.T) {
+
+	SsidsFile = "../static/tests/ssids_onlyonessid"
+
+	ssids, err := readSsidsFile()
+	if err != nil {
+		t.Errorf("Unexpected error reading ssids file: %v", err)
+	}
+
+	if len(ssids) != 1 {
+		t.Error("Expected 1 elements in csv record")
+	}
+
+	set := make(map[string]bool)
+	for _, v := range ssids {
+		set[v] = true
+	}
+
+	if !set["mynetwork"] {
+		t.Error("mynetwork value not found")
+	}
+}
+
+func TestReadEmptySsidsFile(t *testing.T) {
+
+	SsidsFile = "../static/tests/ssids_empty"
+
+	ssids, err := readSsidsFile()
+	if err != nil {
+		t.Errorf("Unexpected error reading ssids file: %v", err)
+	}
+
+	if len(ssids) != 0 {
+		t.Error("Expected 0 elements in csv record")
+	}
+}

@@ -21,8 +21,8 @@ func managementHandler() *mux.Router {
 	return router
 }
 
-// externalHandler handles request for web UI when connected to external WIFI
-func externalHandler() *mux.Router {
+// operationalHandler handles request for web UI when connected to external WIFI
+func operationalHandler() *mux.Router {
 
 	//TODO IMPLEMENT
 	return nil

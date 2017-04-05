@@ -36,11 +36,11 @@ func StartManagementServer() (sc io.Closer, err error) {
 	return listenAndServe(address, managementHandler())
 }
 
-// StartExternalServer starts web server when connected to external WIFI
+// StartOperationalServer starts web server when connected to external WIFI
 /* Howto start and stop server
-srvCLoser, err := server.StartExternalServer()
+srvCLoser, err := server.StartOperationalServer()
 if err != nil {
-	log.Fatalln("StartExternalServer Error - ", err)
+	log.Fatalln("StartOperationalServer Error - ", err)
 }
 
 // Do Stuff
@@ -53,15 +53,15 @@ if err != nil {
 
 log.Println("Server Closed")
 */
-func StartExternalServer() (sc io.Closer, err error) {
-	return listenAndServe(address, externalHandler())
+func StartOperationalServer() (sc io.Closer, err error) {
+	return listenAndServe(address, operationalHandler())
 }
 
 type tcpKeepAliveListener struct {
 	*net.TCPListener
 }
 
-// Accept accepts incomming tcp connections
+// Accept accepts incoming tcp connections
 func (ln tcpKeepAliveListener) Accept() (c net.Conn, err error) {
 	tc, err := ln.AcceptTCP()
 	if err != nil {
