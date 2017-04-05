@@ -9,54 +9,6 @@ import (
 	"log"
 )
 
-const (
-	address = ":8080"
-)
-
-// ListenAndServe starts http server.
-
-// StartManagementServer starts web server for AP in management mode
-/* Howto start and stop server
-srvCLoser, err := server.StartManagementServer()
-if err != nil {
-	log.Fatalln("StartManagementServer Error - ", err)
-}
-
-// Do Stuff
-
-// Close HTTP Server
-err = srvCLoser.Close()
-if err != nil {
-	log.Fatalln("Server Close Error - ", err)
-}
-
-log.Println("Server Closed")
-*/
-func StartManagementServer() (sc io.Closer, err error) {
-	return listenAndServe(address, managementHandler())
-}
-
-// StartOperationalServer starts web server when connected to external WIFI
-/* Howto start and stop server
-srvCLoser, err := server.StartOperationalServer()
-if err != nil {
-	log.Fatalln("StartOperationalServer Error - ", err)
-}
-
-// Do Stuff
-
-// Close HTTP Server
-err = srvCLoser.Close()
-if err != nil {
-	log.Fatalln("Server Close Error - ", err)
-}
-
-log.Println("Server Closed")
-*/
-func StartOperationalServer() (sc io.Closer, err error) {
-	return listenAndServe(address, operationalHandler())
-}
-
 type tcpKeepAliveListener struct {
 	*net.TCPListener
 }
