@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/CanonicalLtd/UCWifiConnect/netman"
 	"github.com/CanonicalLtd/UCWifiConnect/server"
+	"github.com/CanonicalLtd/UCWifiConnect/utils"
 	"github.com/CanonicalLtd/UCWifiConnect/wifiap"
 )
 
@@ -20,15 +20,15 @@ const (
 	operational
 )
 
-//used to clase the management http server
-var mgmtCloser io.Closer
-
 //used to clase the operataional http server
-var operCloser io.Closer
 var err error
 
+// scanSsids sets wlan0 to be managed and then scans
+// for ssids. If found, write the ssids (comma separated)
+// to path and return true, else return false.
 func scanSsids(path string, c *netman.Client) bool {
 	manage(c)
+	time.Sleep(5000 * time.Millisecond)
 	SSIDs, _, _ := c.Ssids()
 	//only write SSIDs when found
 	if len(SSIDs) > 0 {
@@ -39,37 +39,18 @@ func scanSsids(path string, c *netman.Client) bool {
 		out = out[:len(out)-1]
 		err := ioutil.WriteFile(path, []byte(out), 0644)
 		if err != nil {
-			fmt.Println("Error writing ssids to ", path)
+			fmt.Println("==== Error writing SSID(s) to ", path)
 		} else {
+			fmt.Println("==== SSID(s) found and written to ", path)
 			return true
 		}
 	}
+	fmt.Println("==== NO SSID found")
 	return false
 }
 
-func managementPortalUp() (io.Closer, error) {
-	mgmtCloser, err = server.StartManagementServer()
-	if err != nil {
-		return mgmtCloser, err
-	}
-	return mgmtCloser, nil
-}
-func operationalPortalUp() (io.Closer, error) {
-	operCloser, err = server.StartExternalServer()
-	if err != nil {
-		return operCloser, err
-	}
-	return operCloser, nil
-}
-
-func portalDown(closer io.Closer) error {
-	err = closer.Close()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
+// unmanage sets wlan0 to be unmanaged by network manager if it
+// is managed
 func unmanage(c *netman.Client) {
 	ifaces, _ := c.WifisManaged(c.GetWifiDevices(c.GetDevices()))
 	if _, ok := ifaces["wlan0"]; ok {
@@ -78,11 +59,66 @@ func unmanage(c *netman.Client) {
 	}
 }
 
+// manage sets wlan0 to not managed by network manager
 func manage(c *netman.Client) {
-	ifaces, _ := c.WifisManaged(c.GetWifiDevices(c.GetDevices()))
-	if _, ok := ifaces["wlan0"]; ok {
-		fmt.Println("==== Setting wlan0 managed")
-		c.SetIfaceManaged("wlan0", c.GetWifiDevices(c.GetDevices()))
+	fmt.Println("==== Setting wlan0 managed")
+	c.SetIfaceManaged("wlan0", c.GetWifiDevices(c.GetDevices()))
+}
+
+// checkWaitApConnect returns true if the flag wait file exists
+// and false if it does not
+func checkWaitApConnect() bool {
+	waitApPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
+	if _, err := os.Stat(waitApPath); os.IsNotExist(err) {
+		fmt.Println("==== Wait file not found")
+		return false
+	}
+	fmt.Println("==== Wait file found")
+	return true
+}
+
+// managementServerUp starts the management server if it is
+// not running
+func managementServerUp() {
+	if server.Running() != 1 {
+		err = server.StartManagementServer()
+		if err != nil {
+			fmt.Println("==== Error start Mamagement portal:", err)
+		}
+	}
+}
+
+// managementServerDown stops the management server if it is running
+// also remove the wait flag file, thus resetting proper state
+func managementServerDown() {
+	if server.Running() == 1 {
+		err = server.ShutdownManagementServer()
+		if err != nil {
+			fmt.Println("==== Error stopping the Management portal:", err)
+		}
+		//remove flag fie so daemon resumes normal control
+		utils.RemoveWaitFile()
+	}
+}
+
+// operationalServerUp starts the operational server if it is
+// not running
+func operationalServerUp() {
+	if server.Running() != 2 {
+		err = server.StartOperationalServer()
+		if err != nil {
+			fmt.Println("==== Error starting the Operational portal:", err)
+		}
+	}
+}
+
+// operationalServerdown stops the operational server if it is running
+func operationalServerDown() {
+	if server.Running() == 2 {
+		err = server.ShutdownOperationalServer()
+		if err != nil {
+			fmt.Println("==== Error stopping Operational portal:", err)
+		}
 	}
 }
 
@@ -91,37 +127,51 @@ func main() {
 	c := netman.DefaultClient()
 	cw := wifiap.DefaultClient()
 	ssidsPath := os.Getenv("SNAP_COMMON") + "/ssids"
+
+	// stop servers if running at start
+	managementServerDown()
+	operationalServerDown()
+
+	//remove possibly left over wait flag file
+	utils.RemoveWaitFile()
+
 	for {
 		if first {
 			first = false
 			//wait time period (TBD) on first run to allow wifi connections
-			time.Sleep(5000 * time.Millisecond)
+			time.Sleep(40000 * time.Millisecond)
 		}
+
 		// wait 5 seconds on each iter
-		time.Sleep(60000 * time.Millisecond)
-		//if an external wifi connection: Operational mode
-		fmt.Println("== wifi connected:", c.ConnectedWifi(c.GetWifiDevices(c.GetDevices())))
-		if c.ConnectedWifi(c.GetWifiDevices(c.GetDevices())) {
-			// Operational mode
-			fmt.Println("==== Operational Mode ")
-			fmt.Println("==== Stop Management Mode http server...")
-			if mgmtCloser != nil {
-				err = portalDown(mgmtCloser)
-				if err != nil {
-					fmt.Println("Error stopping the Management portal:", err)
-				}
-			}
-			fmt.Println("==== Start Operational Mode http server...")
-			operCloser, err = operationalPortalUp()
-			if err != nil {
-				fmt.Println("Error starting the Operational portal:", err)
-			}
+		time.Sleep(5000 * time.Millisecond)
+
+		// wait/loop until management portal's wait flag file is gone
+		// this stops daemon state changing until the management portal
+		// is done, either stopped or the user has attempted to connect to
+		// an external AP
+		if checkWaitApConnect() {
 			continue
 		}
 
-		fmt.Println("==== Managment Mode ")
-		//is wlan0 managed? yes, set unmanaged
+		// if an external wifi connection, we are in Operational mode
+		// and we stay here until there is an external wifi connection
+		if c.ConnectedWifi(c.GetWifiDevices(c.GetDevices())) {
+			fmt.Println("======== Operational Mode ")
+			fmt.Println("==== Stop Management Mode http server if running")
+			managementServerDown()
+			fmt.Println("==== Start Operational Mode http server if not runing")
+			operationalServerUp()
+			continue
+		}
+
+		fmt.Println("====== Managment Mode")
+		// if wlan0 managed, set unmanaged so that we can bring up wifi-ap
+		// properly
 		unmanage(c)
+
+		// stop operational portal
+		fmt.Println("==== Stop Operational Mode http server if running")
+		operationalServerDown()
 
 		//wifi-ap UP?
 		wifiUp, err := cw.Enabled()
@@ -129,31 +179,22 @@ func main() {
 			fmt.Println("==== Error checking wifi-ap.Enabled():", err)
 			continue // try again since no better course of action
 		}
-		fmt.Println("==== wifi-ap enabled state:", wifiUp)
+
+		fmt.Println("==== Wifi-ap enabled state:", wifiUp)
+
+		//get ssids if wifi-ap Down
 		if !wifiUp {
 			found := scanSsids(ssidsPath, c)
 			unmanage(c)
 			if !found {
-				fmt.Println("==== No SSIDs found. Looping...")
-				//continue
+				fmt.Println("==== No SSIDs found. Looping.")
+				continue
 			}
-			fmt.Println("==== Stop Management portal")
-			if mgmtCloser != nil {
-				err = portalDown(mgmtCloser)
-				if err != nil {
-					fmt.Println("==== Error stopping Mamagement portal:", err)
-					continue // try again since no better course of action
-				}
-			}
-			fmt.Println("==== Start wifi-ap")
+			fmt.Println("==== Have SSIDs: start wifi-ap")
 			cw.Enable()
 		}
 
-		fmt.Println("==== Start Management portal")
-		mgmtCloser, err = managementPortalUp()
-		if err != nil {
-			fmt.Println("==== Error start Mamagement portal:", err)
-			continue // try again for lack of better option
-		}
+		fmt.Println("==== Start Management portal if not running")
+		managementServerUp()
 	}
 }
