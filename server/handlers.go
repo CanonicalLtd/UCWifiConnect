@@ -8,8 +8,10 @@ import (
 	"os"
 	"path/filepath"
 	"text/template"
+	"time"
 
 	"github.com/CanonicalLtd/UCWifiConnect/netman"
+	"github.com/CanonicalLtd/UCWifiConnect/utils"
 	"github.com/CanonicalLtd/UCWifiConnect/wifiap"
 )
 
@@ -57,10 +59,8 @@ func execTemplate(w http.ResponseWriter, templatePath string, data Data) {
 func readSsidsFile() ([]string, error) {
 	f, err := os.Open(SsidsFile)
 	if err != nil {
-
 		//TODO TRACE
 		log.Printf("ERROR:%v", err)
-
 		return nil, err
 	}
 
@@ -102,6 +102,9 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	ssid := ssids[0]
 
+	data := ConnectingData{ssid}
+	execTemplate(w, connectingTemplatePath, data)
+
 	pwd := ""
 	pwds := r.Form["pwd"]
 	if len(pwds) > 0 {
@@ -120,6 +123,10 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 	c.SetIfaceManaged("wlan0", c.GetWifiDevices(c.GetDevices()))
 	c.ConnectAp(ssid, pwd, ap2device, ssid2ap)
 
-	data := ConnectingData{ssid}
-	execTemplate(w, connectingTemplatePath, data)
+	//wait, to provide time for the connection to occur
+	time.Sleep(30000 * time.Millisecond)
+
+	//remove flag file so that daemon starts checking state
+	//and takes control again
+	utils.RemoveWaitFile()
 }
