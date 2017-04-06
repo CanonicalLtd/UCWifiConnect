@@ -284,7 +284,6 @@ func (c *Client) SetIfaceManaged(iface string, devices []string) string {
 	return ran
 }
 
-//TODO unit test
 // SetIfaceUnmanaged sets passed device to be unmanaged by network manager, return iface set, if any
 func (c *Client) SetIfaceUnmanaged(iface string, devices []string) string {
 	ran := ""
