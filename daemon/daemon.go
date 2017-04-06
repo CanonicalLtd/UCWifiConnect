@@ -159,12 +159,12 @@ func main() {
 			fmt.Println("======== Operational Mode ")
 			fmt.Println("==== Stop Management Mode http server if running")
 			managementServerDown()
-			fmt.Println("==== Start Operational Mode http server if not runing")
+			fmt.Println("==== Start Operational Mode http server if not running")
 			operationalServerUp()
 			continue
 		}
 
-		fmt.Println("====== Managment Mode")
+		fmt.Println("====== Management Mode")
 		// if wlan0 managed, set unmanaged so that we can bring up wifi-ap
 		// properly
 		unmanage(c)
