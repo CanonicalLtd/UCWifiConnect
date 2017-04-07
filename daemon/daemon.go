@@ -55,14 +55,14 @@ func unmanage(c *netman.Client) {
 	ifaces, _ := c.WifisManaged(c.GetWifiDevices(c.GetDevices()))
 	if _, ok := ifaces["wlan0"]; ok {
 		fmt.Println("==== Setting wlan0 unmanaged")
-		c.SetIfaceUnmanaged("wlan0", c.GetWifiDevices(c.GetDevices()))
+		c.SetIfaceManaged("wlan0", false, c.GetWifiDevices(c.GetDevices()))
 	}
 }
 
 // manage sets wlan0 to not managed by network manager
 func manage(c *netman.Client) {
 	fmt.Println("==== Setting wlan0 managed")
-	c.SetIfaceManaged("wlan0", c.GetWifiDevices(c.GetDevices()))
+	c.SetIfaceManaged("wlan0", true, c.GetWifiDevices(c.GetDevices()))
 }
 
 // checkWaitApConnect returns true if the flag wait file exists
@@ -80,7 +80,7 @@ func checkWaitApConnect() bool {
 // managementServerUp starts the management server if it is
 // not running
 func managementServerUp() {
-	if server.Running() != MANAGEMENT {
+	if server.Running() != server.MANAGEMENT {
 		err = server.StartManagementServer()
 		if err != nil {
 			fmt.Println("==== Error start Mamagement portal:", err)
@@ -104,7 +104,7 @@ func managementServerDown() {
 // operationalServerUp starts the operational server if it is
 // not running
 func operationalServerUp() {
-	if server.Running() != OPERATIONAL {
+	if server.Running() != server.OPERATIONAL {
 		err = server.StartOperationalServer()
 		if err != nil {
 			fmt.Println("==== Error starting the Operational portal:", err)
@@ -114,7 +114,7 @@ func operationalServerUp() {
 
 // operationalServerdown stops the operational server if it is running
 func operationalServerDown() {
-	if server.Running() == OPERATIONAL {
+	if server.Running() == server.OPERATIONAL {
 		err = server.ShutdownOperationalServer()
 		if err != nil {
 			fmt.Println("==== Error stopping Operational portal:", err)

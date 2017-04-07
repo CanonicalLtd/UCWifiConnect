@@ -84,7 +84,7 @@ func main() {
 		return
 	}
 	if len(opts.setIfaceUnmanaged) > 0 {
-		c.SetIfaceUnmanaged(opts.setIfaceManaged, false, c.GetWifiDevices(c.GetDevices()))
+		c.SetIfaceManaged(opts.setIfaceUnmanaged, false, c.GetWifiDevices(c.GetDevices()))
 		return
 	}
 	if opts.wifisManaged {

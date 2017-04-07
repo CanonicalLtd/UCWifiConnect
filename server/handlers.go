@@ -119,7 +119,7 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 	c := netman.DefaultClient()
 	_, ap2device, ssid2ap := c.Ssids()
 
-	c.SetIfaceManaged("wlan0", c.GetWifiDevices(c.GetDevices()))
+	c.SetIfaceManaged("wlan0", true, c.GetWifiDevices(c.GetDevices()))
 	c.ConnectAp(ssid, pwd, ap2device, ssid2ap)
 
 	//wait, to provide time for the connection to occur

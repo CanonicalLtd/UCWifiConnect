@@ -54,6 +54,7 @@ func main() {
 	wifiAPClient := wifiap.DefaultClient()
 	var err error
 	var result map[string]interface{}
+	var res bool
 
 	switch {
 	case opts.show:
@@ -71,7 +72,7 @@ func main() {
 	case opts.disable:
 		err = wifiAPClient.Disable()
 	case opts.enabled:
-		res, err := wifiAPClient.Enabled()
+		res, err = wifiAPClient.Enabled()
 		if res {
 			fmt.Println("Wifi-ap is UP")
 		} else {

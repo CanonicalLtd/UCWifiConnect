@@ -274,9 +274,17 @@ func (c *Client) SetIfaceManaged(iface string, state bool, devices []string) str
 			fmt.Printf("Error in SetIfaceManaged() fetching device managed: %v\n", err)
 			return ""
 		}
-		if managed.Value().(bool) == true {
-			return "" //no need to set, already managed
+		switch state {
+		case true:
+			if managed.Value().(bool) == true {
+				return "" //no need to set, already managed
+			}
+		case false:
+			if managed.Value().(bool) == false {
+				return "" //no need to set, already UNmanaged
+			}
 		}
+
 		c.dbusClient.BusObj.Call("org.freedesktop.DBus.Properties.Set", 0, "org.freedesktop.NetworkManager.Device", "Managed", dbus.MakeVariant(state))
 		ran = iface
 		break
