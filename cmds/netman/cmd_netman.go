@@ -80,11 +80,11 @@ func main() {
 		return
 	}
 	if len(opts.setIfaceManaged) > 0 {
-		c.SetIfaceManaged(opts.setIfaceManaged, c.GetWifiDevices(c.GetDevices()))
+		c.SetIfaceManaged(opts.setIfaceManaged, true, c.GetWifiDevices(c.GetDevices()))
 		return
 	}
 	if len(opts.setIfaceUnmanaged) > 0 {
-		c.SetIfaceUnmanaged(opts.setIfaceUnmanaged, c.GetWifiDevices(c.GetDevices()))
+		c.SetIfaceUnmanaged(opts.setIfaceManaged, false, c.GetWifiDevices(c.GetDevices()))
 		return
 	}
 	if opts.wifisManaged {

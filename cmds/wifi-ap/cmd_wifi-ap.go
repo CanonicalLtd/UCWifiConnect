@@ -72,14 +72,10 @@ func main() {
 		err = wifiAPClient.Disable()
 	case opts.enabled:
 		res, err := wifiAPClient.Enabled()
-		if err != nil {
-			fmt.Println("Error:", err)
+		if res {
+			fmt.Println("Wifi-ap is UP")
 		} else {
-			if res {
-				fmt.Println("Wifi-ap is UP")
-			} else {
-				fmt.Println("Wifi-ap is Down")
-			}
+			fmt.Println("Wifi-ap is Down")
 		}
 	}
 

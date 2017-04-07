@@ -80,7 +80,7 @@ func checkWaitApConnect() bool {
 // managementServerUp starts the management server if it is
 // not running
 func managementServerUp() {
-	if server.Running() != 1 {
+	if server.Running() != MANAGEMENT {
 		err = server.StartManagementServer()
 		if err != nil {
 			fmt.Println("==== Error start Mamagement portal:", err)
@@ -91,7 +91,7 @@ func managementServerUp() {
 // managementServerDown stops the management server if it is running
 // also remove the wait flag file, thus resetting proper state
 func managementServerDown() {
-	if server.Running() == 1 {
+	if server.Running() == server.MANAGEMENT {
 		err = server.ShutdownManagementServer()
 		if err != nil {
 			fmt.Println("==== Error stopping the Management portal:", err)
@@ -104,7 +104,7 @@ func managementServerDown() {
 // operationalServerUp starts the operational server if it is
 // not running
 func operationalServerUp() {
-	if server.Running() != 2 {
+	if server.Running() != OPERATIONAL {
 		err = server.StartOperationalServer()
 		if err != nil {
 			fmt.Println("==== Error starting the Operational portal:", err)
@@ -114,7 +114,7 @@ func operationalServerUp() {
 
 // operationalServerdown stops the operational server if it is running
 func operationalServerDown() {
-	if server.Running() == 2 {
+	if server.Running() == OPERATIONAL {
 		err = server.ShutdownOperationalServer()
 		if err != nil {
 			fmt.Println("==== Error stopping Operational portal:", err)

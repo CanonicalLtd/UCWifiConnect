@@ -59,8 +59,7 @@ func execTemplate(w http.ResponseWriter, templatePath string, data Data) {
 func readSsidsFile() ([]string, error) {
 	f, err := os.Open(SsidsFile)
 	if err != nil {
-		//TODO TRACE
-		log.Printf("ERROR:%v", err)
+		log.Printf("Error:%v", err)
 		return nil, err
 	}
 

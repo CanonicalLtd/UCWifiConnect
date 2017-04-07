@@ -59,7 +59,6 @@ func (client *Client) Enabled() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	fmt.Println(response.Result["disabled"])
 	if response.Result["disabled"].(bool) {
 		return false, nil
 	}
