@@ -255,7 +255,7 @@ func (c *Client) DisconnectWifi(wifiDevices []string) int {
 }
 
 // SetIfaceManaged sets passed device to be managed by network manager, return iface set, if any
-func (c *Client) SetIfaceManaged(iface string, devices []string) string {
+func (c *Client) SetIfaceManaged(iface string, state bool, devices []string) string {
 	ran := ""
 	for _, d := range devices {
 		objPath := dbus.ObjectPath(d)
@@ -274,10 +274,18 @@ func (c *Client) SetIfaceManaged(iface string, devices []string) string {
 			fmt.Printf("Error in SetIfaceManaged() fetching device managed: %v\n", err)
 			return ""
 		}
-		if managed.Value().(bool) == true {
-			return "" //no need to set, already managed
+		switch state {
+		case true:
+			if managed.Value().(bool) == true {
+				return "" //no need to set, already managed
+			}
+		case false:
+			if managed.Value().(bool) == false {
+				return "" //no need to set, already UNmanaged
+			}
 		}
-		c.dbusClient.BusObj.Call("org.freedesktop.DBus.Properties.Set", 0, "org.freedesktop.NetworkManager.Device", "Managed", dbus.MakeVariant(true))
+
+		c.dbusClient.BusObj.Call("org.freedesktop.DBus.Properties.Set", 0, "org.freedesktop.NetworkManager.Device", "Managed", dbus.MakeVariant(state))
 		ran = iface
 		break
 	}

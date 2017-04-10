@@ -20,6 +20,7 @@ func contains(s []string, e string) bool {
 type options struct {
 	show       bool
 	enable     bool
+	enabled    bool
 	disable    bool
 	ssid       string
 	passphrase string
@@ -33,6 +34,7 @@ func args() *options {
 	opts := &options{}
 	flag.BoolVar(&opts.show, "show", false, "Show the wifi-ap configuration")
 	flag.BoolVar(&opts.enable, "ap-on", false, "Turn on the AP")
+	flag.BoolVar(&opts.enabled, "enabled", false, "Check if the AP is UP")
 	flag.BoolVar(&opts.disable, "ap-off", false, "Turn off the AP")
 	flag.StringVar(&opts.ssid, "ssid", "", "Set the AP's SSID")
 	flag.StringVar(&opts.passphrase, "passphrase", "", "Set the AP's passphrase")
@@ -52,6 +54,7 @@ func main() {
 	wifiAPClient := wifiap.DefaultClient()
 	var err error
 	var result map[string]interface{}
+	var res bool
 
 	switch {
 	case opts.show:
@@ -68,6 +71,13 @@ func main() {
 		err = wifiAPClient.Enable()
 	case opts.disable:
 		err = wifiAPClient.Disable()
+	case opts.enabled:
+		res, err = wifiAPClient.Enabled()
+		if res {
+			fmt.Println("Wifi-ap is UP")
+		} else {
+			fmt.Println("Wifi-ap is Down")
+		}
 	}
 
 	if err != nil {

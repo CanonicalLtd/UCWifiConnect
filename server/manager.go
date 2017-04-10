@@ -3,6 +3,8 @@ package server
 import (
 	"io"
 	"log"
+
+	"github.com/CanonicalLtd/UCWifiConnect/utils"
 )
 
 const (
@@ -32,6 +34,7 @@ func Running() RunningServer {
 
 // StartManagementServer starts server in management mode
 func StartManagementServer() error {
+	utils.WriteWaitFile()
 	var err error
 	managementCloser, err = listenAndServe(address, managementHandler())
 	if err != nil {
