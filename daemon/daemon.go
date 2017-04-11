@@ -138,10 +138,6 @@ func main() {
 
 	for {
 		if first {
-
-			//TODO POC avahi
-			avahi.InitMDNS()
-
 			first = false
 			//wait time period (TBD) on first run to allow wifi connections
 			time.Sleep(40000 * time.Millisecond)
@@ -166,6 +162,8 @@ func main() {
 			managementServerDown()
 			fmt.Println("==== Start Operational Mode http server if not running")
 			operationalServerUp()
+			//TODO POC avahi
+			avahi.InitMDNS()
 			continue
 		}
 
@@ -201,5 +199,7 @@ func main() {
 
 		fmt.Println("==== Start Management portal if not running")
 		managementServerUp()
+		//TODO POC avahi
+		avahi.InitMDNS()
 	}
 }
