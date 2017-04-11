@@ -71,6 +71,8 @@ func main() {
 		err = wifiAPClient.Enable()
 	case opts.disable:
 		err = wifiAPClient.Disable()
+		//remove state flag file
+		utils.RemoveWaitFile()
 	case opts.enabled:
 		res, err = wifiAPClient.Enabled()
 		if res {

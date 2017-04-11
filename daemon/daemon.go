@@ -140,6 +140,8 @@ func main() {
 			first = false
 			//wait time period (TBD) on first run to allow wifi connections
 			time.Sleep(40000 * time.Millisecond)
+			//remove previous state flag, if any on deamon startup
+			utils.RemoveWaitFile()
 		}
 
 		// wait 5 seconds on each iter
