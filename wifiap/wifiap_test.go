@@ -244,6 +244,73 @@ func TestDisable(t *testing.T) {
 	}
 }
 
+type mockTransportEnabledTrue struct{}
+
+func (mock *mockTransportEnabledTrue) Do(req *http.Request) (*http.Response, error) {
+
+	url := req.URL.String()
+	if url != "http://unix/v1/configuration" {
+		return nil, fmt.Errorf("Not valid request URL: %v", url)
+	}
+
+	if req.Method != "GET" {
+		return nil, fmt.Errorf("Method is not valid. Expected GET, got %v", req.Method)
+	}
+
+	rawBody := `{"result":{
+		"disabled": false},"status":"OK","status-code":200,"type":"sync"}`
+
+	response := http.Response{
+		StatusCode: 200,
+		Status:     "200 OK",
+		Body:       ioutil.NopCloser(strings.NewReader(rawBody)),
+	}
+	return &response, nil
+}
+
+type mockTransportEnabledFalse struct{}
+
+func (mock *mockTransportEnabledFalse) Do(req *http.Request) (*http.Response, error) {
+
+	url := req.URL.String()
+	if url != "http://unix/v1/configuration" {
+		return nil, fmt.Errorf("Not valid request URL: %v", url)
+	}
+
+	if req.Method != "GET" {
+		return nil, fmt.Errorf("Method is not valid. Expected GET, got %v", req.Method)
+	}
+
+	rawBody := `{"result":{
+		"disabled": true},"status":"OK","status-code":200,"type":"sync"}`
+
+	response := http.Response{
+		StatusCode: 200,
+		Status:     "200 OK",
+		Body:       ioutil.NopCloser(strings.NewReader(rawBody)),
+	}
+	return &response, nil
+}
+
+func TestEnabled(t *testing.T) {
+	client := NewClient(&mockTransportEnabledTrue{})
+	res, err := client.Enabled()
+	if err != nil {
+		t.Errorf("Enabled() (expecting true response) has error: %v", err)
+	}
+	if !res {
+		t.Errorf("Enabled() incorrectly returned false")
+	}
+	client = NewClient(&mockTransportEnabledFalse{})
+	res, err = client.Enabled()
+	if err != nil {
+		t.Errorf("Enabled() (expecting false response) has error: %v", err)
+	}
+	if res {
+		t.Errorf("Enabled() incorrectly returned true")
+	}
+}
+
 // Testing SetSsid(ssid)
 type mockTransportSetSsid struct{}
 

@@ -53,6 +53,18 @@ func (client *Client) Show() (map[string]interface{}, error) {
 	return response.Result, nil
 }
 
+// Enabled checks if wifi-ap is up
+func (client *Client) Enabled() (bool, error) {
+	response, err := client.restClient.sendHTTPRequest(defaultServiceURI(), "GET", nil)
+	if err != nil {
+		return false, err
+	}
+	if response.Result["disabled"].(bool) {
+		return false, nil
+	}
+	return true, nil
+}
+
 // Enable enables wifi ap
 func (client *Client) Enable() error {
 	params := map[string]string{"disabled": "false"}

@@ -226,29 +226,36 @@ func TestiDiscconnectWifi(t *testing.T) {
 func TestSetIfaceManaged(t *testing.T) {
 	mock := &mockObj{}
 	client := NewClient(mock)
-	res := client.SetIfaceManaged("notaniface", []string{})
+	res := client.SetIfaceManaged("notaniface", true, []string{})
 	if res != "" {
-		t.Errorf("No Disconnect call expected, but found: %s", res)
+		t.Errorf("1: No iface expected, but found: %s", res)
 	}
-	res = client.SetIfaceManaged("iface2", []string{"d0", "d1"})
+	res = client.SetIfaceManaged("iface2", true, []string{"d0", "d1"})
 	if res != "" {
-		t.Errorf("No Disconnect call expected, but found: %s", res)
+		t.Errorf("2: No iface expected, but found: %s", res)
 	}
 	mock.ifaces = mock.ifaces[:0]
-	res = client.SetIfaceManaged("iface0", []string{"d0"})
+	res = client.SetIfaceManaged("iface0", true, []string{"d0"})
 	if res != "iface0" {
-		t.Errorf("Disconnect call to iface0 expected, but found: %s", res)
-	}
-	mock.ifaces = mock.ifaces[:0]
-	res = client.SetIfaceManaged("iface1", []string{"d0", "d1"})
-	if res != "iface1" {
-		t.Errorf("Disconnect call to iface1 expected, but found: %s", res)
+		t.Errorf("3: iface0 expected, but found: %s", res)
 	}
 	mock.ifaces = mock.ifaces[:0]
 	mock.managed = true
-	res = client.SetIfaceManaged("iface1", []string{"d0", "d1", "d3"})
+	res = client.SetIfaceManaged("iface0", false, []string{"d0"})
+	if res != "iface0" {
+		t.Errorf("4: iface0 expected, but found: %s", res)
+	}
+	mock.ifaces = mock.ifaces[:0]
+	mock.managed = false
+	res = client.SetIfaceManaged("iface1", true, []string{"d0", "d1"})
+	if res != "iface1" {
+		t.Errorf("5: iface1 expected, but found: %s", res)
+	}
+	mock.ifaces = mock.ifaces[:0]
+	mock.managed = true
+	res = client.SetIfaceManaged("iface1", true, []string{"d0", "d1", "d3"})
 	if res != "" {
-		t.Errorf("Disconnect call not expected (all ifaces managed), but found: %s", res)
+		t.Errorf("6: No iface excepted: %s", res)
 	}
 }
 

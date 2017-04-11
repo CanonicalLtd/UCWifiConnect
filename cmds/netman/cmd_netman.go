@@ -18,6 +18,7 @@ type options struct {
 	disconnectWifi     bool
 	wifisManaged       bool
 	setIfaceManaged    string
+	setIfaceUnmanaged  string
 }
 
 func args() *options {
@@ -29,6 +30,7 @@ func args() *options {
 	flag.BoolVar(&opts.disconnectWifi, "disconnect-wifi", false, "Disconnect from any and all external wifi")
 	flag.BoolVar(&opts.wifisManaged, "wifis-managed", false, "Show list of wifi interfaces that are managed by network-manager")
 	flag.StringVar(&opts.setIfaceManaged, "manage-iface", "", "Set the specified interface to be managed by network-manager.")
+	flag.StringVar(&opts.setIfaceUnmanaged, "unmanage-iface", "", "Set the specified interface to NOT be managed by network-manager.")
 	flag.Parse()
 	return opts
 }
@@ -78,7 +80,11 @@ func main() {
 		return
 	}
 	if len(opts.setIfaceManaged) > 0 {
-		c.SetIfaceManaged(opts.setIfaceManaged, c.GetWifiDevices(c.GetDevices()))
+		c.SetIfaceManaged(opts.setIfaceManaged, true, c.GetWifiDevices(c.GetDevices()))
+		return
+	}
+	if len(opts.setIfaceUnmanaged) > 0 {
+		c.SetIfaceManaged(opts.setIfaceUnmanaged, false, c.GetWifiDevices(c.GetDevices()))
 		return
 	}
 	if opts.wifisManaged {
@@ -92,6 +98,7 @@ func main() {
 		}
 		return
 	}
+
 	SSIDs, ap2device, ssid2ap := c.Ssids()
 
 	for _, ssid := range SSIDs {
