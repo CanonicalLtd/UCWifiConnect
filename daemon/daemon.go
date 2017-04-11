@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/CanonicalLtd/UCWifiConnect/avahi"
 	"github.com/CanonicalLtd/UCWifiConnect/netman"
 	"github.com/CanonicalLtd/UCWifiConnect/server"
 	"github.com/CanonicalLtd/UCWifiConnect/utils"
@@ -137,6 +138,10 @@ func main() {
 
 	for {
 		if first {
+
+			//TODO POC avahi
+			avahi.InitMDNS()
+
 			first = false
 			//wait time period (TBD) on first run to allow wifi connections
 			time.Sleep(40000 * time.Millisecond)
@@ -196,8 +201,5 @@ func main() {
 
 		fmt.Println("==== Start Management portal if not running")
 		managementServerUp()
-
-		//TODO TEST avahi POC
-		server.RegisterService()
 	}
 }
