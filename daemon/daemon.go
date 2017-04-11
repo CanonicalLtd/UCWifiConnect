@@ -196,5 +196,8 @@ func main() {
 
 		fmt.Println("==== Start Management portal if not running")
 		managementServerUp()
+
+		//TODO TEST avahi POC
+		server.RegisterService()
 	}
 }
