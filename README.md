@@ -1,29 +1,32 @@
 # UCWifiConnect
-Snap to be able to switch a wireless card of a UC device into AP mode and use it to configure wireless
+wifi-connect snap allows you to connect the device to an external wifi AP. First, it puts up an AP that you can connect to. Once connected, you can access a web portal that displays external APs (by SSID), where you can select one, enter the passphrase, and connect. 
 
-## Usaage
+## Status
 
-* Current/alpha: deamon-based, wifi-connect 0.4 and later
+* Currently alpha status (wifi-connect 0.4)
 * Works on pi3 with no additional wifi hardware
 
 ## Set up
 
 ### Install snaps
 
-```snap install wifi-ap
+```bash
+snap install wifi-ap
 snap install network-manager
 snap install --edge wifi-connect
 ```
 
 ### Create content sharing dir for wifi-ap:control interfaces
-```sudo mkdir /var/snap/wifi-connect/common/sockets
+```bash
+sudo mkdir /var/snap/wifi-connect/common/sockets
 ```
 
 (TODO: Solution will use interface hook script to create that dir the first time)
 
 ### Connect interfaces
 
-```snap connect wifi-connect:control wifi-ap:control
+```bash
+snap connect wifi-connect:control wifi-ap:control
 snap connect wifi-connect:network core:network
 snap connect wifi-connect:network-bind core:network-bind
 snap connect wifi-connect:network-manager network-manager:service
@@ -102,7 +105,8 @@ Running commands may interfere with normal operations controlled by the daemon. 
 
 ### Network Manager dbus commands 
 
-```wifi-connect.netman -help
+```bash
+wifi-connect.netman -help
 Usage of netman:
   -check-connected
         Check if connected at all
@@ -122,7 +126,8 @@ Usage of netman:
 
 ### Wifi-ap commands
 
-```sudo wifi-connect.wifi-ap -help
+```bash
+sudo wifi-connect.wifi-ap -help
 Usage of wifi-ap:
   -ap-off
         Turn off the AP
