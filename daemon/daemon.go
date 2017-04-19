@@ -103,6 +103,8 @@ func managementServerUp() {
 		if err != nil {
 			fmt.Println("==== Error start Mamagement portal:", err)
 		}
+		// init mDNS
+		avahi.InitMDNS()
 	}
 }
 
@@ -127,6 +129,8 @@ func operationalServerUp() {
 		if err != nil {
 			fmt.Println("==== Error starting the Operational portal:", err)
 		}
+		// init mDNS
+		avahi.InitMDNS()
 	}
 }
 
@@ -182,7 +186,6 @@ func main() {
 			//comment out operational server as later phase of work
 			//fmt.Println("==== Start Operational Mode http server if not running")
 			//operationalServerUp()
-			//avahi.InitMDNS()
 			continue
 		}
 
@@ -219,7 +222,5 @@ func main() {
 
 		fmt.Println("==== Start Management portal if not running")
 		managementServerUp()
-		//TODO POC avahi
-		avahi.InitMDNS()
 	}
 }
