@@ -38,7 +38,7 @@ var _mdns mdnsScanner
 
 var initOnce sync.Once
 
-const hostnameDefault = "snapweb"
+const hostnameDefault = "device"
 
 const addressUpdateDelay = 3 * time.Second
 
