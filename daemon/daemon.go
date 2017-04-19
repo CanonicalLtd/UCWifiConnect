@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/CanonicalLtd/UCWifiConnect/avahi"
 	"github.com/CanonicalLtd/UCWifiConnect/netman"
 	"github.com/CanonicalLtd/UCWifiConnect/server"
 	"github.com/CanonicalLtd/UCWifiConnect/utils"
@@ -102,6 +103,8 @@ func managementServerUp() {
 		if err != nil {
 			fmt.Println("==== Error start Mamagement portal:", err)
 		}
+		// init mDNS
+		avahi.InitMDNS()
 	}
 }
 
@@ -126,6 +129,8 @@ func operationalServerUp() {
 		if err != nil {
 			fmt.Println("==== Error starting the Operational portal:", err)
 		}
+		// init mDNS
+		avahi.InitMDNS()
 	}
 }
 

@@ -72,9 +72,15 @@ Note the dhcp range:
     dhcp.range-start: 10.0.60.2
     dhcp.range-stop: 10.0.60.199
 
-After you connect to the device's AP, you can open its http portal at 10.0.60.1:8080
+After you connect to the device's AP, you can open its http portal at 
 
-(TODO: avahi)
+    10.0.60.1:8080
+
+you can also connect to the device's AP using the machine name this way: 
+
+    http://[hostname].local:8080 
+
+where [hostname] is the hostname of the device. It is a known issue that from some devices not having enabled avahi service it is not possible accessing this way (see [Limitations](#limitations) section)
 
 ## Normal operations (after configuration steps)
 
@@ -373,3 +379,7 @@ for example:
 More info in https://golang.org/pkg/testing
 
 
+# Limitations
+
+When accession AP portal in browser using device hostname (http://[hostname].local:8080) could result in a connection error. This
+is something known when accessing from some Android mobile phones and, in general, if connecting from a not avahi enabled device
