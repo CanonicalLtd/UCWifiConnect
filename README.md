@@ -3,7 +3,7 @@ wifi-connect snap allows you to connect the device to an external wifi AP. First
 
 ## Status
 
-* Currently alpha status (wifi-connect 0.4)
+* Currently alpha status (wifi-connect 0.6)
 * Works on pi3 with no additional wifi hardware
 
 ## Set up

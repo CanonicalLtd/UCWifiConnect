@@ -160,6 +160,8 @@ func main() {
 	for {
 		if first {
 			first = false
+			//clean start require wifi AP down so we can get SSIDs
+			cw.Disable()
 			//wait time period (TBD) on first run to allow wifi connections
 			time.Sleep(40000 * time.Millisecond)
 			//remove previous state flag, if any on deamon startup
