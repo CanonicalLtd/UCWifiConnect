@@ -160,6 +160,8 @@ func main() {
 	for {
 		if first {
 			first = false
+			//first boot sometimes needs more time
+			time.Sleep(40000 * time.Millisecond)
 			//clean start require wifi AP down so we can get SSIDs
 			cw.Disable()
 			//wait time period (TBD) on first run to allow wifi connections
