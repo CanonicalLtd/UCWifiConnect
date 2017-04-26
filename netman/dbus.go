@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/godbus/dbus"
 )
@@ -308,6 +309,8 @@ func (c *Client) SetIfaceManaged(iface string, state bool, devices []string) str
 		ran = iface
 		break
 	}
+	//give time for iface state to settle
+	time.Sleep(5000 * time.Millisecond)
 	return ran
 }
 
