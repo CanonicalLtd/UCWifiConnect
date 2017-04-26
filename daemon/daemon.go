@@ -63,7 +63,7 @@ func scanSsids(path string, c *netman.Client) bool {
 			return true
 		}
 	}
-	fmt.Println("==== NO SSID found")
+	fmt.Println("==== No SSID found")
 	return false
 }
 
@@ -88,10 +88,8 @@ func manage(c *netman.Client) {
 func checkWaitApConnect() bool {
 	waitApPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
 	if _, err := os.Stat(waitApPath); os.IsNotExist(err) {
-		fmt.Println("==== Wait file not found")
 		return false
 	}
-	fmt.Println("==== Wait file found")
 	return true
 }
 
@@ -159,6 +157,7 @@ func main() {
 
 	for {
 		if first {
+			fmt.Println("======== Initiaion Mode (daemon starting)")
 			first = false
 			//first boot sometimes needs more time
 			time.Sleep(40000 * time.Millisecond)
