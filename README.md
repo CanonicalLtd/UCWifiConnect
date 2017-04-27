@@ -3,11 +3,22 @@ wifi-connect snap allows you to connect the device to an external wifi AP. First
 
 ## Status
 
-* Currently alpha status (wifi-connect 0.4)
+* Currently alpha status (wifi-connect 0.6)
 * Works on pi3 with no additional wifi hardware
+* Console-conf currently must connect Ethernet and NOT wifi 
 
 ## Set up
 
+### Install core
+
+Install core
+
+Use console-conf to set up Ethernet but NOT wifi.
+
+Run 
+``bash
+snap refresh
+```
 ### Install snaps
 
 ```bash
@@ -76,7 +87,7 @@ After you connect to the device's AP, you can open its http portal at
 
     10.0.60.1:8080
 
-you can also connect to the device's AP using the machine name this way: 
+You can also connect to the device's AP using the machine name this way: 
 
     http://[hostname].local:8080 
 
@@ -84,7 +95,7 @@ where [hostname] is the hostname of the device. It is a known issue that from so
 
 ## Normal operations (after configuration steps)
 
-The daemon monitors whether there's a connection to an external wifi AP. (On start of the daemon, it waits 45 seconds to let any previous connection come up.) 
+The daemon monitors whether there's a connection to an external wifi AP using network-manager. (On start of the daemon, it waits 45 seconds to let any previous connection come up.) 
 
 ### No external AP connected
 
@@ -97,11 +108,11 @@ The daemon monitors whether there's a connection to an external wifi AP. (On sta
 ### External AP is connected
 
 * Device is in Operational Mode
-* Operational Port is put UP (this has no content now, but will allow setting the device to Management Mode later)
-* Connect to Operational port via AP IP address (TODO: avahi)
-* Daemon loops until there is no external AP connectiion, which causes device to be in Managerment Mode
+* Operational Port is put UP (FUTURE: thist will allow setting the device to Management Mode later)
+* Connect to Operational portal via AP IP address (FUTURE)
+* Daemon loops until there is no external AP connectiion known by network-manager, which causes device to be in Management Mode
 
-Note: Until we have an Operational Portal, you can drop from external AP connections with:
+Note: Until we have an Operational Portal, you can drop from external network-manager AP connections with:
 
     wifi-connect.netman -disconnect-wifi
 
@@ -151,14 +162,14 @@ Usage of wifi-ap:
         Display verbose output
 ```
 
-Note: On version 0.4 if you Turn off the AP, you also need to manually clear a state file:
-
-    sudo rm /var/snap/wifi-connect/common/startingApConnect
-
 ### Additional
 
-* Most log messages start with "==" for viewing with $sudo journalctl -f | grep ==
-* display current wifi status on device with: nmcli d
+* Most log messages start with "==" for viewing with 
+```bash
+sudo journalctl -f | grep ==
+```
+
+* Display current wifi device status on device with: nmcli d and connection status with nmcli c
 
 ## Development Environment
 

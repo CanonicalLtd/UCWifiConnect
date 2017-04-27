@@ -113,7 +113,7 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 
 	ssids := r.Form["ssid"]
 	if len(ssids) == 0 {
-		log.Println("SSID not provided")
+		log.Println("== SSID not provided")
 		return
 	}
 	ssid := ssids[0]
@@ -127,16 +127,19 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 		pwd = pwds[0]
 	}
 
-	log.Printf("Connecting to %v...", ssid)
+	log.Printf("== Connecting to %v...", ssid)
 
 	cw := wifiap.DefaultClient()
 	cw.Disable()
 
+	//give time for wifi-ap to complete shudown
+	time.Sleep(50000 * time.Millisecond)
+
 	//connect
 	c := netman.DefaultClient()
+	c.SetIfaceManaged("wlan0", true, c.GetWifiDevices(c.GetDevices()))
 	_, ap2device, ssid2ap := c.Ssids()
 
-	c.SetIfaceManaged("wlan0", true, c.GetWifiDevices(c.GetDevices()))
 	c.ConnectAp(ssid, pwd, ap2device, ssid2ap)
 
 	//wait, to provide time for the connection to occur

@@ -1,8 +1,12 @@
 name: wifi-connect 
-version: '0.5'
-summary: simple http server 
+version: '0.6'
+summary: Connect your device to external wifi over temp wifi AP
 description: |
-  simple test server.
+    A solution to enable your device to connect to ian external
+    wifi AP using a temporary wifi AP the device puts up and then
+    opening its web portal. Note that wifi-connect daemon assumes
+    control of device network management and other management solutions
+    should not be simultaneously used.
 
 grade: devel
 confinement: strict

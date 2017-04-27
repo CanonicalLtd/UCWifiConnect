@@ -63,7 +63,7 @@ func scanSsids(path string, c *netman.Client) bool {
 			return true
 		}
 	}
-	fmt.Println("==== NO SSID found")
+	fmt.Println("==== No SSID found")
 	return false
 }
 
@@ -88,10 +88,8 @@ func manage(c *netman.Client) {
 func checkWaitApConnect() bool {
 	waitApPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
 	if _, err := os.Stat(waitApPath); os.IsNotExist(err) {
-		fmt.Println("==== Wait file not found")
 		return false
 	}
-	fmt.Println("==== Wait file found")
 	return true
 }
 
@@ -159,7 +157,12 @@ func main() {
 
 	for {
 		if first {
+			fmt.Println("======== Initiaion Mode (daemon starting)")
 			first = false
+			//first boot sometimes needs more time
+			time.Sleep(40000 * time.Millisecond)
+			//clean start require wifi AP down so we can get SSIDs
+			cw.Disable()
 			//wait time period (TBD) on first run to allow wifi connections
 			time.Sleep(40000 * time.Millisecond)
 			//remove previous state flag, if any on deamon startup
