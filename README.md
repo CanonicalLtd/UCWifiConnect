@@ -1,15 +1,24 @@
 # UCWifiConnect
+wifi-connect snap allows you to connect the device to an external wifi AP. First, it puts up an AP that you can connect to. Once connected, you can access a web portal that displays external APs (by SSID), where you can select one, enter the passphrase, and connect. 
 
-Wifi-connect snap allows you to connect the device to an external wifi AP. First, it puts up an AP that you can connect to. Once connected, you can access a web portal that displays external APs (by SSID), where you can select one, enter the passphrase, and connect. 
+## Status
 
-## Release: Alpha 1
+* Currently alpha status (wifi-connect 0.6)
+* Works on pi3 with no additional wifi hardware
+* Console-conf currently must connect Ethernet and NOT wifi 
 
-See Known Limitations below.
+## Set up
 
-* Currently alpha 1 status (wifi-connect 0.6)
-* Raspberry pi3 with no additional wifi hardware only tested platform
-* First boot console-conf must configure and connect ethernet and NOT wifi 
+### Install core
 
+Install core
+
+Use console-conf to set up Ethernet but NOT wifi.
+
+Run 
+``bash
+snap refresh
+```
 ### Install snaps
 
 ```bash
@@ -18,13 +27,12 @@ snap install network-manager
 snap install --edge wifi-connect
 ```
 
-### Create content sharing dir for wifi-ap:control interface
-
+### Create content sharing dir for wifi-ap:control interfaces
 ```bash
 sudo mkdir /var/snap/wifi-connect/common/sockets
 ```
 
-(TODO: Solution will use interface hook script when it is available to automatically create that dir)
+(TODO: Solution will use interface hook script to create that dir the first time)
 
 ### Connect interfaces
 
@@ -36,15 +44,15 @@ snap connect wifi-connect:network-manager network-manager:service
 snap connect wifi-connect:network-control core:network-control
 ```
 
-(TODO: Configure interface auto connection.)
+(TODO configure auto connection)
 
-Note: wifi-ap and network-manager interfaces auto-connect.
+Note: wifi-ap and network-manager interfaces should auto-connect.
 
-Note: The content sharing interface has a known issue. Until that is resolved, You need to restart the system at this point.
+Note: The content sharing interface has a known bug. You may need to restart the system.
 
 ### SSH to the device (ethernet) to configure AP 
 
-(Later there may be a portal for this.)
+(Later there will be a portal for this.)
 
 ### Stop the daemon
 
@@ -75,7 +83,7 @@ Note the dhcp range:
     dhcp.range-start: 10.0.60.2
     dhcp.range-stop: 10.0.60.199
 
-After you connect to the device AP, you can open its http portal at the .1 IP address just before the start of the DCHP range: 
+After you connect to the device's AP, you can open its http portal at 
 
     10.0.60.1:8080
 
@@ -83,20 +91,7 @@ You can also connect to the device's AP using the machine name this way:
 
     http://[hostname].local:8080 
 
-Where [hostname] is the hostname of the device. It is a known issue that from some devices not having enabled avahi service it is not possible accessing this way (see [Limitations](#limitations) section)
-
-## Be patient, it takes minutes
-
-To ensure a smooth transition between states wifi-connect pauses to provide time for state changes to settle. For example:
-
-* On boot and on daemon start, it takes a couple minutes to determine the proper state (which you can see in the log)
-* When transitioning between modes (for example when connectixoign to an external AP from the web page, it takes a couple minutes  
-
-## Logs
-
-Log messages are currently available in journalctl and most start with "==", so view the system state and other messages with:
-
-    sudo journalctl -f | grep ==
+where [hostname] is the hostname of the device. It is a known issue that from some devices not having enabled avahi service it is not possible accessing this way (see [Limitations](#limitations) section)
 
 ## Normal operations (after configuration steps)
 
@@ -104,7 +99,7 @@ The daemon monitors whether there's a connection to an external wifi AP using ne
 
 ### No external AP connected
 
-* The device is in "Management Mode" 
+* The device is in Management Mode
 * Get external SSIDs until found
 * The wifi-ap is put UP
 * You join it
@@ -112,78 +107,116 @@ The daemon monitors whether there's a connection to an external wifi AP using ne
 
 ### External AP is connected
 
-* Device is in "Operational Mode"
+* Device is in Operational Mode
+* Operational Port is put UP (FUTURE: thist will allow setting the device to Management Mode later)
+* Connect to Operational portal via AP IP address (FUTURE)
 * Daemon loops until there is no external AP connectiion known by network-manager, which causes device to be in Management Mode
 
-Note: You can drop from external network-manager AP connections (and return the device to Management Mode) with:
+Note: Until we have an Operational Portal, you can drop from external network-manager AP connections with:
 
     wifi-connect.netman -disconnect-wifi
 
-(This command may  be dropped later in favor of nmcli and/or a web page.)
+## Various commands
 
-## Known Limitations Alpha 1
+Running commands may interfere with normal operations controlled by the daemon. Before running any commands stop the daemon (explained above), then restart it after.
 
-* Raspberry Pi3 with no additional hardware is the only verified platform currently 
-* The device must have been configured during first boot to set up ethernet and not wifi
-* Wifi-connect takes over management of the device's wlan0 interface and the wifi-ap AP. Any external operations that modify these may result in an incorrect state and may interrupt connectivity. For example, mannually changing the network manager managed state of wlan0, or manually bringing up or down wifi-ap may break connectivity. 
-* Opening the AP portal web page using device hostname (http://[hostname].local:8080) can result in a connection error from some platforms including some Android mobile phones and, in general, wheni connecting from any device on which avahi is not enabled. You can open the web page using the device IP address on its AP and wlan0 interface, as described above.
+### Network Manager dbus commands 
+
+```bash
+wifi-connect.netman -help
+Usage of netman:
+  -check-connected
+        Check if connected at all
+  -check-connected-wifi
+        Check if connected to external wifi
+  -disconnect-wifi
+        Disconnect from any and all external wifi
+  -get-ssids
+        Only display SSIDs (don't connect)
+  -manage-iface string
+        Set the specified interface to be managed by network-manager.
+  -unmanage-iface string
+        Set the specified interface to NOT be managed by network-manager.
+  -wifis-managed
+        Show list of wifi interfaces that are managed by network-manager
+```
+
+### Wifi-ap commands
+
+```bash
+sudo wifi-connect.wifi-ap -help
+Usage of wifi-ap:
+  -ap-off
+        Turn off the AP
+  -ap-on
+        Turn on the AP
+  -enabled
+        Check if the AP is UP
+  -passphrase string
+        Set the AP's passphrase
+  -show
+        Show the wifi-ap configuration
+  -ssid string
+        Set the AP's SSID
+  -verbose
+        Display verbose output
+```
+
+### Additional
+
+* Most log messages start with "==" for viewing with 
+```bash
+sudo journalctl -f | grep ==
+```
+
+* Display current wifi device status on device with: nmcli d and connection status with nmcli c
 
 ## Development Environment
 
 ### Install snapd and snapcraft
-
 ```bash
 sudo apt install snapd snapcraft
-```
 
 ### Verify snapcraft is installed ok by printing out the version
-
-```bash
 snapcraft -v
 2.27.1
 ```
-Should output current version. More information on [snapcraft.io](https://snapcraft.io)
+should output current version. More information on [snapcraft.io](https://snapcraft.io)
 
 ### Install Go
-
-Use normal methods appropriate for your environment. 
-See also: [Install Go](https://golang.org/doc/install).
+Follow the instructions to [install Go](https://golang.org/doc/install).
 
 ### Install web development environment
 
-Install the [Node Version Manager](https://github.com/creationix/nvm) (NVM) that will allow a specific
+- Install NVM
+Install the [Node Version Manager](https://github.com/creationix/nvm) that will allow a specific
 version of Node.js to be installed. Follow the installation instructions.
 
 ### Install the latest stable Node.js and npm
-
 The latest stable (LTS) version of Node can be found on the [Node website](nodejs.org).
-
 ```bash
 # Overview of available commands
 nvm help
 
-# Install the latest stable version
+### Install the latest stable version
 nvm install v4.4.3
 
-# Select the version to use
+### Select the version to use
 nvm ls
 nvm use v4.4.3
 ```
 
-* Install the nodejs dependencies
-
+- Install the nodejs dependencies
 ```bash
 npm install
 ```
-* Update css
 
+- Update css
 In case you need to update css, as gulp.js is used in this project, you would need to install it in case you haven't done that previously
-
 ```bash
 npm install -g gulp
 ```
 and execute sass task
-
 ```bash
 gulp sass
 ```
@@ -199,12 +232,17 @@ or
 In order to run specific package test, you can:
 	go test -v ./<package>
 
-To run a specific test:
+to run a specific test:
 	go test -v -run <testname> 
 
-For example:
+for example:
 	go test -v ./wifiap
 	go test -v ./wifiap -run TestShow
 
 More info in https://golang.org/pkg/testing
 
+
+# Limitations
+
+When accession AP portal in browser using device hostname (http://[hostname].local:8080) could result in a connection error. This
+is something known when accessing from some Android mobile phones and, in general, if connecting from a not avahi enabled device
