@@ -1,6 +1,6 @@
 # Ubunt Core Wifi-Connect
 
-Wifi-connect snap allows you to connect the device to an external wifi AP. First, it puts up an AP that you can connect to. Once connected, you can access a web portal that displays external APs (by SSID), where you can select one, enter the passphrase, and connect. 
+Wifi-connect snap allows you to connect the device to an external wifi AP. First, it puts up an AP that you can join. then, you can open a web page the device provides that displays external APs (by SSID), where you can select one, enter the passphrase, and connect. Disconnecting later allows you to join the device AP and then join an external AP.
 
 * The wifi-ap snap provides the device AP.
 * The network-manager snap provides management and control of the wlan0 interface used for the AP and to connect to external APs. 
@@ -10,8 +10,8 @@ Wifi-connect snap allows you to connect the device to an external wifi AP. First
 See Known Limitations below.
 
 * Currently alpha 1 status (wifi-connect 0.6)
-* Raspberry pi3 with no additional wifi hardware only tested platform
-* First boot console-conf must configure and connect ethernet and NOT wifi 
+* Raspberry pi3 with no additional wifi hardware is only tested platform
+* In first boot, console-conf must configure and connect ethernet and NOT wifi
 
 ## Use refreshed pi3 image
 
@@ -21,7 +21,7 @@ After installing the latest pi3 image, run
 snap refresh
 ```
 
-### Install snaps
+## Install snaps
 
 ```bash
 snap install wifi-ap
@@ -29,15 +29,15 @@ snap install network-manager
 snap install --edge wifi-connect
 ```
 
-### Create content sharing dir for wifi-ap:control interface
+## Create content sharing directory for wifi-ap:control interface
 
 ```bash
 sudo mkdir /var/snap/wifi-connect/common/sockets
 ```
 
-(TODO: Solution will use interface hook script when it is available to automatically create that dir)
+(TODO: Solution will later use an interface hook script to automatically create that dir)
 
-### Connect interfaces
+## Connect interfaces
 
 ```bash
 snap connect wifi-connect:control wifi-ap:control
@@ -51,46 +51,57 @@ snap connect wifi-connect:network-control core:network-control
 
 Note: wifi-ap and network-manager interfaces auto-connect.
 
-Note: The content sharing interface has a known issue. Until that is resolved, you need to restart the system at this point.
+## Reboot
 
-### SSH to the device (ethernet) to configure AP 
+The content sharing interface has a known issue. Until that is resolved, you need to restart the system at this point.
 
-(Later there may be a portal for this.)
+## Optionally configure wifi-ap SSID/passphrase
 
-### Stop the daemon
+If you skip these steps, the wifi-AP put up by the device has an SSID of "Ubuntu" and is unsecure (with no passphrase). 
+
+1. Stop the daemon
 
     sudo systemctl stop snap.wifi-connect.daemon.service
 
-### Bring the AP down:
+1. Bring the AP down:
 
     sudo wifi-connect.wifi-ap -ap-off
 
-### Set the wifi-ap AP SSID
+1. Set the wifi-ap AP SSID
 
     sudo wifi-connect.wifi-ap -ssid digit
 
-### Set the AP passphrase:
+1. Set the AP passphrase:
 
     sudo wifi-connect.wifi-ap -passphrase ubuntuubuntuubuntu
 
-### Start the deamon
+1. Start the deamon
 
     sudo systemctl start snap.wifi-connect.daemon.service
 
-### Display the AP config
+1. Display the AP config
 
     sudo wifi-connect.wifi-ap -show
 
-Note the dhcp range:
+1. Note the dhcp range:
 
     dhcp.range-start: 10.0.60.2
     dhcp.range-stop: 10.0.60.199
+
+## Join the device AP
+
+When the device AP is up and available to you, join it.
+
+## Open the the Management Portal web page
+
+This portal displays external wifi APs and let's you join them.
+
 
 After you connect to the device AP, you can open its http portal at the .1 IP address just before the start of the DCHP range using port 8080: 
 
     10.0.60.1:8080
 
-#### Avahi and hostname
+### Avahi and hostname
 
 You can also connect to the device's web page using the device host name: 
 
@@ -145,7 +156,7 @@ Note: You can drop from external network-manager AP connections (and return the 
 
 ## Sample log  
 
-This shows starting (Initiaion), Management mode (putting up the device ap), Conneting to myap, and Operational Mode
+This log snippet shows the wifi-connect daemon starting (Initiaion), entering Management mode, getting external SSIDs, starting the device wifi AP, and starting the Management portal, at which point it loops until the user uses the portal to attempt to join an external AP:
 
     Apr 28 16:34:24 localhost.localdomain snap[1766]: ======== Initiaion Mode (daemon starting)
     Apr 28 16:35:50 localhost.localdomain snap[1766]: ====== Management Mode
@@ -157,6 +168,9 @@ This shows starting (Initiaion), Management mode (putting up the device ap), Con
     Apr 28 16:36:10 localhost.localdomain snap[1766]: ==== Have SSIDs: start wifi-ap
     Apr 28 16:36:10 localhost.localdomain snap[1766]: ==== Start Management portal if not running
     Apr 28 16:36:10 localhost.localdomain snap[1766]: ==== Writing wait file: /var/snap/wifi-connect/common/startingApConnect
+
+This log snippet shows what happens when you select an external AP ("myap"), enter the correct password, Connecting to myap, and enter Operational Mode, where it loops until there is not external wifi connection, at which point it enters Management mode.
+
     Apr 28 16:37:40 localhost.localdomain snap[1766]: 2017/04/28 16:37:40 == Connecting to myap...
     Apr 28 16:39:08 localhost.localdomain snap[1766]: ======== Operational Mode
     Apr 28 16:39:08 localhost.localdomain snap[1766]: ==== Stop Management Mode http server if running
