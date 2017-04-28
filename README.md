@@ -1,4 +1,4 @@
-# Ubunt Core Wifi-Connect
+# Ubuntu Core Wifi-Connect
 
 Wifi-connect snap allows you to connect the device to an external wifi AP. First, it puts up an AP that you can join. then, you can open a web page the device provides that displays external APs (by SSID), where you can select one, enter the passphrase, and connect. Disconnecting later allows you to join the device AP and then join an external AP.
 
@@ -35,7 +35,7 @@ snap install --edge wifi-connect
 sudo mkdir /var/snap/wifi-connect/common/sockets
 ```
 
-(TODO: Solution will later use an interface hook script to automatically create that dir)
+(TODO: Solution will later use an interface hook script to automatically create that directory)
 
 ## Connect interfaces
 
@@ -83,7 +83,7 @@ sudo wifi-connect.wifi-ap -ssid digit
 sudo wifi-connect.wifi-ap -passphrase ubuntuubuntuubuntu
 ```
 
-1. Start the deamon
+1. Start the daemon
 
 ```bash
 sudo systemctl start snap.wifi-connect.daemon.service
@@ -108,7 +108,7 @@ When the device AP is up and available to you, join it.
 
 This portal displays external wifi APs and let's you join them.
 
-After you connect to the device AP, you can open its http portal at the .1 IP address just before the start of the DCHP range using port 8080: 
+After you connect to the device AP, you can open its http portal at the .1 IP address just before the start of the DHCP range using port 8080: 
 
     10.0.60.1:8080
 
@@ -120,7 +120,7 @@ You can also connect to the device's web page using the device host name:
 
 Where [hostname] is the hostname of the device when it booted. (Changing hostname with the hostname command at run time is not sufficient.) 
 
-Note: The system trying to open the web page must support ahavi. 
+Note: The system trying to open the web page must support Avahi. Android systems may not, for example.
 
 ## Be patient, it takes minutes
 
@@ -137,9 +137,9 @@ Log messages are currently available in journalctl and most start with "==", so 
 
 ### Sample (filtered) log  
 
-This log snippet shows the wifi-connect daemon starting (Initiaion), entering Management mode, getting external SSIDs, starting the device wifi AP, and starting the Management portal, at which point it loops until the user uses the portal to attempt to join an external AP:
+This log snippet shows the wifi-connect daemon starting (Initiation), entering Management mode, getting external SSIDs, starting the device wifi AP, and starting the Management portal, at which point it loops until the user uses the portal to attempt to join an external AP:
 
-    Apr 28 16:34:24 localhost.localdomain snap[1766]: ======== Initiaion Mode (daemon starting)
+    Apr 28 16:34:24 localhost.localdomain snap[1766]: ======== Initiation Mode (daemon starting)
     Apr 28 16:35:50 localhost.localdomain snap[1766]: ====== Management Mode
     Apr 28 16:35:50 localhost.localdomain snap[1766]: ==== Setting wlan0 unmanaged
     Apr 28 16:35:55 localhost.localdomain snap[1766]: ==== Wifi-ap enabled state: false
@@ -160,8 +160,8 @@ This log snippet shows what happens when you select an external AP ("myap"), ent
 
 * Raspberry Pi3 with no additional hardware is the only verified platform currently 
 * The device must have been configured during first boot to set up ethernet and not wifi
-* Wifi-connect takes over management of the device's wlan0 interface and the wifi-ap AP. Any external operations that modify these may result in an incorrect state and may interrupt connectivity. For example, mannually changing the network manager managed state of wlan0, or manually bringing up or down wifi-ap may break connectivity. 
-* Opening the AP portal web page using device hostname (http://[hostname].local:8080) can result in a connection error from some platforms including some Android mobile phones and, in general, wheni connecting from any device on which avahi is not enabled. You can open the web page using the device IP address on its AP and wlan0 interface, as described above.
+* Wifi-connect takes over management of the device's wlan0 interface and the wifi-ap AP. Any external operations that modify these may result in an incorrect state and may interrupt connectivity. For example, manually changing the network manager managed state of wlan0, or manually bringing up or down wifi-ap may break connectivity. 
+* Opening the AP portal web page using device hostname (http://[hostname].local:8080) can result in a connection error from some platforms including some Android mobile phones and, in general, when connecting from any device on which Avahi is not enabled. You can open the web page using the device IP address on its AP and wlan0 interface, as described above.
 
 ## Development Environment
 
