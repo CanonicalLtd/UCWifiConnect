@@ -61,27 +61,39 @@ If you skip these steps, the wifi-AP put up by the device has an SSID of "Ubuntu
 
 1. Stop the daemon
 
-    sudo systemctl stop snap.wifi-connect.daemon.service
+```bash
+sudo systemctl stop snap.wifi-connect.daemon.service
+```
 
 1. Bring the AP down:
 
-    sudo wifi-connect.wifi-ap -ap-off
+```bash
+sudo wifi-connect.wifi-ap -ap-off
+```
 
 1. Set the wifi-ap AP SSID
 
-    sudo wifi-connect.wifi-ap -ssid digit
+```bash
+sudo wifi-connect.wifi-ap -ssid digit
+```
 
 1. Set the AP passphrase:
 
-    sudo wifi-connect.wifi-ap -passphrase ubuntuubuntuubuntu
+```bash
+sudo wifi-connect.wifi-ap -passphrase ubuntuubuntuubuntu
+```
 
 1. Start the deamon
 
-    sudo systemctl start snap.wifi-connect.daemon.service
+```bash
+sudo systemctl start snap.wifi-connect.daemon.service
+```
 
 ## Display the AP config
 
-    sudo wifi-connect.wifi-ap -show
+```bash
+sudo wifi-connect.wifi-ap -show
+```
 
 Note the dhcp range:
 
