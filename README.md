@@ -79,11 +79,11 @@ If you skip these steps, the wifi-AP put up by the device has an SSID of "Ubuntu
 
     sudo systemctl start snap.wifi-connect.daemon.service
 
-1. Display the AP config
+## Display the AP config
 
     sudo wifi-connect.wifi-ap -show
 
-1. Note the dhcp range:
+Note the dhcp range:
 
     dhcp.range-start: 10.0.60.2
     dhcp.range-stop: 10.0.60.199
@@ -95,7 +95,6 @@ When the device AP is up and available to you, join it.
 ## Open the the Management Portal web page
 
 This portal displays external wifi APs and let's you join them.
-
 
 After you connect to the device AP, you can open its http portal at the .1 IP address just before the start of the DCHP range using port 8080: 
 
@@ -113,10 +112,10 @@ Note: The system trying to open the web page must support ahavi.
 
 ## Be patient, it takes minutes
 
-Wifi-connect pauses at startup and in to provide time for state changes to settle. For example:
+Wifi-connect pauses at daemon startup and at various times to allow state changes to settle. For example:
 
-* On boot and on daemon start, it takes a couple minutes to determine the proper state (which you can see in the log)
-* When transitioning between modes (for example when connectixoign to an external AP from the web page, it takes a couple minutes  
+* On boot and on daemon start, it takes a couple minutes to determine the proper state
+* When transitioning between modes (for example when connecting to an external AP from the web page, it takes a couple minutes  
 
 ## Logs
 
@@ -124,37 +123,7 @@ Log messages are currently available in journalctl and most start with "==", so 
 
     sudo journalctl -f | grep ==
 
-## Normal operations (after configuration steps)
-
-The daemon monitors whether there's a connection to an external wifi AP using network-manager. (On start of the daemon, it waits 45 seconds to let any previous connection come up.) 
-
-### No external AP connected
-
-* The device is in "Management Mode" 
-* Get external SSIDs until found
-* The wifi-ap is put UP
-* You join it
-* Open the Management portal web page at IP:8080. From here you can see external APs (SSIDs), pick one and initiate the join. This takes down the current AP, the device tries to join the external AP 
-
-### External AP is connected
-
-* Device is in "Operational Mode"
-* Daemon loops until there is no external AP connectiion known by network-manager, which causes device to be in Management Mode
-
-Note: You can drop from external network-manager AP connections (and return the device to Management Mode) with:
-
-    wifi-connect.netman -disconnect-wifi
-
-(This command may  be dropped later in favor of nmcli and/or a web page.)
-
-## Known Limitations Alpha 1
-
-* Raspberry Pi3 with no additional hardware is the only verified platform currently 
-* The device must have been configured during first boot to set up ethernet and not wifi
-* Wifi-connect takes over management of the device's wlan0 interface and the wifi-ap AP. Any external operations that modify these may result in an incorrect state and may interrupt connectivity. For example, mannually changing the network manager managed state of wlan0, or manually bringing up or down wifi-ap may break connectivity. 
-* Opening the AP portal web page using device hostname (http://[hostname].local:8080) can result in a connection error from some platforms including some Android mobile phones and, in general, wheni connecting from any device on which avahi is not enabled. You can open the web page using the device IP address on its AP and wlan0 interface, as described above.
-
-## Sample log  
+### Sample (filtered) log  
 
 This log snippet shows the wifi-connect daemon starting (Initiaion), entering Management mode, getting external SSIDs, starting the device wifi AP, and starting the Management portal, at which point it loops until the user uses the portal to attempt to join an external AP:
 
@@ -174,6 +143,13 @@ This log snippet shows what happens when you select an external AP ("myap"), ent
     Apr 28 16:37:40 localhost.localdomain snap[1766]: 2017/04/28 16:37:40 == Connecting to myap...
     Apr 28 16:39:08 localhost.localdomain snap[1766]: ======== Operational Mode
     Apr 28 16:39:08 localhost.localdomain snap[1766]: ==== Stop Management Mode http server if running
+
+## Known Limitations Alpha 1
+
+* Raspberry Pi3 with no additional hardware is the only verified platform currently 
+* The device must have been configured during first boot to set up ethernet and not wifi
+* Wifi-connect takes over management of the device's wlan0 interface and the wifi-ap AP. Any external operations that modify these may result in an incorrect state and may interrupt connectivity. For example, mannually changing the network manager managed state of wlan0, or manually bringing up or down wifi-ap may break connectivity. 
+* Opening the AP portal web page using device hostname (http://[hostname].local:8080) can result in a connection error from some platforms including some Android mobile phones and, in general, wheni connecting from any device on which avahi is not enabled. You can open the web page using the device IP address on its AP and wlan0 interface, as described above.
 
 ## Development Environment
 
