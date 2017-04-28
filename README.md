@@ -1,6 +1,9 @@
-# UCWifiConnect
+# Ubunt Core Wifi-Connect
 
 Wifi-connect snap allows you to connect the device to an external wifi AP. First, it puts up an AP that you can connect to. Once connected, you can access a web portal that displays external APs (by SSID), where you can select one, enter the passphrase, and connect. 
+
+* The wifi-ap snap provides the device AP.
+* The network-manager snap provides management and control of the wlan0 interface used for the AP and to connect to external APs. 
 
 ## Release: Alpha 1
 
@@ -9,6 +12,14 @@ See Known Limitations below.
 * Currently alpha 1 status (wifi-connect 0.6)
 * Raspberry pi3 with no additional wifi hardware only tested platform
 * First boot console-conf must configure and connect ethernet and NOT wifi 
+
+## Use refreshed pi3 image
+
+After installing the latest pi3 image, run
+
+```bash
+snap refresh
+```
 
 ### Install snaps
 
@@ -40,7 +51,7 @@ snap connect wifi-connect:network-control core:network-control
 
 Note: wifi-ap and network-manager interfaces auto-connect.
 
-Note: The content sharing interface has a known issue. Until that is resolved, You need to restart the system at this point.
+Note: The content sharing interface has a known issue. Until that is resolved, you need to restart the system at this point.
 
 ### SSH to the device (ethernet) to configure AP 
 
@@ -66,7 +77,7 @@ Note: The content sharing interface has a known issue. Until that is resolved, Y
 
     sudo systemctl start snap.wifi-connect.daemon.service
 
-### Display the ap config
+### Display the AP config
 
     sudo wifi-connect.wifi-ap -show
 
@@ -75,19 +86,23 @@ Note the dhcp range:
     dhcp.range-start: 10.0.60.2
     dhcp.range-stop: 10.0.60.199
 
-After you connect to the device AP, you can open its http portal at the .1 IP address just before the start of the DCHP range: 
+After you connect to the device AP, you can open its http portal at the .1 IP address just before the start of the DCHP range using port 8080: 
 
     10.0.60.1:8080
 
-You can also connect to the device's AP using the machine name this way: 
+#### Avahi and hostname
+
+You can also connect to the device's web page using the device host name: 
 
     http://[hostname].local:8080 
 
-Where [hostname] is the hostname of the device. It is a known issue that from some devices not having enabled avahi service it is not possible accessing this way (see [Limitations](#limitations) section)
+Where [hostname] is the hostname of the device when it booted. (Changing hostname with the hostname command at run time is not sufficient.) 
+
+Note: The system trying to open the web page must support ahavi. 
 
 ## Be patient, it takes minutes
 
-To ensure a smooth transition between states wifi-connect pauses to provide time for state changes to settle. For example:
+Wifi-connect pauses at startup and in to provide time for state changes to settle. For example:
 
 * On boot and on daemon start, it takes a couple minutes to determine the proper state (which you can see in the log)
 * When transitioning between modes (for example when connectixoign to an external AP from the web page, it takes a couple minutes  
@@ -127,6 +142,24 @@ Note: You can drop from external network-manager AP connections (and return the 
 * The device must have been configured during first boot to set up ethernet and not wifi
 * Wifi-connect takes over management of the device's wlan0 interface and the wifi-ap AP. Any external operations that modify these may result in an incorrect state and may interrupt connectivity. For example, mannually changing the network manager managed state of wlan0, or manually bringing up or down wifi-ap may break connectivity. 
 * Opening the AP portal web page using device hostname (http://[hostname].local:8080) can result in a connection error from some platforms including some Android mobile phones and, in general, wheni connecting from any device on which avahi is not enabled. You can open the web page using the device IP address on its AP and wlan0 interface, as described above.
+
+## Sample log  
+
+This shows starting (Initiaion), Management mode (putting up the device ap), Conneting to myap, and Operational Mode
+
+    Apr 28 16:34:24 localhost.localdomain snap[1766]: ======== Initiaion Mode (daemon starting)
+    Apr 28 16:35:50 localhost.localdomain snap[1766]: ====== Management Mode
+    Apr 28 16:35:50 localhost.localdomain snap[1766]: ==== Setting wlan0 unmanaged
+    Apr 28 16:35:55 localhost.localdomain snap[1766]: ==== Wifi-ap enabled state: false
+    Apr 28 16:35:55 localhost.localdomain snap[1766]: ==== Setting wlan0 managed
+    Apr 28 16:36:05 localhost.localdomain snap[1766]: ==== SSID(s) found and written to  /var/snap/wifi-connect/common/ssids
+    Apr 28 16:36:05 localhost.localdomain snap[1766]: ==== Setting wlan0 unmanaged
+    Apr 28 16:36:10 localhost.localdomain snap[1766]: ==== Have SSIDs: start wifi-ap
+    Apr 28 16:36:10 localhost.localdomain snap[1766]: ==== Start Management portal if not running
+    Apr 28 16:36:10 localhost.localdomain snap[1766]: ==== Writing wait file: /var/snap/wifi-connect/common/startingApConnect
+    Apr 28 16:37:40 localhost.localdomain snap[1766]: 2017/04/28 16:37:40 == Connecting to myap...
+    Apr 28 16:39:08 localhost.localdomain snap[1766]: ======== Operational Mode
+    Apr 28 16:39:08 localhost.localdomain snap[1766]: ==== Stop Management Mode http server if running
 
 ## Development Environment
 
