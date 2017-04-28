@@ -1,6 +1,6 @@
 # Ubuntu Core Wifi-Connect
 
-Wifi-connect snap allows you to connect the device to an external wifi AP. First, it puts up an AP that you can join. then, you can open a web page the device provides that displays external APs (by SSID), where you can select one, enter the passphrase, and connect. Disconnecting later allows you to join the device AP and then join an external AP.
+Wifi-connect snap allows you to connect the device to an external wifi AP. First, it puts up an AP that you can join. Then, you can open a web page the device provides that displays external APs (by SSID), where you can select one, enter the passphrase, and connect. Disconnecting later allows you to join the device AP and use the web page again to join an external AP.
 
 * The wifi-ap snap provides the device AP.
 * The network-manager snap provides management and control of the wlan0 interface used for the AP and to connect to external APs. 
@@ -10,12 +10,12 @@ Wifi-connect snap allows you to connect the device to an external wifi AP. First
 See Known Limitations below.
 
 * Currently alpha 1 status (wifi-connect 0.6)
-* Raspberry pi3 with no additional wifi hardware is only tested platform
-* In first boot, console-conf must configure and connect ethernet and NOT wifi
+* Raspberry pi3 with no additional wifi hardware is the only verified platform
+* At first boot, console-conf must configure and connect ethernet and NOT wifi
 
 ## Use refreshed pi3 image
 
-After installing the latest pi3 image, run
+After installing the latest Ubuntu Core pi3 image, run
 
 ```bash
 snap refresh
