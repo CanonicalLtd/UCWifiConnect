@@ -113,7 +113,7 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 
 	ssids := r.Form["ssid"]
 	if len(ssids) == 0 {
-		log.Println("== SSID not provided")
+		log.Println("== wifi-connect: SSID not provided")
 		return
 	}
 	ssid := ssids[0]
@@ -127,7 +127,7 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 		pwd = pwds[0]
 	}
 
-	log.Printf("== Connecting to %v...", ssid)
+	log.Printf("== wifi-connect: Connecting to %v...", ssid)
 
 	cw := wifiap.DefaultClient()
 	cw.Disable()
