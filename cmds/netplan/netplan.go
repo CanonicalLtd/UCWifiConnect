@@ -38,39 +38,33 @@ const netplanConfig = "/etc/netplan/00-snapd-config.yaml"
 
 func main() {
 
-	fmt.Println("== netplan wifi starting")
 	var netplan netplanType
 	buf, err1 := ioutil.ReadFile(netplanConfig)
 	if err1 != nil {
-		fmt.Printf("== Error opening %s: %v\n", netplanConfig, err1)
+		fmt.Printf("== wifi-connect: Error opening %s: %v\n", netplanConfig, err1)
 		return
 	}
 
 	if err := yaml.Unmarshal(buf, &netplan); err != nil {
-		fmt.Printf("== Error unmarshalling yaml: %v\n", err)
+		fmt.Printf("== wifi-connect: Error unmarshalling yaml: %v\n", err)
 		return
 	}
 
-	//fmt.Printf("%v\n", netplan)
-	//fmt.Printf("%v\n", netplan.Network)
 	if netplan.Network.Wifis != nil {
-		fmt.Println("=== wifis found:")
-		fmt.Printf("%v\n", netplan.Network.Wifis)
 		netplan.Network.Wifis = make(map[string]interface{})
 		netplan.Network.Wifis["renderer"] = "NetworkManager"
 	} else {
-		fmt.Println("== netplan file has no 'wifis' section")
 		return
 	}
 
 	out, err := yaml.Marshal(netplan)
 	if err != nil {
-		fmt.Printf("== Error mashalling yaml: %v\n", err)
+		fmt.Printf("== wifi-connect: Error mashalling yaml: %v\n", err)
 		return
 	}
 	fmt.Println(string(out))
 	errW := ioutil.WriteFile(netplanConfig, out, 0644)
 	if errW != nil {
-		fmt.Printf("== Error writing %s to file: %v\n", netplanConfig, errW)
+		fmt.Printf("== wifi-connect: Error writing %s to file: %v\n", netplanConfig, errW)
 	}
 }
