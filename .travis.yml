@@ -10,6 +10,7 @@ env:
     - TEST_SUITE="--unit"
 before_install:
   - go get github.com/godbus/dbus
+  - go get github.com/go-yaml/yaml
   - go get github.com/gorilla/mux
 
 install:

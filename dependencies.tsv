@@ -4,3 +4,4 @@ github.com/gorilla/mux	git	757bef944d0f21880861c2dd9c871ca543023cba	2016-09-20T2
 github.com/presotto/go-mdns-sd	git	343772046ec1b3840b8591799a7bbcc68ea47b4b	2015-11-03T06:16:58Z
 github.com/reiver/go-oi	git	431c83978379297f04f85f6eb94f129f25ab741d	2016-03-25T06:16:15Z
 github.com/reiver/go-telnet	git	6b696f32801a8f8dd07947f1e1fdb1a7dc4766ff	2016-03-30T05:09:16Z
+github.com/go-yaml/yaml git cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b 2017-04-07T18:21:22Z 
