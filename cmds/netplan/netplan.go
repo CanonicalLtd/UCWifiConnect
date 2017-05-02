@@ -36,7 +36,6 @@ type networkType struct {
 
 const netplanConfig = "/etc/netplan/00-snapd-config.yaml"
 
-
 func main() {
 
 	fmt.Println("== netplan wifi starting")
@@ -72,6 +71,6 @@ func main() {
 	fmt.Println(string(out))
 	errW := ioutil.WriteFile(netplanConfig, out, 0644)
 	if errW != nil {
-		fmt.Printf("== Error writing %s to file: %v\n", netplanConfig,errW)
+		fmt.Printf("== Error writing %s to file: %v\n", netplanConfig, errW)
 	}
 }

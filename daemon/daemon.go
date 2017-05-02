@@ -44,7 +44,7 @@ var state = STARTING
 //used to clase the operataional http server
 var err error
 
-func setState (s int) {
+func setState(s int) {
 	previousState = state
 	state = s
 }
@@ -103,12 +103,12 @@ func checkWaitApConnect() bool {
 // not running
 func managementServerUp() {
 	//if server.Running() != server.MANAGEMENT {
-		err = server.StartManagementServer()
-		if err != nil {
-			fmt.Println("== wifi-connect: Error start Mamagement portal:", err)
-		}
-		// init mDNS
-		avahi.InitMDNS()
+	err = server.StartManagementServer()
+	if err != nil {
+		fmt.Println("== wifi-connect: Error start Mamagement portal:", err)
+	}
+	// init mDNS
+	avahi.InitMDNS()
 	//}
 }
 
@@ -116,12 +116,12 @@ func managementServerUp() {
 // also remove the wait flag file, thus resetting proper state
 func managementServerDown() {
 	//if server.Running() == server.MANAGEMENT {
-		err = server.ShutdownManagementServer()
-		if err != nil {
-			fmt.Println("== wifi-connect: Error stopping the Management portal:", err)
-		}
-		//remove flag fie so daemon resumes normal control
-		utils.RemoveWaitFile()
+	err = server.ShutdownManagementServer()
+	if err != nil {
+		fmt.Println("== wifi-connect: Error stopping the Management portal:", err)
+	}
+	//remove flag fie so daemon resumes normal control
+	utils.RemoveWaitFile()
 	//}
 }
 
