@@ -146,7 +146,7 @@ Log messages are currently available in journalctl and most start with "== wifi-
 
 ### Sample (filtered) log  
 
-This log snippet shows the wifi-connect daemon starting, entering management mode, getting end saving xternal SSIDs, at which point the management ap and portal are put up. At this the daemon waits silently until the user uses the portal to attempt to join an external AP and on success, the device enters operational mode.
+This log snippet shows the wifi-connect daemon starting, entering management mode, getting end saving external SSIDs, at which point the management ap and portal are put up. At this the daemon waits silently until the user uses the portal to attempt to join an external AP and on success, the device enters operational mode.
 
     May 02 18:46:48 pi3dev snap[12867]: == wifi-connect: daemon starting ==
     May 02 18:48:35 pi3dev snap[12867]: == wifi-connect: entering management mode ==
