@@ -197,7 +197,7 @@ func (c *Client) ConnectAp(ssid string, p string, ap2device map[string]string, s
 	setObject(c, "org.freedesktop.NetworkManager", dbus.ObjectPath("/org/freedesktop/NetworkManager"))
 	c.dbusClient.BusObj.Call("org.freedesktop.NetworkManager.AddAndActivateConnection", 0, outer, dbus.ObjectPath(ap2device[ssid2ap[ssid]]), dbus.ObjectPath(ssid2ap[ssid]))
 
-	// loop until connected or until max loops 
+	// loop until connected or until max loops
 	trying := true
 	idx := -1
 	for trying {
@@ -245,6 +245,7 @@ func (c *Client) Connected(devices []string) bool {
 			fmt.Println("== wifi-connect: Error getting device state:", err2)
 			continue
 		}
+		// only handle eth and wifi device type
 		if dbus.Variant.Value(dType) != uint32(1) && dbus.Variant.Value(dType) != uint32(2) {
 			continue
 		}
@@ -325,7 +326,7 @@ func (c *Client) SetIfaceManaged(iface string, state bool, devices []string) str
 			managedState, err := c.dbusClient.BusObj.GetProperty("org.freedesktop.NetworkManager.Device.State")
 			if err == nil {
 				switch state {
-				case true: 
+				case true:
 					if managedState.Value() == uint32(30) { //NM_DEVICE_STATE_DISCONNECTED
 						return iface
 					}
@@ -335,12 +336,12 @@ func (c *Client) SetIfaceManaged(iface string, state bool, devices []string) str
 					}
 				}
 			}
-			if idx == 59 {//give it 60 iters ~= one minute
+			if idx == 59 { //give it 60 iters ~= one minute
 				break
 			}
 		}
 	}
-	return  "" //no iface state changed
+	return "" //no iface state changed
 }
 
 // WifisManaged returns  map[iface]device of wifi iterfaces that are managed by network manager
