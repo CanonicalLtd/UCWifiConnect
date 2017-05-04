@@ -31,6 +31,10 @@ import (
 // SsidsFile path to the file filled by daemon with available ssids in csv format
 var SsidsFile = filepath.Join(os.Getenv("SNAP_COMMON"), "ssids")
 
+func SetSsidsFile(p string) {
+	SsidsFile = p
+}
+
 // PrintMapSorted prints to stdout a map sorting content by keys
 func PrintMapSorted(m map[string]interface{}) {
 	sortedKeys := make([]string, 0, len(m))
@@ -89,5 +93,3 @@ func ReadSsidsFile() ([]string, error) {
 	}
 	return record, err
 }
-
-

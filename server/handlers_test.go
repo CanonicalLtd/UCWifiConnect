@@ -22,12 +22,15 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/CanonicalLtd/UCWifiConnect/utils"
 )
 
 func TestSsidsHandler(t *testing.T) {
 
 	ResourcesPath = "../static"
-	SsidsFile = "../static/tests/ssids"
+	SsidsFile := "../static/tests/ssids"
+	utils.SetSsidsFile(SsidsFile)
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/", nil)
@@ -74,9 +77,9 @@ func TestInvalidTemplateHandler(t *testing.T) {
 
 func TestReadSsidsFile(t *testing.T) {
 
-	SsidsFile = "../static/tests/ssids"
-
-	ssids, err := readSsidsFile()
+	SsidsFile := "../static/tests/ssids"
+	utils.SetSsidsFile(SsidsFile)
+	ssids, err := utils.ReadSsidsFile()
 	if err != nil {
 		t.Errorf("Unexpected error reading ssids file: %v", err)
 	}
@@ -106,9 +109,9 @@ func TestReadSsidsFile(t *testing.T) {
 
 func TestReadSsidsFileWithOnlyOne(t *testing.T) {
 
-	SsidsFile = "../static/tests/ssids_onlyonessid"
-
-	ssids, err := readSsidsFile()
+	SsidsFile := "../static/tests/ssids_onlyonessid"
+	utils.SetSsidsFile(SsidsFile)
+	ssids, err := utils.ReadSsidsFile()
 	if err != nil {
 		t.Errorf("Unexpected error reading ssids file: %v", err)
 	}
@@ -129,9 +132,9 @@ func TestReadSsidsFileWithOnlyOne(t *testing.T) {
 
 func TestReadEmptySsidsFile(t *testing.T) {
 
-	SsidsFile = "../static/tests/ssids_empty"
-
-	ssids, err := readSsidsFile()
+	SsidsFile := "../static/tests/ssids_empty"
+	utils.SetSsidsFile(SsidsFile)
+	ssids, err := utils.ReadSsidsFile()
 	if err != nil {
 		t.Errorf("Unexpected error reading ssids file: %v", err)
 	}
