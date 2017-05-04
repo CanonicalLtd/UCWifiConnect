@@ -18,12 +18,18 @@
 package utils
 
 import (
+	"encoding/csv"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"sort"
 	"time"
 )
+
+// SsidsFile path to the file filled by daemon with available ssids in csv format
+var SsidsFile = filepath.Join(os.Getenv("SNAP_COMMON"), "ssids")
 
 // PrintMapSorted prints to stdout a map sorting content by keys
 func PrintMapSorted(m map[string]interface{}) {
@@ -50,11 +56,38 @@ func WriteWaitFile() {
 func RemoveWaitFile() {
 	waitApPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
 	if _, err := os.Stat(waitApPath); !os.IsNotExist(err) {
-		err := os.Remove(waitApPath)
-		if err != nil {
-			//try again after pause
-			time.Sleep(0000 * time.Millisecond)
-			os.Remove(waitApPath)
+
+		//loop up to 10 times to try again if tmp file lock prevents delete
+		idx := -1
+		for {
+			idx += 1
+			err := os.Remove(waitApPath)
+			if err == nil {
+				return
+			}
+			time.Sleep(30000 * time.Millisecond)
+			if idx == 9 {
+				fmt.Printf("== wifi-connect: Error. Cannot remove wait file: %s\n", waitApPath)
+			}
 		}
 	}
 }
+
+// read the ssids file, if any
+func ReadSsidsFile() ([]string, error) {
+	f, err := os.Open(SsidsFile)
+	if err != nil {
+		return nil, err
+	}
+
+	reader := csv.NewReader(f)
+	// all ssids are in the same record
+	record, err := reader.Read()
+	if err == io.EOF {
+		empty := make([]string, 0)
+		return empty, nil
+	}
+	return record, err
+}
+
+
