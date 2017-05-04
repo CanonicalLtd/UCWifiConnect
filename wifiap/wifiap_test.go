@@ -174,28 +174,46 @@ type mockTransportEnable struct{}
 func (mock *mockTransportEnable) Do(req *http.Request) (*http.Response, error) {
 
 	url := req.URL.String()
-	if url != "http://unix/v1/configuration" {
+
+	switch url {
+	case "http://unix/v1/configuration":
+		if req.Method != "POST" {
+			return nil, fmt.Errorf("Method is not valid. Expected POST, got %v", req.Method)
+		}
+
+		err := validateHeaders(map[string]string{"disabled": "false"}, req)
+		if err != nil {
+			return nil, err
+		}
+
+		rawBody := `{"result":{},"status":"OK","status-code":200,"type":"sync"}`
+
+		response := http.Response{
+			StatusCode: 200,
+			Status:     "200 OK",
+			Body:       ioutil.NopCloser(strings.NewReader(rawBody)),
+		}
+
+		return &response, nil
+
+	case "http://unix/v1/status":
+		if req.Method != "GET" {
+			return nil, fmt.Errorf("Method is not valid. Expected GET, got %v", req.Method)
+		}
+
+		rawBody := `{"result":{"ap.active": true},"status":"OK","status-code":200,"type":"sync"}`
+
+		response := http.Response{
+			StatusCode: 200,
+			Status:     "200 OK",
+			Body:       ioutil.NopCloser(strings.NewReader(rawBody)),
+		}
+
+		return &response, nil
+
+	default:
 		return nil, fmt.Errorf("Not valid request URL: %v", url)
 	}
-
-	if req.Method != "POST" {
-		return nil, fmt.Errorf("Method is not valid. Expected POST, got %v", req.Method)
-	}
-
-	err := validateHeaders(map[string]string{"disabled": "false"}, req)
-	if err != nil {
-		return nil, err
-	}
-
-	rawBody := `{"result":{},"status":"OK","status-code":200,"type":"sync"}`
-
-	response := http.Response{
-		StatusCode: 200,
-		Status:     "200 OK",
-		Body:       ioutil.NopCloser(strings.NewReader(rawBody)),
-	}
-
-	return &response, nil
 }
 
 func TestEnable(t *testing.T) {
@@ -212,28 +230,48 @@ type mockTransportDisable struct{}
 func (mock *mockTransportDisable) Do(req *http.Request) (*http.Response, error) {
 
 	url := req.URL.String()
-	if url != "http://unix/v1/configuration" {
+
+	switch url {
+	case "http://unix/v1/configuration":
+
+		if req.Method != "POST" {
+			return nil, fmt.Errorf("Method is not valid. Expected POST, got %v", req.Method)
+		}
+
+		err := validateHeaders(map[string]string{"disabled": "true"}, req)
+		if err != nil {
+			return nil, err
+		}
+
+		rawBody := `{"result":{},"status":"OK","status-code":200,"type":"sync"}`
+
+		response := http.Response{
+			StatusCode: 200,
+			Status:     "200 OK",
+			Body:       ioutil.NopCloser(strings.NewReader(rawBody)),
+		}
+
+		return &response, nil
+
+	case "http://unix/v1/status":
+
+		if req.Method != "GET" {
+			return nil, fmt.Errorf("Method is not valid. Expected GET, got %v", req.Method)
+		}
+
+		rawBody := `{"result":{"ap.active": false},"status":"OK","status-code":200,"type":"sync"}`
+
+		response := http.Response{
+			StatusCode: 200,
+			Status:     "200 OK",
+			Body:       ioutil.NopCloser(strings.NewReader(rawBody)),
+		}
+
+		return &response, nil
+
+	default:
 		return nil, fmt.Errorf("Not valid request URL: %v", url)
 	}
-
-	if req.Method != "POST" {
-		return nil, fmt.Errorf("Method is not valid. Expected POST, got %v", req.Method)
-	}
-
-	err := validateHeaders(map[string]string{"disabled": "true"}, req)
-	if err != nil {
-		return nil, err
-	}
-
-	rawBody := `{"result":{},"status":"OK","status-code":200,"type":"sync"}`
-
-	response := http.Response{
-		StatusCode: 200,
-		Status:     "200 OK",
-		Body:       ioutil.NopCloser(strings.NewReader(rawBody)),
-	}
-
-	return &response, nil
 }
 
 func TestDisable(t *testing.T) {
