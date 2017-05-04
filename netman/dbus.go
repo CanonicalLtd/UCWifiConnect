@@ -196,6 +196,17 @@ func (c *Client) ConnectAp(ssid string, p string, ap2device map[string]string, s
 	c.dbusClient.Object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager")
 	setObject(c, "org.freedesktop.NetworkManager", dbus.ObjectPath("/org/freedesktop/NetworkManager"))
 	c.dbusClient.BusObj.Call("org.freedesktop.NetworkManager.AddAndActivateConnection", 0, outer, dbus.ObjectPath(ap2device[ssid2ap[ssid]]), dbus.ObjectPath(ssid2ap[ssid]))
+
+	// loop until connected or until max loops 
+	trying := true
+	idx := -1
+	for trying {
+		idx += 1
+		time.Sleep(1000 * time.Millisecond)
+		if c.Connected(c.GetWifiDevices(c.GetDevices())) {
+			return
+		}
+	}
 }
 
 func getSystemBus() *dbus.Conn {
@@ -277,7 +288,6 @@ func (c *Client) DisconnectWifi(wifiDevices []string) int {
 
 // SetIfaceManaged sets passed device to be managed/unmanaged by network manager, return iface set, if any
 func (c *Client) SetIfaceManaged(iface string, state bool, devices []string) string {
-	ran := ""
 	for _, d := range devices {
 		objPath := dbus.ObjectPath(d)
 		c.dbusClient.Object("org.freedesktop.NetworkManager", objPath)
@@ -307,12 +317,30 @@ func (c *Client) SetIfaceManaged(iface string, state bool, devices []string) str
 		}
 
 		c.dbusClient.BusObj.Call("org.freedesktop.DBus.Properties.Set", 0, "org.freedesktop.NetworkManager.Device", "Managed", dbus.MakeVariant(state))
-		ran = iface
-		break
+		// loop until interface is in desired managed state or max iters reached
+		idx := -1
+		for {
+			idx += 1
+			time.Sleep(1000 * time.Millisecond)
+			managedState, err := c.dbusClient.BusObj.GetProperty("org.freedesktop.NetworkManager.Device.State")
+			if err == nil {
+				switch state {
+				case true: 
+					if managedState.Value() == uint32(30) { //NM_DEVICE_STATE_DISCONNECTED
+						return iface
+					}
+				case false:
+					if managedState.Value() == uint32(10) { //NM_DEVICE_STATE_UNMANAGED
+						return iface
+					}
+				}
+			}
+			if idx == 59 {//give it 60 iters ~= one minute
+				break
+			}
+		}
 	}
-	//give time for iface state to settle
-	time.Sleep(5000 * time.Millisecond)
-	return ran
+	return  "" //no iface state changed
 }
 
 // WifisManaged returns  map[iface]device of wifi iterfaces that are managed by network manager
