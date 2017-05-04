@@ -62,9 +62,10 @@ func main() {
 		fmt.Printf("== wifi-connect: Error mashalling yaml: %v\n", err)
 		return
 	}
-	fmt.Println(string(out))
 	errW := ioutil.WriteFile(netplanConfig, out, 0644)
 	if errW != nil {
 		fmt.Printf("== wifi-connect: Error writing %s to file: %v\n", netplanConfig, errW)
+		return
 	}
+	fmt.Println("== wifi-connect: wlan0 is now managed by NetworkManager")
 }
