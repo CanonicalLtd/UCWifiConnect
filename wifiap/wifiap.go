@@ -88,7 +88,7 @@ func (client *Client) Enable() error {
 	idx := -1
 	for trying {
 		time.Sleep(1000 * time.Millisecond)
-		idx += 1
+		idx++
 		response, err := client.restClient.sendHTTPRequest("http://unix/v1/status", "GET", nil)
 		if err != nil {
 			return err
@@ -126,7 +126,7 @@ func (client *Client) Disable() error {
 	idx := -1
 	for trying {
 		time.Sleep(1000 * time.Millisecond)
-		idx += 1
+		idx++
 		response, err := client.restClient.sendHTTPRequest("http://unix/v1/status", "GET", nil)
 		if err != nil {
 			return err

@@ -201,7 +201,7 @@ func (c *Client) ConnectAp(ssid string, p string, ap2device map[string]string, s
 	trying := true
 	idx := -1
 	for trying {
-		idx += 1
+		idx++
 		time.Sleep(1000 * time.Millisecond)
 		if c.Connected(c.GetWifiDevices(c.GetDevices())) {
 			return
@@ -324,7 +324,7 @@ func (c *Client) SetIfaceManaged(iface string, state bool, devices []string) str
 		// loop until interface is in desired managed state or max iters reached
 		idx := -1
 		for {
-			idx += 1
+			idx++
 			time.Sleep(1000 * time.Millisecond)
 			managedState, err := c.dbusClient.BusObj.GetProperty("org.freedesktop.NetworkManager.Device.State")
 			if err == nil {

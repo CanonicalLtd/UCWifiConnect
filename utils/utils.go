@@ -31,6 +31,7 @@ import (
 // SsidsFile path to the file filled by daemon with available ssids in csv format
 var SsidsFile = filepath.Join(os.Getenv("SNAP_COMMON"), "ssids")
 
+// Set the SsidsFile var
 func SetSsidsFile(p string) {
 	SsidsFile = p
 }
@@ -64,7 +65,7 @@ func RemoveWaitFile() {
 		//loop up to 10 times to try again if tmp file lock prevents delete
 		idx := -1
 		for {
-			idx += 1
+			idx++
 			err := os.Remove(waitApPath)
 			if err == nil {
 				return
@@ -77,7 +78,7 @@ func RemoveWaitFile() {
 	}
 }
 
-// read the ssids file, if any
+// ReadSsidsFile read the ssids file, if any
 func ReadSsidsFile() ([]string, error) {
 	f, err := os.Open(SsidsFile)
 	if err != nil {
