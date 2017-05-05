@@ -206,6 +206,9 @@ func (c *Client) ConnectAp(ssid string, p string, ap2device map[string]string, s
 		if c.Connected(c.GetWifiDevices(c.GetDevices())) {
 			return
 		}
+		if idx == 19 {
+			fmt.Println("== wifi-connect: cannot connect to AP")
+		}
 	}
 }
 
