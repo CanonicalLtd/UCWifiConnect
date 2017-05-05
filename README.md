@@ -9,9 +9,8 @@ Wifi-connect snap allows you to connect the device to an external wifi AP. First
 
 See Known Limitations below.
 
-* Currently alpha 1 status (wifi-connect 0.6)
+* Currently alpha 1 status (wifi-connect 0.7)
 * Raspberry pi3 with no additional wifi hardware is the only verified platform
-* At first boot, console-conf must configure and connect ethernet and NOT wifi
 
 ## Use refreshed pi3 image
 
@@ -45,11 +44,21 @@ snap connect wifi-connect:network core:network
 snap connect wifi-connect:network-bind core:network-bind
 snap connect wifi-connect:network-manager network-manager:service
 snap connect wifi-connect:network-control core:network-control
+snap connect wifi-connect:network-setup-control core:network-setup-control
 ```
 
 (TODO: Configure interface auto connection.)
 
 Note: wifi-ap and network-manager interfaces auto-connect.
+
+
+## If you configured wifi in console-conf
+
+The netplan file needs to be modified to set wlan0 as managed by network manager:
+
+```bash
+sudo wifi-connect.netplan
+```
 
 ## Reboot
 
@@ -131,35 +140,26 @@ Wifi-connect pauses at daemon startup and at various times to allow state change
 
 ## Logs
 
-Log messages are currently available in journalctl and most start with "==", so view the system state and other messages with:
+Log messages are currently available in journalctl and most start with "== wifi-connect", so view the system state and other messages with:
 
     sudo journalctl -f | grep ==
 
 ### Sample (filtered) log  
 
-This log snippet shows the wifi-connect daemon starting (Initiation), entering Management mode, getting external SSIDs, starting the device wifi AP, and starting the Management portal, at which point it loops until the user uses the portal to attempt to join an external AP:
+This log snippet shows the wifi-connect daemon starting, entering management mode, getting end saving external SSIDs, at which point the management ap and portal are put up. At this the daemon waits silently until the user uses the portal to attempt to join an external AP and on success, the device enters operational mode.
 
-    Apr 28 16:34:24 localhost.localdomain snap[1766]: ======== Initiation Mode (daemon starting)
-    Apr 28 16:35:50 localhost.localdomain snap[1766]: ====== Management Mode
-    Apr 28 16:35:50 localhost.localdomain snap[1766]: ==== Setting wlan0 unmanaged
-    Apr 28 16:35:55 localhost.localdomain snap[1766]: ==== Wifi-ap enabled state: false
-    Apr 28 16:35:55 localhost.localdomain snap[1766]: ==== Setting wlan0 managed
-    Apr 28 16:36:05 localhost.localdomain snap[1766]: ==== SSID(s) found and written to  /var/snap/wifi-connect/common/ssids
-    Apr 28 16:36:05 localhost.localdomain snap[1766]: ==== Setting wlan0 unmanaged
-    Apr 28 16:36:10 localhost.localdomain snap[1766]: ==== Have SSIDs: start wifi-ap
-    Apr 28 16:36:10 localhost.localdomain snap[1766]: ==== Start Management portal if not running
-    Apr 28 16:36:10 localhost.localdomain snap[1766]: ==== Writing wait file: /var/snap/wifi-connect/common/startingApConnect
+    May 02 18:46:48 pi3dev snap[12867]: == wifi-connect: daemon starting ==
+    May 02 18:48:35 pi3dev snap[12867]: == wifi-connect: entering management mode ==
+    May 02 18:48:50 pi3dev snap[12867]: == wifi-connect: SSID(s) found and written to  /var/snap/wifi-connect/common/ssids
+    May 02 18:48:55 pi3dev snap[12867]: == wifi-connect: Have SSIDs: start wifi-ap
+    May 02 18:48:56 pi3dev snap[12867]: == wifi-connect: Writing wait flag file: /var/snap/wifi-connect/common/startingApConnect
+    May 02 18:50:16 pi3dev snap[12867]: 2017/05/02 18:50:16 == wifi-connect: Connecting to astro_garden_2...
+    May 02 18:51:44 pi3dev snap[12867]: == wifi-connect: entering operational mode ==
 
-This log snippet shows what happens when you select an external AP ("myap"), enter the correct password, Connecting to myap, and enter Operational Mode, where it loops until there is not external wifi connection, at which point it enters Management mode.
-
-    Apr 28 16:37:40 localhost.localdomain snap[1766]: 2017/04/28 16:37:40 == Connecting to myap...
-    Apr 28 16:39:08 localhost.localdomain snap[1766]: ======== Operational Mode
-    Apr 28 16:39:08 localhost.localdomain snap[1766]: ==== Stop Management Mode http server if running
 
 ## Known Limitations Alpha 1
 
 * Raspberry Pi3 with no additional hardware is the only verified platform currently 
-* The device must have been configured during first boot to set up ethernet and not wifi
 * Wifi-connect takes over management of the device's wlan0 interface and the wifi-ap AP. Any external operations that modify these may result in an incorrect state and may interrupt connectivity. For example, manually changing the network manager managed state of wlan0, or manually bringing up or down wifi-ap may break connectivity. 
 * Opening the AP portal web page using device hostname (http://[hostname].local:8080) can result in a connection error from some platforms including some Android mobile phones and, in general, when connecting from any device on which Avahi is not enabled. You can open the web page using the device IP address on its AP and wlan0 interface, as described above.
 

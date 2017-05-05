@@ -40,10 +40,9 @@ func PrintMapSorted(m map[string]interface{}) {
 // WriteWaitFile writes the "wait" file used as a flag by the daemon
 func WriteWaitFile() {
 	wait := os.Getenv("SNAP_COMMON") + "/startingApConnect"
-	fmt.Println("==== Writing wait file:", wait)
 	err := ioutil.WriteFile(wait, []byte("wait"), 0644)
 	if err != nil {
-		fmt.Println("==== Error writing wait file:", err)
+		fmt.Println("== wifi-connect: Error writing flag wait file:", err)
 	}
 }
 
@@ -53,7 +52,6 @@ func RemoveWaitFile() {
 	if _, err := os.Stat(waitApPath); !os.IsNotExist(err) {
 		err := os.Remove(waitApPath)
 		if err != nil {
-			fmt.Println("==== Error removing file:", waitApPath)
 			//try again after pause
 			time.Sleep(0000 * time.Millisecond)
 			os.Remove(waitApPath)

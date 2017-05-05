@@ -33,13 +33,21 @@ import (
 
 // enum to track current system state
 const (
-	unknown = iota
-	managed
-	operational
+	STARTING = 0 + iota
+	MANAGING
+	OPERATING
 )
+
+var previousState = STARTING
+var state = STARTING
 
 //used to clase the operataional http server
 var err error
+
+func setState(s int) {
+	previousState = state
+	state = s
+}
 
 // scanSsids sets wlan0 to be managed and then scans
 // for ssids. If found, write the ssids (comma separated)
@@ -57,13 +65,13 @@ func scanSsids(path string, c *netman.Client) bool {
 		out = out[:len(out)-1]
 		err := ioutil.WriteFile(path, []byte(out), 0644)
 		if err != nil {
-			fmt.Println("==== Error writing SSID(s) to ", path)
+			fmt.Println("== wifi-connect: Error writing SSID(s) to ", path)
 		} else {
-			fmt.Println("==== SSID(s) found and written to ", path)
+			fmt.Println("== wifi-connect: SSID(s) found and written to ", path)
 			return true
 		}
 	}
-	fmt.Println("==== No SSID found")
+	fmt.Println("== wifi-connect: No SSID found")
 	return false
 }
 
@@ -72,14 +80,12 @@ func scanSsids(path string, c *netman.Client) bool {
 func unmanage(c *netman.Client) {
 	ifaces, _ := c.WifisManaged(c.GetWifiDevices(c.GetDevices()))
 	if _, ok := ifaces["wlan0"]; ok {
-		fmt.Println("==== Setting wlan0 unmanaged")
 		c.SetIfaceManaged("wlan0", false, c.GetWifiDevices(c.GetDevices()))
 	}
 }
 
 // manage sets wlan0 to not managed by network manager
 func manage(c *netman.Client) {
-	fmt.Println("==== Setting wlan0 managed")
 	c.SetIfaceManaged("wlan0", true, c.GetWifiDevices(c.GetDevices()))
 }
 
@@ -96,27 +102,27 @@ func checkWaitApConnect() bool {
 // managementServerUp starts the management server if it is
 // not running
 func managementServerUp() {
-	if server.Running() != server.MANAGEMENT {
-		err = server.StartManagementServer()
-		if err != nil {
-			fmt.Println("==== Error start Mamagement portal:", err)
-		}
-		// init mDNS
-		avahi.InitMDNS()
+	//if server.Running() != server.MANAGEMENT {
+	err = server.StartManagementServer()
+	if err != nil {
+		fmt.Println("== wifi-connect: Error start Mamagement portal:", err)
 	}
+	// init mDNS
+	avahi.InitMDNS()
+	//}
 }
 
 // managementServerDown stops the management server if it is running
 // also remove the wait flag file, thus resetting proper state
 func managementServerDown() {
-	if server.Running() == server.MANAGEMENT {
-		err = server.ShutdownManagementServer()
-		if err != nil {
-			fmt.Println("==== Error stopping the Management portal:", err)
-		}
-		//remove flag fie so daemon resumes normal control
-		utils.RemoveWaitFile()
+	//if server.Running() == server.MANAGEMENT {
+	err = server.ShutdownManagementServer()
+	if err != nil {
+		fmt.Println("== wifi-connect: Error stopping the Management portal:", err)
 	}
+	//remove flag fie so daemon resumes normal control
+	utils.RemoveWaitFile()
+	//}
 }
 
 // operationalServerUp starts the operational server if it is
@@ -125,7 +131,7 @@ func operationalServerUp() {
 	if server.Running() != server.OPERATIONAL {
 		err = server.StartOperationalServer()
 		if err != nil {
-			fmt.Println("==== Error starting the Operational portal:", err)
+			fmt.Println("== wifi-connect: Error starting the Operational portal:", err)
 		}
 		// init mDNS
 		avahi.InitMDNS()
@@ -137,7 +143,7 @@ func operationalServerDown() {
 	if server.Running() == server.OPERATIONAL {
 		err = server.ShutdownOperationalServer()
 		if err != nil {
-			fmt.Println("==== Error stopping Operational portal:", err)
+			fmt.Println("== wifi-connect: Error stopping Operational portal:", err)
 		}
 	}
 }
@@ -157,7 +163,7 @@ func main() {
 
 	for {
 		if first {
-			fmt.Println("======== Initiaion Mode (daemon starting)")
+			fmt.Println("== wifi-connect: daemon starting ==")
 			first = false
 			//first boot sometimes needs more time
 			time.Sleep(40000 * time.Millisecond)
@@ -183,47 +189,49 @@ func main() {
 		// if an external wifi connection, we are in Operational mode
 		// and we stay here until there is an external wifi connection
 		if c.ConnectedWifi(c.GetWifiDevices(c.GetDevices())) {
-			fmt.Println("======== Operational Mode ")
-			fmt.Println("==== Stop Management Mode http server if running")
-			managementServerDown()
+			setState(OPERATING)
+			if previousState != OPERATING {
+				fmt.Println("== wifi-connect: entering operational mode ==")
+			}
+			if previousState == MANAGING {
+				managementServerDown()
+			}
 			//comment out operational server as later phase of work
-			//fmt.Println("==== Start Operational Mode http server if not running")
 			//operationalServerUp()
 			continue
 		}
 
-		fmt.Println("====== Management Mode")
+		state = MANAGING
+		if previousState != MANAGING {
+			fmt.Println("== wifi-connect: entering management mode ==")
+		}
+
 		// if wlan0 managed, set unmanaged so that we can bring up wifi-ap
 		// properly
 		unmanage(c)
 
 		// stop operational portal
 		//comment out operational server as later phase of work
-		//fmt.Println("==== Stop Operational Mode http server if running")
 		//operationalServerDown()
 
 		//wifi-ap UP?
 		wifiUp, err := cw.Enabled()
 		if err != nil {
-			fmt.Println("==== Error checking wifi-ap.Enabled():", err)
+			fmt.Println("== wifi-connect: Error checking wifi-ap.Enabled():", err)
 			continue // try again since no better course of action
 		}
-
-		fmt.Println("==== Wifi-ap enabled state:", wifiUp)
 
 		//get ssids if wifi-ap Down
 		if !wifiUp {
 			found := scanSsids(ssidsPath, c)
 			unmanage(c)
 			if !found {
-				fmt.Println("==== No SSIDs found. Looping.")
+				fmt.Println("== wifi-connect: No SSIDs found. Looping.")
 				continue
 			}
-			fmt.Println("==== Have SSIDs: start wifi-ap")
+			fmt.Println("== wifi-connect: Have SSIDs: start wifi-ap")
 			cw.Enable()
+			managementServerUp()
 		}
-
-		fmt.Println("==== Start Management portal if not running")
-		managementServerUp()
 	}
 }

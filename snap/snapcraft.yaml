@@ -1,5 +1,5 @@
 name: wifi-connect 
-version: '0.6'
+version: '0.7'
 summary: Connect your device to external wifi over temp wifi AP
 description: |
     A solution to enable your device to connect to ian external
@@ -25,6 +25,9 @@ apps:
     command: daemon
     daemon: simple
     plugs: [network-manager, control, network-bind]
+  netplan:
+    command: netplan
+    plugs: [network-setup-control]
 
 plugs:
   control:

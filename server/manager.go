@@ -77,7 +77,7 @@ func StartOperationalServer() error {
 // ShutdownManagementServer shutdown server management mode. If server is in operational mode, it does nothing
 func ShutdownManagementServer() error {
 	if managementCloser == nil {
-		log.Print("Skipping stop management server since it is not up")
+		log.Print("== wifi-connect: Skipping stop management server since it is not up")
 		return nil
 	}
 
@@ -96,7 +96,7 @@ func ShutdownManagementServer() error {
 // ShutdownOperationalServer shutdown server operational mode. If server is up in management mode, it does nothing
 func ShutdownOperationalServer() error {
 	if operationalCloser == nil {
-		log.Print("Skipping stop operational server since it is not up")
+		log.Print("== wifi-connect: Skipping stop operational server since it is not up")
 		return nil
 	}
 
