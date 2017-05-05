@@ -99,9 +99,9 @@ func checkWaitApConnect() bool {
 }
 
 // if wifiap is UP and there are no known SSIDs, bring it down so on next
-// loop iter we start again and can get SSIDs. returns true when ip is 
+// loop iter we start again and can get SSIDs. returns true when ip is
 // UP and has no ssids
-func isApUpWithoutSSIDs(cw * wifiap.Client) bool {
+func isApUpWithoutSSIDs(cw *wifiap.Client) bool {
 	wifiUp, _ := cw.Enabled()
 	if !wifiUp {
 		return false
@@ -112,7 +112,7 @@ func isApUpWithoutSSIDs(cw * wifiap.Client) bool {
 		return true // ap is up with no ssids
 	}
 	return false
-} 
+}
 
 // managementServerUp starts the management server if it is
 // not running
