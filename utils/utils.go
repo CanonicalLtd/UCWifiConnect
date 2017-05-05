@@ -31,7 +31,7 @@ import (
 // SsidsFile path to the file filled by daemon with available ssids in csv format
 var SsidsFile = filepath.Join(os.Getenv("SNAP_COMMON"), "ssids")
 
-// Set the SsidsFile var
+// SetSsidsFile sets the SsidsFile var
 func SetSsidsFile(p string) {
 	SsidsFile = p
 }
