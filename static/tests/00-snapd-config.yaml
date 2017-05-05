@@ -1,0 +1,13 @@
+# This is the network config written by 'console-conf'
+network:
+  ethernets:
+    eth0:
+      addresses: []
+      dhcp4: true
+  version: 2
+  wifis:
+    wlan0:
+      access-points:
+        myssid: {password: mypass}
+      addresses: []
+      dhcp4: true
