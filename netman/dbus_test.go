@@ -50,6 +50,7 @@ type mockObj struct {
 	aps         []string
 	ifaces      []string
 	managed     bool
+	connect     bool
 }
 
 func (mock *mockObj) Object(dest string, path dbus.ObjectPath) dbus.BusObject {
@@ -73,7 +74,6 @@ func (mock *mockObj) Call(method string, flags dbus.Flags, args ...interface{}) 
 		call.Body = body
 	case "org.freedesktop.NetworkManager.Device.Disconnect":
 	}
-	//fmt.Println("mockCall body: ", call.Body)
 	return call
 }
 
@@ -96,7 +96,15 @@ func (mock *mockObj) GetProperty(p string) (dbus.Variant, error) {
 		mock.ssids = append(mock.ssids, ssidB)
 		return dbus.MakeVariant(ssidB), nil
 	case "org.freedesktop.NetworkManager.Device.State":
-		return dbus.MakeVariant(uint32(100)), nil
+		if mock.connect {
+			return dbus.MakeVariant(uint32(100)), nil
+		}
+		switch mock.managed {
+		case true:
+			return dbus.MakeVariant(uint32(10)), nil
+		case false:
+			return dbus.MakeVariant(uint32(30)), nil
+		}
 	case "org.freedesktop.NetworkManager.Device.Managed":
 		if mock.managed {
 			return dbus.MakeVariant(true), nil
@@ -209,7 +217,9 @@ func TestSsids(t *testing.T) {
 }
 
 func TestConnected(t *testing.T) {
-	client := NewClient(&mockObj{})
+	mock := &mockObj{}
+	mock.connect = true
+	client := NewClient(mock)
 	if !client.Connected([]string{"d1"}) {
 		t.Errorf("Should have found connected state, but did not")
 	}
@@ -219,7 +229,9 @@ func TestConnected(t *testing.T) {
 }
 
 func TestConnectedWifi(t *testing.T) {
-	client := NewClient(&mockObj{})
+	mock := &mockObj{}
+	mock.connect = true
+	client := NewClient(mock)
 	if !client.ConnectedWifi([]string{"d1"}) {
 		t.Errorf("Should have found Wificonnected state, but did not")
 	}

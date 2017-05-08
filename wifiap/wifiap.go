@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
+	"time"
 )
 
 // Client struct exposing wifi-ap operations
@@ -82,6 +83,24 @@ func (client *Client) Enable() error {
 		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)", response.StatusCode, response.Status)
 	}
 
+	// loop until wifi-ap is up or limit reached
+	trying := true
+	idx := -1
+	for trying {
+		time.Sleep(1000 * time.Millisecond)
+		idx++
+		response, err := client.restClient.sendHTTPRequest("http://unix/v1/status", "GET", nil)
+		if err != nil {
+			return err
+		}
+		if response.Result["ap.active"] == true {
+			return nil
+		}
+		if idx == 29 {
+			trying = false
+		}
+	}
+
 	return nil
 }
 
@@ -102,6 +121,23 @@ func (client *Client) Disable() error {
 		return fmt.Errorf("Failed to set configuration, service returned: %d (%s)", response.StatusCode, response.Status)
 	}
 
+	// loop until wifi-ap is down or limit reached
+	trying := true
+	idx := -1
+	for trying {
+		time.Sleep(1000 * time.Millisecond)
+		idx++
+		response, err := client.restClient.sendHTTPRequest("http://unix/v1/status", "GET", nil)
+		if err != nil {
+			return err
+		}
+		if response.Result["ap.active"] == false {
+			return nil
+		}
+		if idx == 29 {
+			trying = false
+		}
+	}
 	return nil
 }
 

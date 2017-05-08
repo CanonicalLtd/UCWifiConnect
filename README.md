@@ -9,12 +9,16 @@ Wifi-connect snap allows you to connect the device to an external wifi AP. First
 
 See Known Limitations below.
 
-* Currently alpha 1 status (wifi-connect 0.7)
+* Currently alpha 1 status (wifi-connect 0.8)
 * Raspberry pi3 with no additional wifi hardware is the only verified platform
+
+## Issue tracking
+
+[Issues](https://github.com/CanonicalLtd/UCWifiConnect/issues)
 
 ## Use refreshed pi3 image
 
-After installing the latest Ubuntu Core pi3 image, run
+After installing the latest Ubuntu Core pi3 image, run:
 
 ```bash
 snap refresh
@@ -34,7 +38,9 @@ snap install --edge wifi-connect
 sudo mkdir /var/snap/wifi-connect/common/sockets
 ```
 
-(TODO: Solution will later use an interface hook script to automatically create that directory)
+Note: Currently content share interface requires a reboot after connection, as described below.
+
+(TODO: Later we'll use an interface hook script to automatically create that directory)
 
 ## Connect interfaces
 
@@ -51,7 +57,6 @@ snap connect wifi-connect:network-setup-control core:network-setup-control
 
 Note: wifi-ap and network-manager interfaces auto-connect.
 
-
 ## If you configured wifi in console-conf
 
 The netplan file needs to be modified to set wlan0 as managed by network manager:
@@ -59,6 +64,8 @@ The netplan file needs to be modified to set wlan0 as managed by network manager
 ```bash
 sudo wifi-connect.netplan
 ```
+
+This command modifies the default netplan file. You can either run `sudo netplan generate && netplan apply` or reboot (the next step).
 
 ## Reboot
 
@@ -104,7 +111,7 @@ sudo systemctl start snap.wifi-connect.daemon.service
 sudo wifi-connect.wifi-ap -show
 ```
 
-Note the dhcp range:
+Note the DHCP range:
 
     dhcp.range-start: 10.0.60.2
     dhcp.range-stop: 10.0.60.199
@@ -117,7 +124,7 @@ When the device AP is up and available to you, join it.
 
 This portal displays external wifi APs and let's you join them.
 
-After you connect to the device AP, you can open its http portal at the .1 IP address just before the start of the DHCP range using port 8080: 
+After you connect to the device AP, you can open its http portal at the .1 IP address just before the start of the DHCP range (see previous steps) using port 8080: 
 
     10.0.60.1:8080
 
@@ -125,9 +132,9 @@ After you connect to the device AP, you can open its http portal at the .1 IP ad
 
 You can also connect to the device's web page using the device host name: 
 
-    http://[hostname].local:8080 
+    http://HOSTNAME.local:8080 
 
-Where [hostname] is the hostname of the device when it booted. (Changing hostname with the hostname command at run time is not sufficient.) 
+Where HOSTNAME is the hostname of the device when it booted. (Changing hostname with the hostname command at run time is not sufficient.) 
 
 Note: The system trying to open the web page must support Avahi. Android systems may not, for example.
 
@@ -135,8 +142,12 @@ Note: The system trying to open the web page must support Avahi. Android systems
 
 Wifi-connect pauses at daemon startup and at various times to allow state changes to settle. For example:
 
-* On boot and on daemon start, it takes a couple minutes to determine the proper state
-* When transitioning between modes (for example when connecting to an external AP from the web page, it takes a couple minutes  
+* On boot and on daemon start, it takes a minute or so to determine the proper state
+
+## Disconnect from wifi
+
+* Use `nmcli c` to display connections.
+* Use `nmcli c delete CONNECTION_NAME` to disconnect and delete. This puts the device into management mode, bringing up the AP and portal.
 
 ## Logs
 
@@ -146,21 +157,30 @@ Log messages are currently available in journalctl and most start with "== wifi-
 
 ### Sample (filtered) log  
 
-This log snippet shows the wifi-connect daemon starting, entering management mode, getting end saving external SSIDs, at which point the management ap and portal are put up. At this the daemon waits silently until the user uses the portal to attempt to join an external AP and on success, the device enters operational mode.
+This log snippet shows the wifi-connect daemon starting, entering management mode, obtaining external SSIDs, at which point the management ap and portal are put up:
 
-    May 02 18:46:48 pi3dev snap[12867]: == wifi-connect: daemon starting ==
-    May 02 18:48:35 pi3dev snap[12867]: == wifi-connect: entering management mode ==
-    May 02 18:48:50 pi3dev snap[12867]: == wifi-connect: SSID(s) found and written to  /var/snap/wifi-connect/common/ssids
-    May 02 18:48:55 pi3dev snap[12867]: == wifi-connect: Have SSIDs: start wifi-ap
-    May 02 18:48:56 pi3dev snap[12867]: == wifi-connect: Writing wait flag file: /var/snap/wifi-connect/common/startingApConnect
-    May 02 18:50:16 pi3dev snap[12867]: 2017/05/02 18:50:16 == wifi-connect: Connecting to astro_garden_2...
-    May 02 18:51:44 pi3dev snap[12867]: == wifi-connect: entering operational mode ==
+    May 05 19:06:18 localhost.localdomain snap[5990]: == wifi-connect: daemon STARTING
+    May 05 19:07:06 localhost.localdomain snap[5990]: == wifi-connect: entering MANAGEMENT mode
+    May 05 19:07:08 localhost.localdomain snap[5990]: == wifi-connect: SSID(s) obtained
+    May 05 19:07:09 localhost.localdomain snap[5990]: == wifi-connect: start wifi-ap
 
+The daemon waits silently until the user uses the portal to attempt to join an external AP, and, on success, the device enters operational mode:
+
+    May 05 19:08:41 localhost.localdomain snap[5990]: 2017/05/05 19:08:41 == wifi-connect: Connecting to my_ap...
+    May 05 19:08:48 localhost.localdomain snap[5990]: == wifi-connect: entering OPERATIONAL mode
+
+Now we are connected. Verify with `nmcli c`, and then delete the connection:
+
+    May 05 19:08:58 localhost.localdomain snap[5990]: == wifi-connect: entering MANAGEMENT mode
+    May 05 19:09:00 localhost.localdomain snap[5990]: == wifi-connect: SSID(s) obtained
+    May 05 19:09:02 localhost.localdomain snap[5990]: == wifi-connect: start wifi-ap
+
+Ready to join another AP.
 
 ## Known Limitations Alpha 1
 
 * Raspberry Pi3 with no additional hardware is the only verified platform currently 
-* Wifi-connect takes over management of the device's wlan0 interface and the wifi-ap AP. Any external operations that modify these may result in an incorrect state and may interrupt connectivity. For example, manually changing the network manager managed state of wlan0, or manually bringing up or down wifi-ap may break connectivity. 
+* Wifi-connect takes over management of device wifi (via wlan0 interface). Any external operations that modify these may result in an incorrect state and may interrupt connectivity. For example, manually changing the network manager managed state of wlan0, or manually bringing up or down wifi-ap may break connectivity. 
 * Opening the AP portal web page using device hostname (http://[hostname].local:8080) can result in a connection error from some platforms including some Android mobile phones and, in general, when connecting from any device on which Avahi is not enabled. You can open the web page using the device IP address on its AP and wlan0 interface, as described above.
 
 ## Development Environment
