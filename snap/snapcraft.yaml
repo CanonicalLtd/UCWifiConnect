@@ -1,5 +1,5 @@
 name: wifi-connect 
-version: '0.7'
+version: '0.8'
 summary: Connect your device to external wifi over temp wifi AP
 description: |
     A solution to enable your device by connecting to an external

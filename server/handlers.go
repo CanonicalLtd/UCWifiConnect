@@ -18,14 +18,11 @@
 package server
 
 import (
-	"encoding/csv"
-	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"text/template"
-	"time"
 
 	"github.com/CanonicalLtd/UCWifiConnect/netman"
 	"github.com/CanonicalLtd/UCWifiConnect/utils"
@@ -39,9 +36,6 @@ const (
 
 // ResourcesPath absolute path to web static resources
 var ResourcesPath = filepath.Join(os.Getenv("SNAP"), "static")
-
-// SsidsFile path to the file filled by daemon with available ssids in csv format
-var SsidsFile = filepath.Join(os.Getenv("SNAP_COMMON"), "ssids")
 
 // Data interface representing any data included in a template
 type Data interface{}
@@ -73,27 +67,10 @@ func execTemplate(w http.ResponseWriter, templatePath string, data Data) {
 	}
 }
 
-func readSsidsFile() ([]string, error) {
-	f, err := os.Open(SsidsFile)
-	if err != nil {
-		log.Printf("Error:%v", err)
-		return nil, err
-	}
-
-	reader := csv.NewReader(f)
-	// all ssids are in the same record
-	record, err := reader.Read()
-	if err == io.EOF {
-		empty := make([]string, 0)
-		return empty, nil
-	}
-	return record, err
-}
-
 // SsidsHandler lists the current available SSIDs
 func SsidsHandler(w http.ResponseWriter, r *http.Request) {
 	// daemon stores current available ssids in a file
-	ssids, err := readSsidsFile()
+	ssids, err := utils.ReadSsidsFile()
 	if err != nil {
 		log.Printf("Error reading SSIDs file: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -132,18 +109,12 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 	cw := wifiap.DefaultClient()
 	cw.Disable()
 
-	//give time for wifi-ap to complete shudown
-	time.Sleep(50000 * time.Millisecond)
-
 	//connect
 	c := netman.DefaultClient()
 	c.SetIfaceManaged("wlan0", true, c.GetWifiDevices(c.GetDevices()))
 	_, ap2device, ssid2ap := c.Ssids()
 
 	c.ConnectAp(ssid, pwd, ap2device, ssid2ap)
-
-	//wait, to provide time for the connection to occur
-	time.Sleep(30000 * time.Millisecond)
 
 	//remove flag file so that daemon starts checking state
 	//and takes control again

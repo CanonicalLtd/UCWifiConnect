@@ -54,7 +54,6 @@ func setState(s int) {
 // to path and return true, else return false.
 func scanSsids(path string, c *netman.Client) bool {
 	manage(c)
-	time.Sleep(5000 * time.Millisecond)
 	SSIDs, _, _ := c.Ssids()
 	//only write SSIDs when found
 	if len(SSIDs) > 0 {
@@ -67,7 +66,7 @@ func scanSsids(path string, c *netman.Client) bool {
 		if err != nil {
 			fmt.Println("== wifi-connect: Error writing SSID(s) to ", path)
 		} else {
-			fmt.Println("== wifi-connect: SSID(s) found and written to ", path)
+			fmt.Println("== wifi-connect: SSID(s) obtained")
 			return true
 		}
 	}
@@ -97,6 +96,22 @@ func checkWaitApConnect() bool {
 		return false
 	}
 	return true
+}
+
+// if wifiap is UP and there are no known SSIDs, bring it down so on next
+// loop iter we start again and can get SSIDs. returns true when ip is
+// UP and has no ssids
+func isApUpWithoutSSIDs(cw *wifiap.Client) bool {
+	wifiUp, _ := cw.Enabled()
+	if !wifiUp {
+		return false
+	}
+	ssids, _ := utils.ReadSsidsFile()
+	if len(ssids) < 1 {
+		fmt.Println("== wifi-connect: wifi-ap is UP but has no SSIDS")
+		return true // ap is up with no ssids
+	}
+	return false
 }
 
 // managementServerUp starts the management server if it is
@@ -152,23 +167,23 @@ func main() {
 	first := true
 	c := netman.DefaultClient()
 	cw := wifiap.DefaultClient()
-	ssidsPath := os.Getenv("SNAP_COMMON") + "/ssids"
 
 	// stop servers if running at start
 	managementServerDown()
-	operationalServerDown()
+	//operationalServerDown()
 
 	//remove possibly left over wait flag file
 	utils.RemoveWaitFile()
 
 	for {
 		if first {
-			fmt.Println("== wifi-connect: daemon starting ==")
+			fmt.Println("== wifi-connect: daemon STARTING")
+			previousState = STARTING
+			state = STARTING
 			first = false
-			//first boot sometimes needs more time
-			time.Sleep(40000 * time.Millisecond)
 			//clean start require wifi AP down so we can get SSIDs
 			cw.Disable()
+			//TODO only wait if wlan0 is managed
 			//wait time period (TBD) on first run to allow wifi connections
 			time.Sleep(40000 * time.Millisecond)
 			//remove previous state flag, if any on deamon startup
@@ -177,6 +192,12 @@ func main() {
 
 		// wait 5 seconds on each iter
 		time.Sleep(5000 * time.Millisecond)
+
+		// the AP should not be up without SSIDS
+		if isApUpWithoutSSIDs(cw) {
+			cw.Disable()
+			continue
+		}
 
 		// wait/loop until management portal's wait flag file is gone
 		// this stops daemon state changing until the management portal
@@ -191,7 +212,7 @@ func main() {
 		if c.ConnectedWifi(c.GetWifiDevices(c.GetDevices())) {
 			setState(OPERATING)
 			if previousState != OPERATING {
-				fmt.Println("== wifi-connect: entering operational mode ==")
+				fmt.Println("== wifi-connect: entering OPERATIONAL mode")
 			}
 			if previousState == MANAGING {
 				managementServerDown()
@@ -201,9 +222,9 @@ func main() {
 			continue
 		}
 
-		state = MANAGING
+		setState(MANAGING)
 		if previousState != MANAGING {
-			fmt.Println("== wifi-connect: entering management mode ==")
+			fmt.Println("== wifi-connect: entering MANAGEMENT mode")
 		}
 
 		// if wlan0 managed, set unmanaged so that we can bring up wifi-ap
@@ -223,13 +244,13 @@ func main() {
 
 		//get ssids if wifi-ap Down
 		if !wifiUp {
-			found := scanSsids(ssidsPath, c)
+			found := scanSsids(utils.SsidsFile, c)
 			unmanage(c)
 			if !found {
-				fmt.Println("== wifi-connect: No SSIDs found. Looping.")
+				fmt.Println("== wifi-connect: Looping.")
 				continue
 			}
-			fmt.Println("== wifi-connect: Have SSIDs: start wifi-ap")
+			fmt.Println("== wifi-connect: start wifi-ap")
 			cw.Enable()
 			managementServerUp()
 		}
