@@ -76,7 +76,7 @@ func (c *Client) GetNetplan() (*NetplanType, error) {
 
 	buf, err1 := ioutil.ReadFile(c.NetplanFile)
 	if err1 != nil {
-		fmt.Printf("== wifi-connect/netplan: Error opening %s: %v\n", netplanConfig, err1)
+		fmt.Printf("== wifi-connect/netplan: Error opening %s: %v\n", c.NetplanFile, err1)
 		return netplan, err1
 	}
 
@@ -88,13 +88,14 @@ func (c *Client) GetNetplan() (*NetplanType, error) {
 }
 
 // Modify netplan config data to set wifis to be managed by network manager
-func (c *Client) SetWifisNetworkManager(config *NetplanType) {
+func (c *Client) SetWifisNetworkManager(config *NetplanType) bool {
 
 	if config.Network.Wifis != nil {
 		config.Network.Wifis = make(map[string]interface{})
 		config.Network.Wifis["renderer"] = "NetworkManager"
+		return true
 	} else {
 		fmt.Println("== wifi-connect/netplan. The netplan config does not manage 'wifis', no change to it is needed")
+		return false
 	}
-	return
 }

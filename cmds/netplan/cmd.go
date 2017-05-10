@@ -30,8 +30,8 @@ import (
 )
 
 var opts struct {
-	Config    string `short:"n" long:"netplan-file" description:"Netplan config file (to override default)"`
-	ConfigOut string `short:"o" long:"netplan--out-file" description:"Netplan config file to write to (to override default, which is the Config file)"`
+	Config    string `short:"n" long:"netplan-file" description:"Netplan config file (optional)"`
+	ConfigOut string `short:"o" long:"netplan--out-file" description:"Netplan config file to write to (optional)"`
 }
 
 func main() {
@@ -39,7 +39,6 @@ func main() {
 
 	_, err := flags.ParseArgs(&opts, os.Args[1:])
 	if err != nil {
-		fmt.Println("== wifi-connect/netplan. Error parsing arguments:", err)
 		return
 	}
 
@@ -59,11 +58,12 @@ func main() {
 
 	if err != nil {
 		fmt.Println("== wifi-connect/netplan. Error getting netplan config:", err)
+		return
 	}
 
-	fmt.Println(netplanConfig)
-
-	c.SetWifisNetworkManager(netplanConfig)
+	if !c.SetWifisNetworkManager(netplanConfig){
+		return
+	}
 
 	out, err := yaml.Marshal(netplanConfig)
 
