@@ -1,0 +1,8 @@
+summary: Test wifi-connect snap commands installation was successful
+
+execute: |
+    # Verify aliases are set up
+    test -x /snap/bin/wifi-connect_server
+    test -x /snap/bin/wifi-connect_netman
+    test -x /snap/bin/wifi-connect_wifi-ap
+    test -x /snap/bin/wifi-connect_netplan

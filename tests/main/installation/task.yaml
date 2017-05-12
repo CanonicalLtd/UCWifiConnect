@@ -1,0 +1,5 @@
+summary: Test wifi-connect snap installation was successful
+
+execute: |
+    # Services should be up and running
+    systemctl is-active snap.wifi-connect.daemon.service

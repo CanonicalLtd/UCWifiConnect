@@ -15,12 +15,15 @@ apps:
   run: 
     command: server
     plugs: [network, network-control, network-bind, network-manager, control]
+    aliases: [wifi-connect_server]
   netman:
     command: netman
     plugs: [network-manager, network-control]
+    aliases: [wifi-connect_netman]
   wifi-ap:
     command: wifi-ap
     plugs: [control, network]
+    aliases: [wifi-connect_wifi-ap]
   daemon:
     command: daemon
     daemon: simple
@@ -28,6 +31,7 @@ apps:
   netplan:
     command: netplan
     plugs: [network-setup-control]
+    aliases: [wifi-connect_netplan]
 
 plugs:
   control:
@@ -41,6 +45,8 @@ parts:
     plugin: go
     source: . 
     go-importpath: github.com/CanonicalLtd/UCWifiConnect 
+    build-packages:
+      - git
   assets:
     plugin: dump
     source: .

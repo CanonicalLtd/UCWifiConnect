@@ -1,0 +1,20 @@
+summary: Test wifi-connect snap returns default config
+
+execute: |
+    test "`/snap/bin/wifi-connect.wifi-ap -show`" = "debug=false \
+                                                    disabled=false \
+                                                    dhcp.lease-time=12h \
+                                                    dhcp.range-start=10.0.60.3 \
+                                                    dhcp.range-stop=10.0.60.20 \
+                                                    share.disabled=false \
+                                                    share.network-interface=eth0 \
+                                                    wifi.address=10.0.60.1 \
+                                                    wifi.channel=6 \
+                                                    wifi.hostapd-driver=nl80211 \
+                                                    wifi.interface=wlan0 \
+                                                    wifi.interface-mode=direct \
+                                                    wifi.netmask=255.255.255.0 \
+                                                    wifi.operation-mode=g \
+                                                    wifi.security=open \
+                                                    wifi.ssid=Ubuntu"
+    
