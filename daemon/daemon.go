@@ -36,8 +36,11 @@ const (
 	STARTING = 0 + iota
 	MANAGING
 	OPERATING
+	MANUAL
 )
 
+var manualFlagPath string
+var waitFlagPath string
 var previousState = STARTING
 var state = STARTING
 
@@ -91,9 +94,27 @@ func manage(c *netman.Client) {
 // checkWaitApConnect returns true if the flag wait file exists
 // and false if it does not
 func checkWaitApConnect() bool {
-	waitApPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
-	if _, err := os.Stat(waitApPath); os.IsNotExist(err) {
+	if _, err := os.Stat(waitFlagPath); os.IsNotExist(err) {
 		return false
+	}
+	return true
+}
+
+// checkManualMode returns true if the manual mode flag wait file exists
+// and false if it does not
+func checkManualMode() bool {
+	if _, err := os.Stat(manualFlagPath); os.IsNotExist(err) {
+		if state == MANUAL {
+			previousState = state
+			setState(STARTING)
+			fmt.Println("== wifi-connect: entering STARTING mode")
+		}
+		return false
+	}
+	if state != MANUAL {
+		previousState = state
+		setState(MANUAL)
+		fmt.Println("== wifi-connect: entering MANUAL mode")
 	}
 	return true
 }
@@ -136,7 +157,7 @@ func managementServerDown() {
 		fmt.Println("== wifi-connect: Error stopping the Management portal:", err)
 	}
 	//remove flag fie so daemon resumes normal control
-	utils.RemoveWaitFile()
+	utils.RemoveFlagFile(os.Getenv("SNAP_COMMON") + "/startingApConnect")
 	//}
 }
 
@@ -165,6 +186,9 @@ func operationalServerDown() {
 
 func main() {
 	first := true
+	waitFlagPath = os.Getenv("SNAP_COMMON") + "/startingApConnect"
+	manualFlagPath = os.Getenv("SNAP_COMMON") + "/manualMode"
+
 	c := netman.DefaultClient()
 	cw := wifiap.DefaultClient()
 
@@ -172,8 +196,9 @@ func main() {
 	managementServerDown()
 	//operationalServerDown()
 
-	//remove possibly left over wait flag file
-	utils.RemoveWaitFile()
+	//remove possibly left over flag files
+	utils.RemoveFlagFile(waitFlagPath)
+	utils.RemoveFlagFile(manualFlagPath)
 
 	for {
 		if first {
@@ -187,12 +212,23 @@ func main() {
 			//wait time period (TBD) on first run to allow wifi connections
 			time.Sleep(40000 * time.Millisecond)
 			//remove previous state flag, if any on deamon startup
-			utils.RemoveWaitFile()
+			utils.RemoveFlagFile(waitFlagPath)
+			utils.RemoveFlagFile(manualFlagPath)
 		}
 
 		// wait 5 seconds on each iter
 		time.Sleep(5000 * time.Millisecond)
 
+		// loop without action if in manual mode
+		if checkManualMode() {
+			continue
+		}
+
+		// start clean on exiting manual mode
+		if previousState == MANUAL {
+			first = true
+			continue
+		}
 		// the AP should not be up without SSIDS
 		if isApUpWithoutSSIDs(cw) {
 			cw.Disable()
@@ -250,7 +286,7 @@ func main() {
 				fmt.Println("== wifi-connect: Looping.")
 				continue
 			}
-			fmt.Println("== wifi-connect: start wifi-ap")
+			fmt.Println("== wifi-connect: starting wifi-ap")
 			cw.Enable()
 			managementServerUp()
 		}

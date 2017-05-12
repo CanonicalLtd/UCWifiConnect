@@ -19,7 +19,7 @@ package server
 
 import (
 	"io"
-	"log"
+	"os"
 
 	"github.com/CanonicalLtd/UCWifiConnect/utils"
 )
@@ -51,7 +51,8 @@ func Running() RunningServer {
 
 // StartManagementServer starts server in management mode
 func StartManagementServer() error {
-	utils.WriteWaitFile()
+	waitPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
+	utils.WriteFlagFile(waitPath)
 	var err error
 	managementCloser, err = listenAndServe(address, managementHandler())
 	if err != nil {
@@ -77,7 +78,6 @@ func StartOperationalServer() error {
 // ShutdownManagementServer shutdown server management mode. If server is in operational mode, it does nothing
 func ShutdownManagementServer() error {
 	if managementCloser == nil {
-		log.Print("== wifi-connect: Skipping stop management server since it is not up")
 		return nil
 	}
 
@@ -96,7 +96,6 @@ func ShutdownManagementServer() error {
 // ShutdownOperationalServer shutdown server operational mode. If server is up in management mode, it does nothing
 func ShutdownOperationalServer() error {
 	if operationalCloser == nil {
-		log.Print("== wifi-connect: Skipping stop operational server since it is not up")
 		return nil
 	}
 

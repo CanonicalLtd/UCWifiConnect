@@ -48,31 +48,28 @@ func PrintMapSorted(m map[string]interface{}) {
 	}
 }
 
-// WriteWaitFile writes the "wait" file used as a flag by the daemon
-func WriteWaitFile() {
-	wait := os.Getenv("SNAP_COMMON") + "/startingApConnect"
-	err := ioutil.WriteFile(wait, []byte("wait"), 0644)
+// WriteFlagFile writes passed flag file
+func WriteFlagFile(path string) {
+	err := ioutil.WriteFile(path, []byte("flag"), 0644)
 	if err != nil {
-		fmt.Println("== wifi-connect: Error writing flag wait file:", err)
+		fmt.Println("== wifi-connect: Error writing flag file:", err)
 	}
 }
 
-// RemoveWaitFile removes the "wait" file used as a flag by the daemon
-func RemoveWaitFile() {
-	waitApPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
-	if _, err := os.Stat(waitApPath); !os.IsNotExist(err) {
-
+// RemoveFlagFile removes passed flag file
+func RemoveFlagFile(path string) {
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		//loop up to 10 times to try again if tmp file lock prevents delete
 		idx := -1
 		for {
 			idx++
-			err := os.Remove(waitApPath)
+			err := os.Remove(path)
 			if err == nil {
 				return
 			}
 			time.Sleep(30000 * time.Millisecond)
 			if idx == 9 {
-				fmt.Printf("== wifi-connect: Error. Cannot remove wait file: %s\n", waitApPath)
+				fmt.Printf("== wifi-connect: Error. Cannot remove flag file: %s\n", path)
 			}
 		}
 	}
