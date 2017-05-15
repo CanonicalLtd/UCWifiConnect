@@ -15,27 +15,27 @@
  *
  */
 
-package main 
+package main
 
 import (
 	"bufio"
 	"fmt"
-	"os"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/CanonicalLtd/UCWifiConnect/netman"
+	"github.com/CanonicalLtd/UCWifiConnect/server"
 	"github.com/CanonicalLtd/UCWifiConnect/utils"
 	"github.com/CanonicalLtd/UCWifiConnect/wifiap"
-	"github.com/CanonicalLtd/UCWifiConnect/server"
 
 	"github.com/gorilla/mux"
 )
 
 func help() string {
 
-	text := 
-`Usage: wifi-connect COMMAND [VALUE]
+	text :=
+		`Usage: wifi-connect COMMAND [VALUE]
 
 Commands:
 	stop:	 		Disables wifi-connect from automatic control, leaving system 
@@ -66,11 +66,10 @@ func handler() *mux.Router {
 func main() {
 
 	if len(os.Args) < 2 {
-		fmt.Println("== wifi-connect/cmd Error: no command arguments provided" )
+		fmt.Println("== wifi-connect/cmd Error: no command arguments provided")
 		return
 	}
 	args := os.Args[1:]
-
 
 	switch args[0] {
 	case "help":
@@ -83,10 +82,10 @@ func main() {
 		fmt.Printf("%s\n", help())
 	case "stop":
 		utils.WriteFlagFile(os.Getenv("SNAP_COMMON") + "/manualMode")
-			fmt.Println("Entering MANUAL Mode. Wifi-connect has stopped managing state. Use 'start' to restore normal operations" )
+		fmt.Println("Entering MANUAL Mode. Wifi-connect has stopped managing state. Use 'start' to restore normal operations")
 	case "start":
 		utils.RemoveFlagFile(os.Getenv("SNAP_COMMON") + "/manualMode")
-		fmt.Println("Entering NORMAL Mode." )
+		fmt.Println("Entering NORMAL Mode.")
 	case "show-ap":
 		wifiAPClient := wifiap.DefaultClient()
 		result, _ := wifiAPClient.Show()
@@ -96,14 +95,14 @@ func main() {
 		}
 	case "ssid":
 		if len(os.Args) < 3 {
-			fmt.Println("Error: no ssid provided" )
+			fmt.Println("Error: no ssid provided")
 			return
 		}
 		wifiAPClient := wifiap.DefaultClient()
 		wifiAPClient.SetSsid(os.Args[2])
 	case "passphrase":
 		if len(os.Args) < 3 {
-			fmt.Println("Error: no passphrase provided" )
+			fmt.Println("Error: no passphrase provided")
 			return
 		}
 		wifiAPClient := wifiap.DefaultClient()
@@ -160,14 +159,14 @@ func main() {
 		}
 	case "manage-iface":
 		if len(os.Args) < 3 {
-			fmt.Println("Error: no interface provided" )
+			fmt.Println("Error: no interface provided")
 			return
 		}
 		c := netman.DefaultClient()
 		c.SetIfaceManaged(os.Args[2], true, c.GetWifiDevices(c.GetDevices()))
 	case "unmanage-iface":
 		if len(os.Args) < 3 {
-			fmt.Println("Error: no interface provided" )
+			fmt.Println("Error: no interface provided")
 			return
 		}
 		c := netman.DefaultClient()
@@ -189,6 +188,6 @@ func main() {
 	case "management-up":
 		http.ListenAndServe(":8081", handler())
 	default:
-		fmt.Println("Error. Your command is not supported. Please try 'help'")	
+		fmt.Println("Error. Your command is not supported. Please try 'help'")
 	}
 }
