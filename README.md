@@ -258,6 +258,26 @@ and execute sass task
 gulp sass
 ```
 
+# Pausing the daemon loop
+
+The daemon loop can be paused with:
+
+```bash
+sudo wifi-connect.cli stop
+```
+
+After this, the daemon loops and does nothing. In this state you may want to run "hidden" commands (see the sourcefor these), for example to execute functions for development and verification.
+
+Note: It is possible to execute commands that put the system into a non-working state. For example, bringing the AP UP/DOWN while wlan0 interface is managed by netork manager may result in an unworkable situation, possibly requiring reboot, or merely daemon restart.
+
+
+Restart the daemon normal loop cleanly with:
+
+
+```bash
+sudo wifi-connect.cli sartt
+```
+
 # Unit Tests
 
 You can run all tests by executing 
