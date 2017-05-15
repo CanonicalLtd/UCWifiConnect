@@ -42,6 +42,7 @@ Commands:
 				in current state
 	start:	 		Enables wifi-connect as automatic controller, restarting from
 				a clean state
+	show-ap:		Show AP configuration
 	ssid VALUE: 		Set the AP ssid (causes AP restart if it is UP)
 	passphrase VALUE: 	Set the AP passphrase (cause AP restart if it is UP)
 `
@@ -86,6 +87,13 @@ func main() {
 	case "start":
 		utils.RemoveFlagFile(os.Getenv("SNAP_COMMON") + "/manualMode")
 		fmt.Println("Entering NORMAL Mode." )
+	case "show-ap":
+		wifiAPClient := wifiap.DefaultClient()
+		result, _ := wifiAPClient.Show()
+		if result != nil {
+			utils.PrintMapSorted(result)
+			return
+		}
 	case "ssid":
 		if len(os.Args) < 3 {
 			fmt.Println("Error: no ssid provided" )

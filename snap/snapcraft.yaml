@@ -12,16 +12,13 @@ grade: devel
 confinement: strict
 
 apps:
-  manual: 
+  cli: 
     command: cmd 
     plugs: [network, network-control, network-bind, network-manager, control]
   daemon:
     command: daemon
     daemon: simple
     plugs: [network-manager, control, network-bind]
-  netplan:
-    command: netplan
-    plugs: [network-setup-control]
 
 plugs:
   control:

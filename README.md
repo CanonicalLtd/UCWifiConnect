@@ -5,11 +5,8 @@ Wifi-connect snap allows you to connect the device to an external wifi AP. First
 * The wifi-ap snap provides the device AP.
 * The network-manager snap provides management and control of the wlan0 interface used for the AP and to connect to external APs. 
 
-## Release: Alpha 1
+## Release: Alpha 2 (0.9)
 
-See Known Limitations below.
-
-* Currently alpha 1 status (wifi-connect 0.8)
 * Raspberry pi3 with no additional wifi hardware is the only verified platform
 
 ## Issue tracking
@@ -57,58 +54,76 @@ snap connect wifi-connect:network-setup-control core:network-setup-control
 
 Note: wifi-ap and network-manager interfaces auto-connect.
 
-## If you configured wifi in console-conf
+# Set NetWorkManager to control all networking
 
-The netplan file needs to be modified to set wlan0 as managed by network manager:
+Note: This is a temporary manual step before network-manager snap provides a config option for this.
+
+Note: Depending on your environment, after this you may need to use a new IP address to connect to the device.
+
+1. Backup the existing /etc/netplan/00-snapd-config.yaml file 
 
 ```bash
-sudo wifi-connect.netplan
+sudo mv /etc/netplan/00-snapd-config.yaml ~/
 ```
 
-This command modifies the default netplan file. You can either run `sudo netplan generate && netplan apply` or reboot (the next step).
+1. Create a new netplan config file named /etc/netplan/00-default-nm-renderer.yaml:
+
+``bash
+sudo vi /etc/netplan/00-default-nm-renderer.yaml
+
+```
+
+Add the following two lines:
+
+```bash
+network:
+    renderer: NetworkManager
+```
 
 ## Reboot
 
-The content sharing interface has a known issue. Until that is resolved, you need to restart the system at this point.
+Rebooting addresses a content sharing interface issue. 
+
+Rebooting also consolidates all networking into NetworkManager.
 
 ## Optionally configure wifi-ap SSID/passphrase
 
 If you skip these steps, the wifi-AP put up by the device has an SSID of "Ubuntu" and is unsecure (with no passphrase). 
 
-1. Stop the daemon
+1. Stop wifi-connect
 
 ```bash
-sudo systemctl stop snap.wifi-connect.daemon.service
+sudo wifi-connect.cli stop
 ```
 
-1. Bring the AP down:
+1. Set the wlan0 interface to be unmanaged by NetworkManager
 
 ```bash
-sudo wifi-connect.wifi-ap -ap-off
+nmcli set wlan0 managed n
 ```
 
 1. Set the wifi-ap AP SSID
 
 ```bash
-sudo wifi-connect.wifi-ap -ssid digit
+sudo wifi-connect.cli ssid digit
 ```
 
 1. Set the AP passphrase:
 
 ```bash
-sudo wifi-connect.wifi-ap -passphrase ubuntuubuntuubuntu
+sudo wifi-connect.cli passphrase ubuntuubuntuubuntu
 ```
 
-1. Start the daemon
+1. Start wifi-connect
 
 ```bash
-sudo systemctl start snap.wifi-connect.daemon.service
+sudo wifi-connect.cli start
 ```
 
 ## Display the AP config
 
 ```bash
-sudo wifi-connect.wifi-ap -show
+sudo wifi-connect.cli show-ap
 ```
 
 Note the DHCP range:
