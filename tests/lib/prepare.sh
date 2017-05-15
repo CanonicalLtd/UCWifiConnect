@@ -1,10 +1,8 @@
 #!/bin/bash
 
-if $SPREAD_REBOOT > 0 ; then
-	exit 0
-fi
-
 . $TESTSLIB/utilities.sh
+
+stop_after_first_reboot
 
 echo "Wait for firstboot change to be ready"
 while ! snap changes | grep -q "Done"; do
@@ -37,14 +35,14 @@ if [ ! -f $SPREAD_PATH/snapd-state.tar.gz ] ; then
 	systemctl start snapd.socket
 fi
 
+# Create content sharing directory
+[ -e /var/snap/wifi-connect/common/sockets ] || mkdir -p /var/snap/wifi-connect/common/sockets
+
+connect_interfaces
+
 # For debugging dump all snaps and connected slots/plugs
 snap list
 snap interfaces
-
-# Create content sharing directory
-[ -e /var/snap/wifi-connect/common/sockets ] || mkdir /var/snap/wifi-connect/common/sockets
-
-connect_interfaces
 
 # netplan file needs to be modified to set wlan0 as managed by network manager
 wifi-connect.netplan

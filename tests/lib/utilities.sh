@@ -7,11 +7,27 @@ wait_for_systemd_service() {
 	sleep 1
 }
 
+wait_for_daemon_ready() {
+	wait_for_systemd_service snap.wifi-connect.daemon.service
+}
+
 wait_for_systemd_service_exit() {
-	while systemctl status $1 ; do
+	count=20
+	while systemctl status $1 && count -gt 0; do
 		sleep 1
+		let count--
 	done
 	sleep 1
+
+	if [ count -eq 0 ]; then
+		exit 1
+	fi
+}
+
+stop_after_first_reboot() {
+	if [ $SPREAD_REBOOT -gt 0 ] ; then
+		exit 0
+	fi
 }
 
 install_snap_under_test() {
@@ -24,7 +40,7 @@ install_snap_under_test() {
 		fi
 	else
 		# Install prebuilt snap
-		snap install --devmode ${PROJECT_PATH}/${SNAP_NAME}_*_${SNAP_ARCH}.snap
+		snap install --dangerous ${PROJECT_PATH}/${SNAP_NAME}_*_${SNAP_ARCH}.snap
 		# Setup all necessary aliases
 		snapd_version=$(snap version | awk '/^snapd / {print $2; exit}')
 		for alias in $SNAP_AUTO_ALIASES ; do
@@ -41,22 +57,22 @@ install_snap() {
 	# Don't reinstall if we have it installed already
 	if ! snap list | grep $1 ; then
 		snap install --$2 $1
+	else
+		snap refresh 
 	fi
 }
 
 install_additional_snaps() {
-	install_snap wifi-ap stable
 	install_snap network-manager stable
+	install_snap wifi-ap stable
 }
 
 connect_interfaces() {
-	snap connect wifi-ap:network-manager network-manager:service
-
 	snap connect wifi-connect:control wifi-ap:control
+	snap connect wifi-connect:network core:network
+	snap connect wifi-connect:network-bind core:network-bind
 	snap connect wifi-connect:network-manager network-manager:service
-	snap connect wifi-connect:network
-	snap connect wifi-connect:network-bind
-	snap connect wifi-connect:network-control
-	snap connect wifi-connect:network-setup-control
+	snap connect wifi-connect:network-control core:network-control
+	snap connect wifi-connect:network-setup-control core:network-setup-control
 }
 
