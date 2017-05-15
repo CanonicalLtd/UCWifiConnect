@@ -86,7 +86,7 @@ func ReadSsidsFile() ([]string, error) {
 	// all ssids are in the same record
 	record, err := reader.Read()
 	if err == io.EOF {
-		empty := make([]string, 0)
+		var empty []string
 		return empty, nil
 	}
 	return record, err
