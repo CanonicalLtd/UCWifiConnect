@@ -15,9 +15,6 @@ apps:
   manual: 
     command: cmd 
     plugs: [network, network-control, network-bind, network-manager, control]
-  netman:
-    command: netman
-    plugs: [network-manager, network-control]
   daemon:
     command: daemon
     daemon: simple

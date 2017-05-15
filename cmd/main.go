@@ -100,6 +100,18 @@ func main() {
 		}
 		wifiAPClient := wifiap.DefaultClient()
 		wifiAPClient.SetPassphrase(os.Args[2])
+	case "get-devices":
+		c := netman.DefaultClient()
+		devices := c.GetDevices()
+		for d := range devices {
+			fmt.Println(d)
+		}
+	case "get-wifi-devices":
+		c := netman.DefaultClient()
+		devices := c.GetWifiDevices(c.GetDevices())
+		for d := range devices {
+			fmt.Println(d)
+		}
 	case "get-ssids":
 		c := netman.DefaultClient()
 		SSIDs, _, _ := c.Ssids()
@@ -113,9 +125,9 @@ func main() {
 	case "check-connected":
 		c := netman.DefaultClient()
 		if c.ConnectedWifi(c.GetWifiDevices(c.GetDevices())) {
-			fmt.Println("Device is connected to external wifi AP")
+			fmt.Println("Device is connected")
 		} else {
-			fmt.Println("Device is not connected to external wifi AP")
+			fmt.Println("Device is not connected")
 		}
 
 	case "check-connected-wifi":
