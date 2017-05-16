@@ -41,12 +41,28 @@ exclude:
 prepare: |
   . $TESTSLIB/prepare-all.sh
 
+# prepare-each: |
+#   # Cleanup logs so we can just dump what has happened in the debug-each
+#   # step below after a test case ran.
+#   journalctl --rotate
+#   sleep .1
+#   journalctl --vacuum-time=1ms
+#   dmesg -c > /dev/null
+
+# debug-each: |
+#   journalctl
+#   dmesg | grep DENIED || true
+
+# kill-timeout: 1h
+
 suites:
     tests/main/:
-        summary: Full-system tests for the wifi-ap snap
+        summary: Full-system tests for the wifi-connect snap
         systems:
             - ubuntu-core-16
         prepare: |
             . $TESTSLIB/prepare.sh
+        prepare-each: |
+            . $TESTSLIB/prepare-each.sh
         restore-each: |
             . $TESTSLIB/restore-each.sh

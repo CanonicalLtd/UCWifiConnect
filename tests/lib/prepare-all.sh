@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Simulate a WiFi radio network interface
+#modprobe mac80211_hwsim radios=2
+
 # We don't have to build a snap when we should use one from a
 # channel
 if [ -n "$SNAP_CHANNEL" ] ; then
@@ -13,7 +16,7 @@ if [ -e ${PROJECT_PATH}/${SNAP_NAME}_*_${SNAP_ARCH}.snap ] ; then
 fi
 
 # Search for updates
-snap refresh
+#snap refresh
 
 # Setup classic snap and build the wifi-connect snap in there
 snap install --devmode --beta classic
