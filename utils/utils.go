@@ -75,7 +75,7 @@ func RemoveFlagFile(path string) error {
 			}
 		}
 	}
-	return fmt.Errorf("Current user cannot access file: %s. No changes made\n", path)
+	return fmt.Errorf("current user cannot access file: %s. No changes made", path)
 }
 
 // ReadSsidsFile read the ssids file, if any
