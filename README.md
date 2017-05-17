@@ -195,6 +195,8 @@ Ready to join another AP.
 ## Known Limitations Alpha 1
 
 * Raspberry Pi3 with no additional hardware is the only verified platform currently 
+* To set up pi3 to use wifi in console-conf, you have to reboot after first boot and run 'sudo console-conf'
+* After connecting to external wifi-ap, ifconfig shows for wlan0 the IP of the hosted AP (10.0.60.1), not the IP assigned by the external AP. But, the IP assigned by the external AP is the one that works.
 * Wifi-connect takes over management of device wifi (via wlan0 interface). Any external operations that modify these may result in an incorrect state and may interrupt connectivity. For example, manually changing the network manager managed state of wlan0, or manually bringing up or down wifi-ap may break connectivity. 
 * Opening the AP portal web page using device hostname (http://[hostname].local:8080) can result in a connection error from some platforms including some Android mobile phones and, in general, when connecting from any device on which Avahi is not enabled. You can open the web page using the device IP address on its AP and wlan0 interface, as described above.
 
