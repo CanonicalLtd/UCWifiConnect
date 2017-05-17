@@ -53,7 +53,7 @@ func PrintMapSorted(m map[string]interface{}) {
 func WriteFlagFile(path string) error {
 	err := ioutil.WriteFile(path, []byte("flag"), 0644)
 	if err != nil {
-		return err	
+		return err
 	}
 	return nil
 }
@@ -71,7 +71,7 @@ func RemoveFlagFile(path string) error {
 			}
 			time.Sleep(30000 * time.Millisecond)
 			if idx == 9 {
-				 return errors.New("Error. Tried many times and gave up")
+				return errors.New("Error. Tried many times and gave up")
 			}
 		}
 	}

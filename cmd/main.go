@@ -90,7 +90,7 @@ func main() {
 	case "--help":
 		fmt.Printf("%s\n", help())
 	case "stop":
-		if !checkSudo()  {
+		if !checkSudo() {
 			return
 		}
 		err := utils.WriteFlagFile(os.Getenv("SNAP_COMMON") + "/manualMode")
@@ -100,7 +100,7 @@ func main() {
 		}
 		fmt.Println("Entering MANUAL Mode. Wifi-connect has stopped managing state. Use 'start' to restore normal operations")
 	case "start":
-		if !checkSudo()  {
+		if !checkSudo() {
 			return
 		}
 		err := utils.RemoveFlagFile(os.Getenv("SNAP_COMMON") + "/manualMode")
@@ -110,7 +110,7 @@ func main() {
 		}
 		fmt.Println("Entering NORMAL Mode.")
 	case "show-ap":
-		if !checkSudo()  {
+		if !checkSudo() {
 			return
 		}
 		wifiAPClient := wifiap.DefaultClient()
@@ -120,7 +120,7 @@ func main() {
 			return
 		}
 	case "ssid":
-		if !checkSudo()  {
+		if !checkSudo() {
 			return
 		}
 		if len(os.Args) < 3 {
@@ -130,7 +130,7 @@ func main() {
 		wifiAPClient := wifiap.DefaultClient()
 		wifiAPClient.SetSsid(os.Args[2])
 	case "passphrase":
-		if !checkSudo()  {
+		if !checkSudo() {
 			return
 		}
 		if len(os.Args) < 3 {
