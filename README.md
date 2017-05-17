@@ -93,7 +93,7 @@ If you skip these steps, the wifi-AP put up by the device has an SSID of "Ubuntu
 1. Stop wifi-connect
 
 ```bash
-sudo wifi-connect.cli stop
+sudo  wifi-connect stop
 ```
 
 1. Set the wlan0 interface to be unmanaged by NetworkManager
@@ -105,25 +105,25 @@ nmcli set wlan0 managed n
 1. Set the wifi-ap AP SSID
 
 ```bash
-sudo wifi-connect.cli ssid digit
+sudo  wifi-connect ssid digit
 ```
 
 1. Set the AP passphrase:
 
 ```bash
-sudo wifi-connect.cli passphrase ubuntuubuntuubuntu
+sudo  wifi-connect passphrase ubuntuubuntuubuntu
 ```
 
 1. Start wifi-connect
 
 ```bash
-sudo wifi-connect.cli start
+sudo  wifi-connect start
 ```
 
 ## Display the AP config
 
 ```bash
-sudo wifi-connect.cli show-ap
+sudo  wifi-connect show-ap
 ```
 
 Note the DHCP range:
@@ -195,7 +195,7 @@ Ready to join another AP.
 ## Known Limitations Alpha 1
 
 * Raspberry Pi3 with no additional hardware is the only verified platform currently 
-* To set up pi3 to use wifi in console-conf, you have to reboot after first boot and run 'sudo console-conf'
+* To set up pi3 to use wifi in console-conf, you have to reboot after first boot and run 'sudo console-conf'.
 * After connecting to external wifi-ap, ifconfig shows for wlan0 the IP of the hosted AP (10.0.60.1), not the IP assigned by the external AP. But, the IP assigned by the external AP is the one that works.
 * Wifi-connect takes over management of device wifi (via wlan0 interface). Any external operations that modify these may result in an incorrect state and may interrupt connectivity. For example, manually changing the network manager managed state of wlan0, or manually bringing up or down wifi-ap may break connectivity. 
 * Opening the AP portal web page using device hostname (http://[hostname].local:8080) can result in a connection error from some platforms including some Android mobile phones and, in general, when connecting from any device on which Avahi is not enabled. You can open the web page using the device IP address on its AP and wlan0 interface, as described above.
@@ -265,7 +265,7 @@ gulp sass
 The daemon loop can be paused with:
 
 ```bash
-sudo wifi-connect.cli stop
+sudo  wifi-connect stop
 ```
 
 After this, the daemon loops and does nothing. In this state you may want to run "hidden" commands (see the sourcefor these), for example to execute functions for development and verification.
@@ -277,7 +277,7 @@ Restart the daemon normal loop cleanly with:
 
 
 ```bash
-sudo wifi-connect.cli sartt
+sudo  wifi-connect start
 ```
 
 # Unit Tests
