@@ -52,8 +52,11 @@ func Running() RunningServer {
 // StartManagementServer starts server in management mode
 func StartManagementServer() error {
 	waitPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
-	utils.WriteFlagFile(waitPath)
 	var err error
+	err = utils.WriteFlagFile(waitPath)
+	if err != nil {
+		return err
+	}
 	managementCloser, err = listenAndServe(address, managementHandler())
 	if err != nil {
 		managementCloser = nil

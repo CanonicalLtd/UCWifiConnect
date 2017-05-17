@@ -26,8 +26,10 @@ snap refresh
 ```bash
 snap install wifi-ap
 snap install network-manager
-snap install --edge wifi-connect
+snap install --edge|beta wifi-connect
 ```
+
+Use beta channel if it contains version 0.9, else edge.
 
 ## Create content sharing directory for wifi-ap:control interface
 
@@ -47,7 +49,6 @@ snap connect wifi-connect:network core:network
 snap connect wifi-connect:network-bind core:network-bind
 snap connect wifi-connect:network-manager network-manager:service
 snap connect wifi-connect:network-control core:network-control
-snap connect wifi-connect:network-setup-control core:network-setup-control
 ```
 
 (TODO: Configure interface auto connection.)
@@ -68,9 +69,8 @@ sudo mv /etc/netplan/00-snapd-config.yaml ~/
 
 1. Create a new netplan config file named /etc/netplan/00-default-nm-renderer.yaml:
 
-``bash
+```bash
 sudo vi /etc/netplan/00-default-nm-renderer.yaml
-
 ```
 
 Add the following two lines:
@@ -99,7 +99,7 @@ sudo  wifi-connect stop
 1. Set the wlan0 interface to be unmanaged by NetworkManager
 
 ```bash
-nmcli set wlan0 managed n
+nmcli d set wlan0 managed n
 ```
 
 1. Set the wifi-ap AP SSID

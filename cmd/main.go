@@ -35,7 +35,7 @@ import (
 func help() string {
 
 	text :=
-		`Usage: wifi-connect COMMAND [VALUE]
+		`Usage: sudo wifi-connect COMMAND [VALUE]
 
 Commands:
 	stop:	 		Disables wifi-connect from automatic control, leaving system 
@@ -63,6 +63,15 @@ func handler() *mux.Router {
 	return router
 }
 
+// checkSudo return false if the current user is not root, else true
+func checkSudo() bool {
+	if os.Geteuid() != 0 {
+		fmt.Println("Error: This command requires sudo")
+		return false
+	}
+	return true
+}
+
 func main() {
 
 	if len(os.Args) < 2 {
@@ -81,12 +90,29 @@ func main() {
 	case "--help":
 		fmt.Printf("%s\n", help())
 	case "stop":
-		utils.WriteFlagFile(os.Getenv("SNAP_COMMON") + "/manualMode")
+		if !checkSudo()  {
+			return
+		}
+		err := utils.WriteFlagFile(os.Getenv("SNAP_COMMON") + "/manualMode")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 		fmt.Println("Entering MANUAL Mode. Wifi-connect has stopped managing state. Use 'start' to restore normal operations")
 	case "start":
-		utils.RemoveFlagFile(os.Getenv("SNAP_COMMON") + "/manualMode")
+		if !checkSudo()  {
+			return
+		}
+		err := utils.RemoveFlagFile(os.Getenv("SNAP_COMMON") + "/manualMode")
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
 		fmt.Println("Entering NORMAL Mode.")
 	case "show-ap":
+		if !checkSudo()  {
+			return
+		}
 		wifiAPClient := wifiap.DefaultClient()
 		result, _ := wifiAPClient.Show()
 		if result != nil {
@@ -94,6 +120,9 @@ func main() {
 			return
 		}
 	case "ssid":
+		if !checkSudo()  {
+			return
+		}
 		if len(os.Args) < 3 {
 			fmt.Println("Error: no ssid provided")
 			return
@@ -101,8 +130,15 @@ func main() {
 		wifiAPClient := wifiap.DefaultClient()
 		wifiAPClient.SetSsid(os.Args[2])
 	case "passphrase":
+		if !checkSudo()  {
+			return
+		}
 		if len(os.Args) < 3 {
 			fmt.Println("Error: no passphrase provided")
+			return
+		}
+		if len(os.Args[2]) < 13 {
+			fmt.Println("Error: passphrase must be at least 13 chars long")
 			return
 		}
 		wifiAPClient := wifiap.DefaultClient()

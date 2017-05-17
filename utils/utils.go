@@ -19,6 +19,7 @@ package utils
 
 import (
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -49,15 +50,16 @@ func PrintMapSorted(m map[string]interface{}) {
 }
 
 // WriteFlagFile writes passed flag file
-func WriteFlagFile(path string) {
+func WriteFlagFile(path string) error {
 	err := ioutil.WriteFile(path, []byte("flag"), 0644)
 	if err != nil {
-		fmt.Println("== wifi-connect: Error writing flag file:", err)
+		return err	
 	}
+	return nil
 }
 
 // RemoveFlagFile removes passed flag file
-func RemoveFlagFile(path string) {
+func RemoveFlagFile(path string) error {
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		//loop up to 10 times to try again if tmp file lock prevents delete
 		idx := -1
@@ -65,14 +67,15 @@ func RemoveFlagFile(path string) {
 			idx++
 			err := os.Remove(path)
 			if err == nil {
-				return
+				return nil
 			}
 			time.Sleep(30000 * time.Millisecond)
 			if idx == 9 {
-				fmt.Printf("== wifi-connect: Error. Cannot remove flag file: %s\n", path)
+				 return errors.New("Error. Tried many times and gave up")
 			}
 		}
 	}
+	return errors.New(fmt.Sprintf("Current user cannot access file: %s. No changes made\n", path))
 }
 
 // ReadSsidsFile read the ssids file, if any
