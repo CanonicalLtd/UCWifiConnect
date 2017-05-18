@@ -18,7 +18,7 @@
 package server
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -54,14 +54,14 @@ func execTemplate(w http.ResponseWriter, templatePath string, data Data) {
 	templateAbsPath := filepath.Join(ResourcesPath, templatePath)
 	t, err := template.ParseFiles(templateAbsPath)
 	if err != nil {
-		log.Printf("Error loading the template at %v : %v\n", templatePath, err)
+		fmt.Printf("== wifi-connect/handler: Error loading the template at %v : %v\n", templatePath, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	err = t.Execute(w, data)
 	if err != nil {
-		log.Printf("Error executing the template at %v : %v\n", templatePath, err)
+		fmt.Printf("== wifi-connect/handler: Error executing the template at %v : %v\n", templatePath, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -72,7 +72,7 @@ func SsidsHandler(w http.ResponseWriter, r *http.Request) {
 	// daemon stores current available ssids in a file
 	ssids, err := utils.ReadSsidsFile()
 	if err != nil {
-		log.Printf("Error reading SSIDs file: %v", err)
+		fmt.Printf("== wifi-connect/handler: Error reading SSIDs file: %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -90,7 +90,7 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 
 	ssids := r.Form["ssid"]
 	if len(ssids) == 0 {
-		log.Println("== wifi-connect: SSID not provided")
+		fmt.Println("== wifi-connect/handler: SSID not available")
 		return
 	}
 	ssid := ssids[0]
@@ -104,7 +104,7 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 		pwd = pwds[0]
 	}
 
-	log.Printf("== wifi-connect: Connecting to %v...", ssid)
+	fmt.Printf("== wifi-connect/handler: Connecting to %v\n.", ssid)
 
 	cw := wifiap.DefaultClient()
 	cw.Disable()
@@ -118,5 +118,7 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 
 	//remove flag file so that daemon starts checking state
 	//and takes control again
-	utils.RemoveWaitFile()
+
+	waitPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
+	utils.RemoveFlagFile(waitPath)
 }
