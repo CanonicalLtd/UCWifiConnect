@@ -50,14 +50,10 @@ else
 
     # first time install snaps, connect interfaces and reboot
     install_snap_under_test
-    # Give wifi-ap a bit time to settle down to avoid clashed
-    sleep 5
 
     # For debugging dump all snaps and connected slots/plugs
     snap list
     snap interfaces
-
-    ifconfig
 
     REBOOT
 fi

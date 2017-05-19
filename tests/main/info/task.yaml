@@ -1,76 +1,30 @@
 summary: Test wifi-connect snap returns default config
 
 execute: |
-    . $TESTSLIB/utilities.sh
-
-    ifconfig
-
-    # # Service should be up an running
-    # #wait_for_daemon_ready
-
-     # Ensure all necessary plugs/slots are connected
+    # Ensure all necessary plugs/slots are connected
     snap interfaces | grep -Pzq "wifi-ap:control +[a-z,\-,:\,]*wifi-connect"
     snap interfaces | grep -Pzq ":network +[a-z,\-,:\,]*wifi-connect"
     snap interfaces | grep -Pzq ":network-bind +[a-z,\-,:\,]*wifi-connect"
     snap interfaces | grep -Pzq "network-manager:service +[a-z,\-,:\,]*wifi-connect:network-manager"
     snap interfaces | grep -Pzq ":network-control +[a-z,\-,:\,]*wifi-connect"
 
-    # sleep 10
-
-    /snap/bin/wifi-ap.config get
-
-    # snap install --dangerous /home/wifi-connect/wifi-connect_0.9_amd64.snap
-    # mkdir -p /var/snap/wifi-connect/common/sockets
-    # snap connect wifi-connect:control wifi-ap:control
-
-
-    # sleep 10
-
-    /snap/bin/wifi-connect show-ap
-
-
-    # # Make the consumer snap and install it
-    # snapfile=wifiap-consumer_1.0_all.snap
-    # cp /bin/nc consumer/bin/nc
-    # mksquashfs consumer $snapfile -comp xz -no-xattrs -all-root
-    # snap install --dangerous $snapfile
-
-    # snap install --dangerous consumer/*.snap
-
-    # # Create the directory needed for the content interface bind mount
-    # mkdir -p /var/snap/wifiap-consumer/current/sockets
-    # snap connect wifiap-consumer:control wifi-ap:control
-
-    # /snap/bin/wifiap-consumer.status
-
-
-    # # mkdir -p /var/snap/wifi-connect/common/sockets
-    # # snap connect wifi-connect:control wifi-ap:control
-
+    # Ensure all initial config is correct
+    config="$(/snap/bin/wifi-connect show-ap)"
     
-
-    # exit 1
-
-    # config="$(/snap/bin/wifi-connect.wifi-ap -show)"
-
-    # test $config ~= .*debug: false.*
-    # test $config ~= .*dhcp.lease-time: 12h.*
-
-#     test "`/snap/bin/wifi-connect.wifi-ap -show`" = "debug: false\
-# dhcp.lease-time: 12h\
-# dhcp.range-start: 10.0.60.3\
-# dhcp.range-stop: 10.0.60.20\
-# disabled: true\
-# share.disabled: false\
-# share.network-interface: eth0\
-# wifi.address: 10.0.60.1\
-# wifi.channel: 6\
-# wifi.hostapd-driver: nl80211\
-# wifi.interface: wlan0\
-# wifi.interface-mode: direct\
-# wifi.netmask: 255.255.255.0\
-# wifi.operation-mode: g\
-# wifi.security: open\
-# wifi.security-passphrase: \ 
-# wifi.ssid: Ubuntu"
-    
+    [[ "$config" =~ .*debug:\ false.* ]]
+    [[ "$config" =~ .*dhcp.lease-time:\ 12h.* ]]
+    [[ "$config" =~ .*dhcp.range-start:\ 10.0.60.3.* ]]
+    [[ "$config" =~ .*dhcp.range-stop:\ 10.0.60.20.* ]]
+    [[ "$config" =~ .*disabled:\ true.* ]]
+    [[ "$config" =~ .*share.disabled:\ false.* ]]
+    [[ "$config" =~ .*share.network-interface:\ eth0.* ]]
+    [[ "$config" =~ .*wifi.address:\ 10.0.60.1.* ]]
+    [[ "$config" =~ .*wifi.channel:\ 6.* ]]
+    [[ "$config" =~ .*wifi.hostapd-driver:\ nl80211.* ]]
+    [[ "$config" =~ .*wifi.interface:\ wlan0.* ]]
+    [[ "$config" =~ .*wifi.interface-mode:\ direct.* ]]
+    [[ "$config" =~ .*wifi.netmask:\ 255.255.255.0.* ]]
+    [[ "$config" =~ .*wifi.operation-mode:\ g.* ]]
+    [[ "$config" =~ .*wifi.security:\ open.* ]]
+    [[ "$config" =~ .*wifi.security-passphrase:\ .* ]]
+    [[ "$config" =~ .*wifi.ssid:\ Ubuntu.* ]]

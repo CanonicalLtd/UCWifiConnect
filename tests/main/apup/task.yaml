@@ -1,0 +1,13 @@
+summary: Test wifi-connect AP is enabled and has the ip that should
+
+prepare: |
+    # We need some tools for scanning etc.
+    snap install --devmode wireless-tools
+    snap connect wireless-tools:network-control core
+
+execute: |
+    sleep 5
+    # Scan for networks on the other side of the WiFi network
+    # and ensure the network is available.
+    ifconfig wlan1 up
+    /snap/bin/wireless-tools.iw dev wlan1 scan | grep 'SSID: Ubuntu'
