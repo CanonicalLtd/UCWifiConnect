@@ -19,6 +19,7 @@ package utils
 
 import (
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -48,34 +49,33 @@ func PrintMapSorted(m map[string]interface{}) {
 	}
 }
 
-// WriteWaitFile writes the "wait" file used as a flag by the daemon
-func WriteWaitFile() {
-	wait := os.Getenv("SNAP_COMMON") + "/startingApConnect"
-	err := ioutil.WriteFile(wait, []byte("wait"), 0644)
+// WriteFlagFile writes passed flag file
+func WriteFlagFile(path string) error {
+	err := ioutil.WriteFile(path, []byte("flag"), 0644)
 	if err != nil {
-		fmt.Println("== wifi-connect: Error writing flag wait file:", err)
+		return err
 	}
+	return nil
 }
 
-// RemoveWaitFile removes the "wait" file used as a flag by the daemon
-func RemoveWaitFile() {
-	waitApPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
-	if _, err := os.Stat(waitApPath); !os.IsNotExist(err) {
-
+// RemoveFlagFile removes passed flag file
+func RemoveFlagFile(path string) error {
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		//loop up to 10 times to try again if tmp file lock prevents delete
 		idx := -1
 		for {
 			idx++
-			err := os.Remove(waitApPath)
+			err := os.Remove(path)
 			if err == nil {
-				return
+				return nil
 			}
 			time.Sleep(30000 * time.Millisecond)
 			if idx == 9 {
-				fmt.Printf("== wifi-connect: Error. Cannot remove wait file: %s\n", waitApPath)
+				return errors.New("Error. Tried many times and gave up")
 			}
 		}
 	}
+	return fmt.Errorf("current user cannot access file: %s. No changes made", path)
 }
 
 // ReadSsidsFile read the ssids file, if any
@@ -89,7 +89,7 @@ func ReadSsidsFile() ([]string, error) {
 	// all ssids are in the same record
 	record, err := reader.Read()
 	if err == io.EOF {
-		empty := make([]string, 0)
+		var empty []string
 		return empty, nil
 	}
 	return record, err

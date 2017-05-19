@@ -5,11 +5,8 @@ Wifi-connect snap allows you to connect the device to an external wifi AP. First
 * The wifi-ap snap provides the device AP.
 * The network-manager snap provides management and control of the wlan0 interface used for the AP and to connect to external APs. 
 
-## Release: Alpha 1
+## Release: Alpha 2 (0.9)
 
-See Known Limitations below.
-
-* Currently alpha 1 status (wifi-connect 0.8)
 * Raspberry pi3 with no additional wifi hardware is the only verified platform
 
 ## Issue tracking
@@ -29,8 +26,10 @@ snap refresh
 ```bash
 snap install wifi-ap
 snap install network-manager
-snap install --edge wifi-connect
+snap install --edge|beta wifi-connect
 ```
+
+Use beta channel if it contains version 0.9, else edge.
 
 ## Create content sharing directory for wifi-ap:control interface
 
@@ -50,65 +49,81 @@ snap connect wifi-connect:network core:network
 snap connect wifi-connect:network-bind core:network-bind
 snap connect wifi-connect:network-manager network-manager:service
 snap connect wifi-connect:network-control core:network-control
-snap connect wifi-connect:network-setup-control core:network-setup-control
 ```
 
 (TODO: Configure interface auto connection.)
 
 Note: wifi-ap and network-manager interfaces auto-connect.
 
-## If you configured wifi in console-conf
+# Set NetWorkManager to control all networking
 
-The netplan file needs to be modified to set wlan0 as managed by network manager:
+Note: This is a temporary manual step before network-manager snap provides a config option for this.
+
+Note: Depending on your environment, after this you may need to use a new IP address to connect to the device.
+
+1. Backup the existing /etc/netplan/00-snapd-config.yaml file 
 
 ```bash
-sudo wifi-connect.netplan
+sudo mv /etc/netplan/00-snapd-config.yaml ~/
 ```
 
-This command modifies the default netplan file. You can either run `sudo netplan generate && netplan apply` or reboot (the next step).
+1. Create a new netplan config file named /etc/netplan/00-default-nm-renderer.yaml:
+
+```bash
+sudo vi /etc/netplan/00-default-nm-renderer.yaml
+```
+
+Add the following two lines:
+
+```bash
+network:
+    renderer: NetworkManager
+```
 
 ## Reboot
 
-The content sharing interface has a known issue. Until that is resolved, you need to restart the system at this point.
+Rebooting addresses a content sharing interface issue. 
+
+Rebooting also consolidates all networking into NetworkManager.
 
 ## Optionally configure wifi-ap SSID/passphrase
 
 If you skip these steps, the wifi-AP put up by the device has an SSID of "Ubuntu" and is unsecure (with no passphrase). 
 
-1. Stop the daemon
+1. Stop wifi-connect
 
 ```bash
-sudo systemctl stop snap.wifi-connect.daemon.service
+sudo  wifi-connect stop
 ```
 
-1. Bring the AP down:
+1. Set the wlan0 interface to be unmanaged by NetworkManager
 
 ```bash
-sudo wifi-connect.wifi-ap -ap-off
+nmcli d set wlan0 managed n
 ```
 
 1. Set the wifi-ap AP SSID
 
 ```bash
-sudo wifi-connect.wifi-ap -ssid digit
+sudo  wifi-connect ssid digit
 ```
 
 1. Set the AP passphrase:
 
 ```bash
-sudo wifi-connect.wifi-ap -passphrase ubuntuubuntuubuntu
+sudo  wifi-connect passphrase ubuntuubuntuubuntu
 ```
 
-1. Start the daemon
+1. Start wifi-connect
 
 ```bash
-sudo systemctl start snap.wifi-connect.daemon.service
+sudo  wifi-connect start
 ```
 
 ## Display the AP config
 
 ```bash
-sudo wifi-connect.wifi-ap -show
+sudo  wifi-connect show-ap
 ```
 
 Note the DHCP range:
@@ -180,6 +195,8 @@ Ready to join another AP.
 ## Known Limitations Alpha 1
 
 * Raspberry Pi3 with no additional hardware is the only verified platform currently 
+* To set up pi3 to use wifi in console-conf, you have to reboot after first boot and run 'sudo console-conf'.
+* After connecting to external wifi-ap, ifconfig shows for wlan0 the IP of the hosted AP (10.0.60.1), not the IP assigned by the external AP. But, the IP assigned by the external AP is the one that works.
 * Wifi-connect takes over management of device wifi (via wlan0 interface). Any external operations that modify these may result in an incorrect state and may interrupt connectivity. For example, manually changing the network manager managed state of wlan0, or manually bringing up or down wifi-ap may break connectivity. 
 * Opening the AP portal web page using device hostname (http://[hostname].local:8080) can result in a connection error from some platforms including some Android mobile phones and, in general, when connecting from any device on which Avahi is not enabled. You can open the web page using the device IP address on its AP and wlan0 interface, as described above.
 
@@ -241,6 +258,26 @@ and execute sass task
 
 ```bash
 gulp sass
+```
+
+# Pausing the daemon loop
+
+The daemon loop can be paused with:
+
+```bash
+sudo  wifi-connect stop
+```
+
+After this, the daemon loops and does nothing. In this state you may want to run "hidden" commands (see the sourcefor these), for example to execute functions for development and verification.
+
+Note: It is possible to execute commands that put the system into a non-working state. For example, bringing the AP UP/DOWN while wlan0 interface is managed by netork manager may result in an unworkable situation, possibly requiring reboot, or merely daemon restart.
+
+
+Restart the daemon normal loop cleanly with:
+
+
+```bash
+sudo  wifi-connect start
 ```
 
 # Unit Tests

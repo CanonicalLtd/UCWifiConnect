@@ -54,12 +54,11 @@ install_additional_snaps() {
 }
 
 connect_interfaces() {
-	#snap connect wifi-connect:control wifi-ap:control
+	snap connect wifi-connect:control wifi-ap:control
 	snap connect wifi-connect:network core:network
 	snap connect wifi-connect:network-bind core:network-bind
 	snap connect wifi-connect:network-manager network-manager:service
 	snap connect wifi-connect:network-control core:network-control
-	snap connect wifi-connect:network-setup-control core:network-setup-control
 }
 
 install_snap_under_test() {
@@ -71,12 +70,10 @@ install_snap_under_test() {
 			snap install --$SNAP_CHANNEL $SNAP_NAME
 		fi
 	else
-		
-		
 		install_additional_snaps
 
 		# Install prebuilt snap
-		snap install --devmode ${PROJECT_PATH}/${SNAP_NAME}_*_${SNAP_ARCH}.snap
+		snap install --dangerous ${PROJECT_PATH}/${SNAP_NAME}_*_${SNAP_ARCH}.snap
 
 		# Create content sharing directory if needed
 		[ -e /var/snap/wifi-connect/common/sockets ] || mkdir -p /var/snap/wifi-connect/common/sockets
@@ -92,6 +89,13 @@ install_snap_under_test() {
 			fi
 			[ -e /snap/bin/$alias ] || snap alias $target $alias
 		done
+
+		# set NetworkManager to control all networking
+		mv /etc/netplan/00-snapd-config.yaml ~/
+		cat <<-EOF > /etc/netplan/00-default-nm-renderer.yaml
+		network:
+		    renderer: NetworkManager
+		EOF
 	fi
 }
 

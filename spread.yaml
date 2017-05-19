@@ -23,7 +23,7 @@ environment:
     SNAP_ARCH: amd64
     # Allow the host to pass the channel to use for the test rim
     SNAP_CHANNEL: $(HOST:echo $SNAP_CHANNEL)
-    SNAP_AUTO_ALIASES: wifi-connect_server wifi-connect_netman wifi-connect_wifi-ap wifi-connect_netplan
+    SNAP_AUTO_ALIASES: wifi-connect_app
 
 backends:
     qemu:
@@ -62,7 +62,5 @@ suites:
             - ubuntu-core-16
         prepare: |
             . $TESTSLIB/prepare.sh
-        prepare-each: |
-            . $TESTSLIB/prepare-each.sh
-        restore-each: |
-            . $TESTSLIB/restore-each.sh
+        restore: |
+            . $TESTSLIB/restore.sh
