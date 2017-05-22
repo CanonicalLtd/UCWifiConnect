@@ -15,7 +15,6 @@ apps:
   wifi-connect: 
     command: cmd 
     plugs: [network, network-control, network-bind, network-manager, control]
-    aliases: [wifi-connect_app]
   daemon:
     command: daemon
     daemon: simple

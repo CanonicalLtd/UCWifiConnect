@@ -23,7 +23,6 @@ environment:
     SNAP_ARCH: amd64
     # Allow the host to pass the channel to use for the test rim
     SNAP_CHANNEL: $(HOST:echo $SNAP_CHANNEL)
-    SNAP_AUTO_ALIASES: wifi-connect_app
 
 backends:
     qemu:
