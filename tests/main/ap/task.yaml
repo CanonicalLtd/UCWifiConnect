@@ -1,0 +1,58 @@
+summary: Test default configuration at the beginning,
+    stop daemon, start ap by hand and see wlan1 can connect to it
+
+prepare: |
+    # We need some tools for scanning etc.
+    snap install wireless-tools
+    snap connect wireless-tools:network-control core
+
+execute: |
+
+    # Ensure all necessary plugs/slots are connected
+    snap interfaces | grep -Pzq "wifi-ap:control +[a-z,\-,:\,]*wifi-connect"
+    snap interfaces | grep -Pzq ":network +[a-z,\-,:\,]*wifi-connect"
+    snap interfaces | grep -Pzq ":network-bind +[a-z,\-,:\,]*wifi-connect"
+    snap interfaces | grep -Pzq "network-manager:service +[a-z,\-,:\,]*wifi-connect:network-manager"
+    snap interfaces | grep -Pzq ":network-control +[a-z,\-,:\,]*wifi-connect"
+
+    # Ensure all initial config is correct
+    config="$(/snap/bin/wifi-connect show-ap)"
+    
+    [[ "$config" =~ .*debug:\ false.* ]]
+    [[ "$config" =~ .*dhcp.lease-time:\ 12h.* ]]
+    [[ "$config" =~ .*dhcp.range-start:\ 10.0.60.3.* ]]
+    [[ "$config" =~ .*dhcp.range-stop:\ 10.0.60.20.* ]]
+    [[ "$config" =~ .*disabled:\ true.* ]]
+    [[ "$config" =~ .*share.disabled:\ false.* ]]
+    [[ "$config" =~ .*share.network-interface:\ eth0.* ]]
+    [[ "$config" =~ .*wifi.address:\ 10.0.60.1.* ]]
+    [[ "$config" =~ .*wifi.channel:\ 6.* ]]
+    [[ "$config" =~ .*wifi.hostapd-driver:\ nl80211.* ]]
+    [[ "$config" =~ .*wifi.interface:\ wlan0.* ]]
+    [[ "$config" =~ .*wifi.interface-mode:\ direct.* ]]
+    [[ "$config" =~ .*wifi.netmask:\ 255.255.255.0.* ]]
+    [[ "$config" =~ .*wifi.operation-mode:\ g.* ]]
+    [[ "$config" =~ .*wifi.security:\ open.* ]]
+    [[ "$config" =~ .*wifi.security-passphrase:\ .* ]]
+    [[ "$config" =~ .*wifi.ssid:\ Ubuntu.* ]]
+
+    # move to manual mode
+    wifi-connect stop
+
+    nmcli d set wlan0 managed n
+    wifi-ap.config set disabled=false
+
+    while wifi-ap.status | grep "ap.active: false" ; do
+        sleep 0.5
+    done
+
+    ifconfig wlan1 up
+    # enough time for wlan1 to be up
+    sleep 5 
+    # Scan for networks on the other side of the WiFi network
+    # and ensure the network is available.
+    wireless-tools.iw dev wlan1 scan | grep 'SSID: Ubuntu'
+
+    # connect to that network and verify wlan1 did it
+    /snap/bin/network-manager.nmcli d wifi connect Ubuntu
+    /snap/bin/network-manager.nmcli d | grep 'wlan1.*connected'

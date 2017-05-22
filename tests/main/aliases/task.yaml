@@ -1,0 +1,5 @@
+summary: Test wifi-connect snap commands installation was successful
+
+execute: |
+    # Verify aliases are set up
+    test -x /snap/bin/wifi-connect_app
