@@ -308,8 +308,8 @@ can be executed on a virtual machine or real hardware.
 
 In order to run those tests you need the follow things
 
- * ubuntu-image
- * spread
+* ubuntu-image
+* spread
 
  You can install both as a snap
 
