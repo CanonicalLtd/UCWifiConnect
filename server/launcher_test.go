@@ -27,7 +27,7 @@ func TestLaunchAndStop(t *testing.T) {
 
 	thePort := ":14444"
 
-	srv, err := listenAndServe(thePort, nil)
+	srv, done, err := listenAndServe(thePort, nil)
 	if err != nil {
 		t.Errorf("Start server failed: %v", err)
 	}
@@ -47,5 +47,7 @@ func TestLaunchAndStop(t *testing.T) {
 	if err != nil {
 		t.Errorf("Stop server error: %v", err)
 	}
+
+	<-done
 
 }

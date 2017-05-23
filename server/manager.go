@@ -50,6 +50,7 @@ type State int
 var currentlyRunning = None
 var managementCloser io.Closer
 var operationalCloser io.Closer
+var serverDone <-chan bool
 
 // Running returns ServerState enum value saying which server is running
 func Running() State {
@@ -96,7 +97,7 @@ func StartManagementServer() error {
 		return err
 	}
 
-	managementCloser, err = listenAndServe(address, managementHandler())
+	managementCloser, serverDone, err = listenAndServe(address, managementHandler())
 	if err != nil {
 		managementCloser = nil
 		return err
@@ -115,7 +116,7 @@ func StartOperationalServer() error {
 	currentlyRunning = StartingOperational
 
 	var err error
-	operationalCloser, err = listenAndServe(address, operationalHandler())
+	operationalCloser, serverDone, err = listenAndServe(address, operationalHandler())
 	if err != nil {
 		operationalCloser = nil
 		return err
@@ -140,6 +141,8 @@ func ShutdownManagementServer() error {
 		return err
 	}
 	managementCloser = nil
+
+	<-serverDone
 	// TODO for now we only have one server up at a time. Later, if happens
 	// that more than one can be up at the same time it would be needed manage this
 	// state changes in a better way
@@ -162,6 +165,8 @@ func ShutdownOperationalServer() error {
 		return err
 	}
 	operationalCloser = nil
+
+	<-serverDone
 	// TODO for now we only have one server up at a time. Later, if happens
 	// that more than one can be up at the same time it would be needed manage this
 	// state changes in a better way

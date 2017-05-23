@@ -31,25 +31,29 @@ type tcpKeepAliveListener struct {
 }
 
 // Accept accepts incoming tcp connections
-func (ln tcpKeepAliveListener) Accept() (c net.Conn, err error) {
+func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
 	tc, err := ln.AcceptTCP()
 	if err != nil {
-		return
+		return tc, err
 	}
 	tc.SetKeepAlive(true)
 	tc.SetKeepAlivePeriod(3 * time.Minute)
 	return tc, nil
 }
 
-func listenAndServe(addr string, handler http.Handler) (sc io.Closer, err error) {
+func listenAndServe(addr string, handler http.Handler) (io.Closer, <-chan bool, error) {
 
 	var listener net.Listener
 
 	srv := &http.Server{Addr: addr, Handler: handler}
 
-	listener, err = net.Listen("tcp", addr)
+	// channel needed to communicate real server shutdown, as after calling listener.Close()
+	// it can take several milliseconds to really stop the listening.
+	done := make(chan bool)
+
+	listener, err := net.Listen("tcp", addr)
 	if err != nil {
-		return nil, err
+		return nil, done, err
 	}
 
 	// launching server in a goroutine for not blocking
@@ -58,7 +62,10 @@ func listenAndServe(addr string, handler http.Handler) (sc io.Closer, err error)
 		if err != nil {
 			log.Printf("HTTP Server closing - %v", err)
 		}
+		// notify real server stop
+		done <- true
+		close(done)
 	}()
 
-	return listener, nil
+	return listener, done, nil
 }

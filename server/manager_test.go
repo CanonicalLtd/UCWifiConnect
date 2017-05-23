@@ -43,8 +43,6 @@ func TestBasicServerTransitionStates(t *testing.T) {
 
 	waitForState(None)
 
-	time.Sleep(5 * time.Second)
-
 	if err := StartOperationalServer(); err != nil {
 		t.Errorf("Error starting operational server %v", err)
 	}
@@ -52,9 +50,7 @@ func TestBasicServerTransitionStates(t *testing.T) {
 		t.Errorf("Server is not in starting or in operational status")
 	}
 
-	time.Sleep(5 * time.Second)
-
-	//waitForState(Operational)
+	waitForState(Operational)
 
 	if err := ShutdownOperationalServer(); err != nil {
 		t.Errorf("Error stopping operational server %v", err)
