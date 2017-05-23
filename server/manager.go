@@ -83,7 +83,6 @@ func updateStateWhenServerUp() {
 
 // StartManagementServer starts server in management mode
 func StartManagementServer() error {
-
 	if currentlyRunning != None {
 		return fmt.Errorf("Not in a valid status. Please stop first any other server instance before starting this one")
 	}
@@ -109,7 +108,6 @@ func StartManagementServer() error {
 
 // StartOperationalServer starts server in operational mode
 func StartOperationalServer() error {
-
 	if currentlyRunning != None {
 		return fmt.Errorf("Not in a valid status. Please stop first any other server instance before starting this one")
 	}
@@ -129,7 +127,7 @@ func StartOperationalServer() error {
 
 // ShutdownManagementServer shutdown server management mode. If management server is not up, returns error
 func ShutdownManagementServer() error {
-	if currentlyRunning != Management {
+	if currentlyRunning != Management && currentlyRunning != StartingManagement {
 		return fmt.Errorf("Trying to stop management server when it is not running")
 	}
 
@@ -151,7 +149,7 @@ func ShutdownManagementServer() error {
 
 // ShutdownOperationalServer shutdown server operational mode. If operational server is not up, returns error
 func ShutdownOperationalServer() error {
-	if currentlyRunning != Operational {
+	if currentlyRunning != Operational && currentlyRunning != StartingOperational {
 		return fmt.Errorf("Trying to stop operational server when it is not running")
 	}
 

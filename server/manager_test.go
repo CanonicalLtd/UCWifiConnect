@@ -1,19 +1,22 @@
 package server
 
 import (
-	"log"
 	"os"
 	"testing"
 	"time"
 )
 
-func waitForState(state State) {
-
+// needed method for testing, as server state is updated asynchronously
+func waitForState(state State) bool {
+	retries := 10
+	idle := 1000 * time.Millisecond
+	for ; retries > 0 && currentlyRunning != state; retries-- {
+		time.Sleep(idle)
+	}
+	return currentlyRunning == state
 }
 
 func TestBasicServerTransitionStates(t *testing.T) {
-
-	ShutdownManagementServer()
 
 	os.Setenv("SNAP_COMMON", os.TempDir())
 
@@ -28,18 +31,19 @@ func TestBasicServerTransitionStates(t *testing.T) {
 		t.Errorf("Server is not in starting or in management status")
 	}
 
-	time.Sleep(1 * time.Second)
-	//OTOD TRACE
-	log.Printf("STatus: %v", Running())
+	waitForState(Management)
 
 	if err := ShutdownManagementServer(); err != nil {
 		t.Errorf("Error stopping management server %v", err)
 	}
+
 	if Running() != None {
 		t.Errorf("Server is not in None status")
 	}
 
-	time.Sleep(1 * time.Second)
+	waitForState(None)
+
+	time.Sleep(5 * time.Second)
 
 	if err := StartOperationalServer(); err != nil {
 		t.Errorf("Error starting operational server %v", err)
@@ -47,6 +51,10 @@ func TestBasicServerTransitionStates(t *testing.T) {
 	if Running() != Operational && Running() != StartingOperational {
 		t.Errorf("Server is not in starting or in operational status")
 	}
+
+	time.Sleep(5 * time.Second)
+
+	//waitForState(Operational)
 
 	if err := ShutdownOperationalServer(); err != nil {
 		t.Errorf("Error stopping operational server %v", err)

@@ -56,7 +56,7 @@ func listenAndServe(addr string, handler http.Handler) (sc io.Closer, err error)
 	go func() {
 		err := srv.Serve(tcpKeepAliveListener{listener.(*net.TCPListener)})
 		if err != nil {
-			log.Println("HTTP Server Error - ", err)
+			log.Printf("HTTP Server closing - %v", err)
 		}
 	}()
 
