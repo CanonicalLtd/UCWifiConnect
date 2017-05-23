@@ -164,7 +164,7 @@ func managementServerDown() {
 // operationalServerUp starts the operational server if it is
 // not running
 func operationalServerUp() {
-	if server.Running() != server.OPERATIONAL {
+	if server.Running() != server.Operational {
 		err = server.StartOperationalServer()
 		if err != nil {
 			fmt.Println("== wifi-connect: Error starting the Operational portal:", err)
@@ -176,7 +176,7 @@ func operationalServerUp() {
 
 // operationalServerdown stops the operational server if it is running
 func operationalServerDown() {
-	if server.Running() == server.OPERATIONAL {
+	if server.Running() == server.Operational {
 		err = server.ShutdownOperationalServer()
 		if err != nil {
 			fmt.Println("== wifi-connect: Error stopping Operational portal:", err)

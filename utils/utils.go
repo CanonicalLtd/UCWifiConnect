@@ -23,10 +23,15 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
 	"time"
+
+	"strings"
+
+	telnet "github.com/reiver/go-telnet"
 )
 
 // SsidsFile path to the file filled by daemon with available ssids in csv format
@@ -93,4 +98,20 @@ func ReadSsidsFile() ([]string, error) {
 		return empty, nil
 	}
 	return record, err
+}
+
+// RunningOn returns true if evaluated address is listening
+func RunningOn(address string) bool {
+
+	if strings.HasPrefix(address, ":") {
+		address = "localhost" + address
+	}
+	// telnet to check server is alive
+	caller := telnet.StandardCaller
+	err := telnet.DialToAndCall(address, caller)
+	if err != nil {
+		log.Printf("Error checking listening at %v %v", address, err)
+		return false
+	}
+	return true
 }
