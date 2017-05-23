@@ -49,8 +49,8 @@ install_snap() {
 }
 
 install_additional_snaps() {
-	install_snap network-manager stable
-	install_snap wifi-ap stable
+	install_snap network-manager $ADDITIONAL_SNAPS_CHANNEL
+	install_snap wifi-ap $ADDITIONAL_SNAPS_CHANNEL
 }
 
 connect_interfaces() {
@@ -79,16 +79,6 @@ install_snap_under_test() {
 		[ -e /var/snap/wifi-connect/common/sockets ] || mkdir -p /var/snap/wifi-connect/common/sockets
 
 		connect_interfaces
-
-		# Setup all necessary aliases
-		snapd_version=$(snap version | awk '/^snapd / {print $2; exit}')
-		for alias in $SNAP_AUTO_ALIASES ; do
-			target=$SNAP_NAME.$alias
-			if dpkg --compare-versions $snapd_version lt 2.25 ; then
-				target=$SNAP_NAME
-			fi
-			[ -e /snap/bin/$alias ] || snap alias $target $alias
-		done
 
 		# set NetworkManager to control all networking
 		mv /etc/netplan/00-snapd-config.yaml ~/

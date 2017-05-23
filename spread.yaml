@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015, 2016 Canonical Ltd
+# Copyright (C) 2015, 2017 Canonical Ltd
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3 as
@@ -18,11 +18,13 @@ project: wifi-connect
 
 environment:
     PROJECT_PATH: /home/wifi-connect
-    TESTSLIB: $PROJECT_PATH/tests/lib
+    TESTSLIB: $PROJECT_PATH/spread_tests/lib
     SNAP_NAME: wifi-connect
     SNAP_ARCH: amd64
-    # Allow the host to pass the channel to use for the test rim
+    # Allow the host to pass the channel to use for the test the snap
     SNAP_CHANNEL: $(HOST:echo $SNAP_CHANNEL)
+    # Channel from where install any additional snap to use in the tests
+    ADDITIONAL_SNAPS_CHANNEL: stable
 
 backends:
     qemu:
@@ -41,7 +43,7 @@ prepare: |
   . $TESTSLIB/prepare-all.sh
 
 suites:
-    tests/main/:
+    spread_tests/main/:
         summary: Full-system tests for the wifi-connect snap
         systems:
             - ubuntu-core-16
