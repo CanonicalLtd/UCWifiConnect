@@ -48,6 +48,8 @@ func TestLaunchAndStop(t *testing.T) {
 		t.Errorf("Stop server error: %v", err)
 	}
 
-	<-done
-
+	d := <-done
+	if !d {
+		t.Error("Expected true value")
+	}
 }
