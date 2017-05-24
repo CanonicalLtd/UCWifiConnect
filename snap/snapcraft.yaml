@@ -31,9 +31,7 @@ parts:
   go:
     plugin: go
     source: . 
-    go-importpath: github.com/CanonicalLtd/UCWifiConnect 
-    build-packages:
-      - git
+    go-importpath: github.com/CanonicalLtd/UCWifiConnect
   assets:
     plugin: dump
     source: .
