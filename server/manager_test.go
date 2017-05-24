@@ -7,81 +7,81 @@ import (
 )
 
 // needed method for testing, as server state is updated asynchronously
-func waitForState(state State) bool {
+func waitForState(state RunningState) bool {
 	retries := 10
 	idle := 1000 * time.Millisecond
-	for ; retries > 0 && currentlyRunning != state; retries-- {
+	for ; retries > 0 && State != state; retries-- {
 		time.Sleep(idle)
 	}
-	return currentlyRunning == state
+	return State == state
 }
 
 func TestBasicServerTransitionStates(t *testing.T) {
 
 	os.Setenv("SNAP_COMMON", os.TempDir())
 
-	if Running() != None {
+	if Current != None || State != Stopped {
 		t.Errorf("Server is not in initial state")
 	}
 
 	if err := StartManagementServer(); err != nil {
 		t.Errorf("Error starting management server %v", err)
 	}
-	if Running() != Management && Running() != StartingManagement {
+	if Current != Management || (State != Starting && State != Running) {
 		t.Errorf("Server is not in starting or in management status")
 	}
 
-	waitForState(Management)
+	waitForState(Running)
 
 	if err := ShutdownManagementServer(); err != nil {
 		t.Errorf("Error stopping management server %v", err)
 	}
 
-	if Running() != None {
-		t.Errorf("Server is not in None status")
+	if Current != None {
+		t.Errorf("Current server is not None")
 	}
 
-	waitForState(None)
+	waitForState(Stopped)
 
 	if err := StartOperationalServer(); err != nil {
 		t.Errorf("Error starting operational server %v", err)
 	}
-	if Running() != Operational && Running() != StartingOperational {
+	if Current != Operational || (State != Starting && State != Running) {
 		t.Errorf("Server is not in starting or in operational status")
 	}
 
-	waitForState(Operational)
+	waitForState(Running)
 
 	if err := ShutdownOperationalServer(); err != nil {
 		t.Errorf("Error stopping operational server %v", err)
 	}
-	if Running() != None {
-		t.Errorf("Server is not in None status")
+	if Current != None {
+		t.Errorf("Current server is not none")
 	}
 }
 
 func TestEdgeServerTransitionStates(t *testing.T) {
 	os.Setenv("SNAP_COMMON", os.TempDir())
 
-	if Running() != None {
+	if Current != None {
 		t.Errorf("Server is not in initial state")
 	}
 
 	if err := StartManagementServer(); err != nil {
 		t.Errorf("Error starting management server %v", err)
 	}
-	if Running() != Management && Running() != StartingManagement {
+	if Current != Management || (State != Starting && State != Running) {
 		t.Errorf("Server is not in starting or in management status")
 	}
 
-	waitForState(Management)
+	waitForState(Running)
 
 	// start operational server without stopping management must throw an error
 	if err := StartOperationalServer; err == nil {
 		t.Errorf(`Expected an error when trying to launch one server instance having 
 		the other active`)
 	}
-	if Running() != Management {
+	if Current != Management {
 		t.Errorf("Server is not in management status after failed start operational server")
 	}
 
@@ -89,35 +89,35 @@ func TestEdgeServerTransitionStates(t *testing.T) {
 	if err := ShutdownOperationalServer; err == nil {
 		t.Errorf("Expected an error when trying to shutdown wrong server")
 	}
-	if Running() != Management {
+	if Current != Management {
 		t.Errorf("Server is not in management status after failed start operational server")
 	}
 
 	if err := ShutdownManagementServer(); err != nil {
 		t.Errorf("Error stopping management server %v", err)
 	}
-	if Running() != None {
+	if Current != None {
 		t.Errorf("Server is not in None status")
 	}
 
-	waitForState(None)
+	waitForState(Stopped)
 
 	// analog tests with operational server
 	if err := StartOperationalServer(); err != nil {
 		t.Errorf("Error starting operational server %v", err)
 	}
-	if Running() != Operational && Running() != StartingOperational {
+	if Current != Operational || (State != Starting && State != Running) {
 		t.Errorf("Server is not in starting or in operational status")
 	}
 
-	waitForState(Operational)
+	waitForState(Running)
 
 	// start management server without stopping operational must throw an error
 	if err := StartManagementServer; err == nil {
 		t.Errorf(`Expected an error when trying to launch one server instance having 
 		the other active`)
 	}
-	if Running() != Operational {
+	if Current != Operational {
 		t.Errorf("Server is not in operational status after failed start operational server")
 	}
 
@@ -125,14 +125,14 @@ func TestEdgeServerTransitionStates(t *testing.T) {
 	if err := ShutdownManagementServer; err == nil {
 		t.Errorf("Expected an error when trying to shutdown wrong server")
 	}
-	if Running() != Operational {
+	if Current != Operational {
 		t.Errorf("Server is not in operational status after failed start operational server")
 	}
 
 	if err := ShutdownOperationalServer(); err != nil {
 		t.Errorf("Error stopping operational server %v", err)
 	}
-	if Running() != None {
+	if Current != None {
 		t.Errorf("Server is not in None status")
 	}
 }

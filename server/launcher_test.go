@@ -27,13 +27,9 @@ func TestLaunchAndStop(t *testing.T) {
 
 	thePort := ":14444"
 
-	srv, done, err := listenAndServe(thePort, nil)
+	err := listenAndServe(thePort, nil)
 	if err != nil {
 		t.Errorf("Start server failed: %v", err)
-	}
-
-	if srv == nil {
-		t.Error("Server could not be initialzed")
 	}
 
 	// telnet to check server is alive
@@ -43,13 +39,12 @@ func TestLaunchAndStop(t *testing.T) {
 		t.Errorf("Failed to telnet localhost server at port %v: %v", thePort, err)
 	}
 
-	err = srv.Close()
+	err = stop()
 	if err != nil {
 		t.Errorf("Stop server error: %v", err)
 	}
+}
 
-	d := <-done
-	if !d {
-		t.Error("Expected true value")
-	}
+func TestStates(t *testing.T) {
+
 }
