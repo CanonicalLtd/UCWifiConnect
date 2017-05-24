@@ -284,20 +284,29 @@ sudo  wifi-connect start
 ## Unit Tests
 
 You can run all tests by executing 
-	go test -v ./...
+```bash
+go test -v ./...
+```
 or
-	./run-check --unit
-
+```bash
+./run-check --unit
+```
 
 In order to run specific package test, you can:
-	go test -v ./<package>
+```bash
+go test -v ./<package>
+```
 
 To run a specific test:
-	go test -v -run <testname> 
+```bash
+go test -v -run <testname> 
+```
 
 For example:
-	go test -v ./wifiap
-	go test -v ./wifiap -run TestShow
+```bash
+go test -v ./wifiap
+go test -v ./wifiap -run TestShow
+```
 
 More info in https://golang.org/pkg/testing
 
@@ -313,25 +322,35 @@ In order to run those tests you need the follow things
 
  You can install ubuntu-image snap
 
-    snap install --edge --devmode ubuntu-image
+```bash
+snap install --edge --devmode ubuntu-image
+```
 
 NOTE: Because of confinement, snap spread cannot access virtualized environment. 
 For now, then, let's install spread from sources, this way:
 
-    WORKDIR=`mktemp -d`
-    export GOPATH=$WORKDIR
-    go get -d -v github.com/snapcore/spread/...
-    go build github.com/snapcore/spread/cmd/spread
-    sudo cp spread /usr/local/bin
+```bash
+# Note: here I use a temp folder as workdir but you can use 
+# any other path, temporal or permanent
+WORKDIR=`mktemp -d`
+export GOPATH=$WORKDIR
+go get -d -v github.com/snapcore/spread/...
+go build github.com/snapcore/spread/cmd/spread
+sudo cp spread /usr/local/bin
+```
 
 Make sure /usr/local/bin is in your path and is used as default:
 
-    which spread
-    /usr/local/bin/spread
+```bash
+which spread
+/usr/local/bin/spread
+```
 
 Now you have everything to run the test suite.
 
-    ./run-tests
+```bash
+./run-tests
+```
 
 The script will create an image via ubuntu-image and make it available
 to spread by copying it to ~/.spread/qemu or ~/snap/spread/<version>/.spread/qemu
@@ -340,6 +359,8 @@ snap.
 
 If you want to see more verbose debugging output of spread run
 
-    ./run-tests --debug
+```bash
+./run-tests --debug
+```
 
 

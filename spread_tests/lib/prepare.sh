@@ -11,6 +11,7 @@ if [ $SPREAD_REBOOT -gt 0 ] ; then
 
     # Powercycle both interface to get them back into a sane state before
     # we install the wifi-ap snap
+	# install in devmode for having permissions to access RFKILL control device
     snap install --devmode wireless-tools
     for d in wlan0 wlan1 ; do
         phy=$(iw dev $d info | awk '/wiphy/{print $2}')

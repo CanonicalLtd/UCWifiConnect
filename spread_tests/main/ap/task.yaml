@@ -1,5 +1,5 @@
 summary: Test default configuration at the beginning,
-    stop daemon, start ap by hand and see wlan1 can connect to it
+    put wifi-connect in manual mode and see wlan1 can connect to it
 
 prepare: |
     # We need some tools for scanning etc.
