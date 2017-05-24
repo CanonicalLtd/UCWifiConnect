@@ -311,13 +311,12 @@ In order to run those tests you need the follow things
 * ubuntu-image
 * spread
 
- You can install both as a snap
+ You can install ubuntu-image snap
 
     snap install --edge --devmode ubuntu-image
-    snap install --devmode spread
 
 NOTE: Because of confinement, snap spread cannot access virtualized environment. 
-You can, then, install spread from sources, this way:
+For now, then, let's install spread from sources, this way:
 
     WORKDIR=`mktemp -d`
     export GOPATH=$WORKDIR
