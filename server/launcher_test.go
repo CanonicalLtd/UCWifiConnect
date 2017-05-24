@@ -47,7 +47,7 @@ func TestLaunchAndStop(t *testing.T) {
 
 func TestStates(t *testing.T) {
 
-	waitForState(Stopped)
+	WaitForState(Stopped)
 
 	if State != Stopped {
 		t.Error("Not in initial state")
@@ -64,7 +64,7 @@ func TestStates(t *testing.T) {
 		t.Error("Not in proper start(ing) state")
 	}
 
-	waitForState(Running)
+	WaitForState(Running)
 
 	// try a bad transition
 	err = listenAndServe(thePort, nil)
@@ -81,7 +81,7 @@ func TestStates(t *testing.T) {
 		t.Error("Not in proper stop(ing) state")
 	}
 
-	waitForState(Stopped)
+	WaitForState(Stopped)
 
 	// try bad transitions
 	err = stop()

@@ -53,12 +53,13 @@ type tcpKeepAliveListener struct {
 	*net.TCPListener
 }
 
-// waitForState waits for server reach certaing state
-func waitForState(state RunningState) bool {
+// WaitForState waits for server reach certaing state
+func WaitForState(state RunningState) bool {
 	retries := 10
-	idle := 500 * time.Millisecond
+	idle := 10 * time.Millisecond
 	for ; retries > 0 && State != state; retries-- {
 		time.Sleep(idle)
+		idle *= 2
 	}
 	return State == state
 }
@@ -99,12 +100,14 @@ func listenAndServe(addr string, handler http.Handler) error {
 
 	// launch goroutine to check server state changes after startup is triggered
 	go func() {
-		var i int
-		for i = 0; !utils.RunningOn(addr) && i < 10; i++ {
-			time.Sleep(100 * time.Millisecond)
+		retries := 10
+		idle := 10 * time.Millisecond
+		for ; !utils.RunningOn(addr) && retries > 0; retries-- {
+			time.Sleep(idle)
+			idle *= 2
 		}
 
-		if i < 0 {
+		if retries == 0 {
 			log.Print("Server could not be started")
 			return
 		}
