@@ -47,4 +47,45 @@ func TestLaunchAndStop(t *testing.T) {
 
 func TestStates(t *testing.T) {
 
+	waitForState(Stopped)
+
+	if State != Stopped {
+		t.Error("Not in initial state")
+	}
+
+	thePort := ":14444"
+
+	err := listenAndServe(thePort, nil)
+	if err != nil {
+		t.Errorf("Start server failed: %v", err)
+	}
+
+	if State != Starting && State != Running {
+		t.Error("Not in proper start(ing) state")
+	}
+
+	waitForState(Running)
+
+	// try a bad transition
+	err = listenAndServe(thePort, nil)
+	if err == nil {
+		t.Error("An error should be thrown when trying to start an already running instance")
+	}
+
+	err = stop()
+	if err != nil {
+		t.Errorf("Stop server error: %v", err)
+	}
+
+	if State != Stopping && State != Stopped {
+		t.Error("Not in proper stop(ing) state")
+	}
+
+	waitForState(Stopped)
+
+	// try bad transitions
+	err = stop()
+	if err == nil {
+		t.Error("An error should be thrown when trying to stop a stopped instance")
+	}
 }

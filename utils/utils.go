@@ -23,7 +23,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -110,7 +109,6 @@ func RunningOn(address string) bool {
 	caller := telnet.StandardCaller
 	err := telnet.DialToAndCall(address, caller)
 	if err != nil {
-		log.Printf("Error checking listening at %v %v", address, err)
 		return false
 	}
 	return true

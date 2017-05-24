@@ -3,18 +3,7 @@ package server
 import (
 	"os"
 	"testing"
-	"time"
 )
-
-// needed method for testing, as server state is updated asynchronously
-func waitForState(state RunningState) bool {
-	retries := 10
-	idle := 1000 * time.Millisecond
-	for ; retries > 0 && State != state; retries-- {
-		time.Sleep(idle)
-	}
-	return State == state
-}
 
 func TestBasicServerTransitionStates(t *testing.T) {
 

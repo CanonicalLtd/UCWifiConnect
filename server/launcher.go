@@ -53,20 +53,14 @@ type tcpKeepAliveListener struct {
 	*net.TCPListener
 }
 
-func updateStateWhenServerUp(addr string) {
-	go func() {
-		var i int
-		for i = 0; !utils.RunningOn(addr) && i < 10; i++ {
-			time.Sleep(100 * time.Millisecond)
-		}
-
-		if i < 0 {
-			log.Print("Server could not be started")
-			return
-		}
-
-		State = Running
-	}()
+// waitForState waits for server reach certaing state
+func waitForState(state RunningState) bool {
+	retries := 10
+	idle := 500 * time.Millisecond
+	for ; retries > 0 && State != state; retries-- {
+		time.Sleep(idle)
+	}
+	return State == state
 }
 
 // Accept accepts incoming tcp connections
@@ -81,6 +75,15 @@ func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
 }
 
 func listenAndServe(addr string, handler http.Handler) error {
+
+	if State != Stopped {
+		return fmt.Errorf("Server is not in proper stopped state before trying to start it")
+	}
+
+	if utils.RunningOn(addr) {
+		return fmt.Errorf("Another instance is running in same address %v", addr)
+	}
+
 	State = Starting
 
 	srv := &http.Server{Addr: addr, Handler: handler}
@@ -94,10 +97,23 @@ func listenAndServe(addr string, handler http.Handler) error {
 		return err
 	}
 
+	// launch goroutine to check server state changes after startup is triggered
+	go func() {
+		var i int
+		for i = 0; !utils.RunningOn(addr) && i < 10; i++ {
+			time.Sleep(100 * time.Millisecond)
+		}
+
+		if i < 0 {
+			log.Print("Server could not be started")
+			return
+		}
+
+		State = Running
+	}()
+
 	// launching server in a goroutine for not blocking
 	go func() {
-		updateStateWhenServerUp(addr)
-
 		if listener != nil {
 			err := srv.Serve(tcpKeepAliveListener{listener.(*net.TCPListener)})
 			if err != nil {
@@ -108,18 +124,23 @@ func listenAndServe(addr string, handler http.Handler) error {
 		}
 
 		close(done)
-		State = Stopped
 	}()
 
 	return nil
 }
 
 func stop() error {
-	State = Stopping
+
+	if State == Stopped {
+		return fmt.Errorf("Already stopped")
+	}
 
 	if listener == nil {
+		State = Stopped
 		return fmt.Errorf("Already closed")
 	}
+
+	State = Stopping
 
 	err := listener.Close()
 	if err != nil {
@@ -127,7 +148,9 @@ func stop() error {
 	}
 	listener = nil
 
+	// wait for server real shutdown confirmation
 	<-done
 
+	State = Stopped
 	return nil
 }
