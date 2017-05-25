@@ -26,6 +26,7 @@ cat <<-EOF > /home/test/build-snap.sh
 set -ex
 apt update
 apt install -y --force-yes snapcraft
+apt install -y --force-yes git
 cd ${PROJECT_PATH}
 snapcraft clean
 snapcraft

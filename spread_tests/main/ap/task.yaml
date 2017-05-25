@@ -36,8 +36,10 @@ execute: |
     [[ "$config" =~ .*wifi.security-passphrase:\ .* ]]
     [[ "$config" =~ .*wifi.ssid:\ Ubuntu.* ]]
 
-    # move to manual mode
-    wifi-connect stop
+    # stop the daemon. 
+    #NOTE: as far as no external wifi aps are found, daemon never enters in manual mode
+    # as it remains searching for external wifis forever
+    systemctl stop snap.wifi-connect.daemon.service
 
     nmcli d set wlan0 managed n
     wifi-ap.config set disabled=false
@@ -53,6 +55,33 @@ execute: |
     # and ensure the network is available.
     wireless-tools.iw dev wlan1 scan | grep 'SSID: Ubuntu'
 
-    # connect to that network and verify wlan1 did it
+     # Test check-connected returns "Device is not connected"
+    wifi-connect check-connected | grep -Pzq "Device is not connected"
+
+    # Test check-connected-wifi return that device is not connected to external wifi
+    wifi-connect check-connected-wifi | grep -Pzq "Device is not connected to external wifi AP"
+
+    # connect wlan1 to that network available at wlan0 and verify
     /snap/bin/network-manager.nmcli d wifi connect Ubuntu
     /snap/bin/network-manager.nmcli d | grep 'wlan1.*connected'
+
+    #NOTE: next are tests for common commands when AP is up
+
+    # Test get-devices returns at least 2 devices (wlan0 and wlan1)
+    wifi-connect get-devices | grep -Pzq 1
+
+    # Test get--wifi-devices returns at least 2 devices (wlan0 and wlan1)
+    wifi-connect get-wifi-devices | grep -Pzq 1
+
+    # Test check-connected returns that the device is connected, as it will
+    # detect that wlan1 is connected to wlan0
+    wifi-connect check-connected | grep -Pzq "Device is connected"
+
+    # Test check-connected-wifi return that device is connected to external wifi, 
+    # as it will detect wlan1 connected to wlan0 AP
+    wifi-connect check-connected-wifi | grep -Pzq "Device is connected to external wifi AP"
+
+    # Test that at least wlan1 is managed
+    wifi-connect wifis-managed | grep -Pzq "wlan1"
+
+
