@@ -323,7 +323,7 @@ In order to run those tests you need the follow things
  You can install ubuntu-image snap
 
 ```bash
-snap install --edge --devmode ubuntu-image
+snap install --edge --classic ubuntu-image
 ```
 
 NOTE: Because of confinement, snap spread cannot access virtualized environment. 

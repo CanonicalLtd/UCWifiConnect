@@ -26,6 +26,9 @@ systemctl start snapd.service snapd.socket
 netplan generate
 netplan apply
 
+mv ~/00-snapd-config.yaml /etc/netplan/
+rm /etc/netplan/00-default-nm-renderer.yaml
+
 # remove and reinsert the module to refresh all the wifi network settings
 pkill wpa_supplicant || true
 while pidof wpa_supplicant; do

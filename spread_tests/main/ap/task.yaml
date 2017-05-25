@@ -1,4 +1,4 @@
-summary: Test default configuration at the beginning,
+summary: Test default service is running at beginning, correct configuration at the beginning,
     put wifi-connect in manual mode and see wlan1 can connect to it
 
 prepare: |
@@ -7,6 +7,12 @@ prepare: |
     snap connect wireless-tools:network-control core
 
 execute: |
+    . $TESTSLIB/utilities.sh
+    # Service should be up an running
+    wait_for_daemon_ready
+
+    # Services should be up and running
+    systemctl is-active snap.wifi-connect.daemon.service
 
     # Ensure all necessary plugs/slots are connected
     snap interfaces | grep -Pzq "wifi-ap:control +[a-z,\-,:\,]*wifi-connect"
@@ -41,7 +47,13 @@ execute: |
     # as it remains searching for external wifis forever
     systemctl stop snap.wifi-connect.daemon.service
 
-    nmcli d set wlan0 managed n
+    # test manage and unmanage wlan0
+    wifi-connect manage-iface wlan0
+    nmcli d | grep -Pzq .*wlan0.*disconnected
+
+    wifi-connect unmanage-iface wlan0
+    nmcli d | grep -Pzq .*wlan0.*managed
+
     wifi-ap.config set disabled=false
 
     while wifi-ap.status | grep "ap.active: false" ; do
@@ -93,7 +105,9 @@ execute: |
     [[ "$config" =~ .*wifi.security-passphrase:\ ubuntuubuntu1.* ]]
 
     # Restart AP
-    nmcli d set wlan0 managed n
+    wifi-connect unmanage-iface wlan0
+    nmcli d | grep -Pzq .*wlan0.*managed
+
     wifi-ap.config set disabled=false
 
     while wifi-ap.status | grep "ap.active: false" ; do
@@ -101,7 +115,7 @@ execute: |
     done
 
     # wait enough for having network stable
-    sleep 5 
+    sleep 10
 
     # Reconnect wlan1
     /snap/bin/network-manager.nmcli d wifi connect UbuntuWithGnome password ubuntuubuntu1 ifname wlan1
