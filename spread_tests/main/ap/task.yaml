@@ -1,6 +1,9 @@
 summary: Test default service is running at beginning, correct configuration at the beginning,
     put wifi-connect in manual mode and see wlan1 can connect to it
 
+environment:
+    MAX_ITERATIONS: 10
+
 prepare: |
     # We need some tools for scanning etc.
     snap install wireless-tools
@@ -55,17 +58,19 @@ execute: |
     nmcli d | grep -Pzq .*wlan0.*managed
 
     wifi-ap.config set disabled=false
-
-    while wifi-ap.status | grep "ap.active: false" ; do
+    until wifi-ap.status | grep "ap.active: true" ; do
         sleep 0.5
     done
 
-    ifconfig wlan1 up
-    # enough time for wlan1 to be up
-    sleep 5 
-    # Scan for networks on the other side of the WiFi network
-    # and ensure the network is available.
-    wireless-tools.iw dev wlan1 scan | grep 'SSID: Ubuntu'
+    i=0
+    while [ $i -lt $MAX_ITERATIONS ] ; do
+        if iw dev wlan1 scan | grep 'SSID: Ubuntu' ; then
+            break
+        fi
+        sleep 0.5
+        let i=i+1
+    done
+    test $i -lt $MAX_ITERATIONS
 
      # Test check-connected returns "Device is not connected"
     wifi-connect check-connected | grep -Pzq "Device is not connected"
@@ -74,8 +79,8 @@ execute: |
     wifi-connect check-connected-wifi | grep -Pzq "Device is not connected to external wifi AP"
 
     # connect wlan1 to that network available at wlan0 and verify
-    /snap/bin/network-manager.nmcli d wifi connect Ubuntu ifname wlan1
-    /snap/bin/network-manager.nmcli d | grep 'wlan1.*connected'
+    nmcli d wifi connect Ubuntu ifname wlan1
+    nmcli d | grep 'wlan1.*connected'
 
     #NOTE: next are tests for common commands when AP is up
 
@@ -109,14 +114,21 @@ execute: |
     nmcli d | grep -Pzq .*wlan0.*managed
 
     wifi-ap.config set disabled=false
-
-    while wifi-ap.status | grep "ap.active: false" ; do
+    until wifi-ap.status | grep "ap.active: true" ; do
         sleep 0.5
     done
 
-    # wait enough for having network stable
-    sleep 10
+    # wait until having available networks
+    i=0
+    while [ $i -lt $MAX_ITERATIONS ] ; do
+        if iw dev wlan1 scan | grep 'SSID: UbuntuWithGnome' ; then
+            break
+        fi
+        sleep 0.5
+        let i=i+1
+    done
+    test $i -lt $MAX_ITERATIONS
 
     # Reconnect wlan1
-    /snap/bin/network-manager.nmcli d wifi connect UbuntuWithGnome password ubuntuubuntu1 ifname wlan1
-    /snap/bin/network-manager.nmcli d | grep 'wlan1.*connected'
+    nmcli d wifi connect UbuntuWithGnome password ubuntuubuntu1 ifname wlan1
+    nmcli d | grep 'wlan1.*connected'
