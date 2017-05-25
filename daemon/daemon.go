@@ -19,9 +19,9 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+//	"io/ioutil"
 	"os"
-	"strings"
+//	"strings"
 	"time"
 
 	"github.com/CanonicalLtd/UCWifiConnect/avahi"
@@ -57,6 +57,7 @@ func setState(s int) {
 // to path and return true, else return false.
 func scanSsids(path string, c *netman.Client) bool {
 	manage(c)
+	/*
 	SSIDs, _, _ := c.Ssids()
 	//only write SSIDs when found
 	if len(SSIDs) > 0 {
@@ -73,6 +74,7 @@ func scanSsids(path string, c *netman.Client) bool {
 			return true
 		}
 	}
+	*/
 	fmt.Println("== wifi-connect: No SSID found")
 	return false
 }
