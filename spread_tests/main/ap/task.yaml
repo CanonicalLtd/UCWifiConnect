@@ -62,7 +62,7 @@ execute: |
     wifi-connect check-connected-wifi | grep -Pzq "Device is not connected to external wifi AP"
 
     # connect wlan1 to that network available at wlan0 and verify
-    /snap/bin/network-manager.nmcli d wifi connect Ubuntu
+    /snap/bin/network-manager.nmcli d wifi connect Ubuntu ifname wlan1
     /snap/bin/network-manager.nmcli d | grep 'wlan1.*connected'
 
     #NOTE: next are tests for common commands when AP is up
@@ -84,4 +84,25 @@ execute: |
     # Test that at least wlan1 is managed
     wifi-connect wifis-managed | grep -Pzq "wlan1"
 
+    # Change AP ssid and passphrase
+    wifi-connect ssid UbuntuWithGnome
+    wifi-connect passphrase ubuntuubuntu1
 
+    config="$(wifi-connect show-ap)"
+    [[ "$config" =~ .*wifi.ssid:\ UbuntuWithGnome.* ]]
+    [[ "$config" =~ .*wifi.security-passphrase:\ ubuntuubuntu1.* ]]
+
+    # Restart AP
+    nmcli d set wlan0 managed n
+    wifi-ap.config set disabled=false
+
+    while wifi-ap.status | grep "ap.active: false" ; do
+        sleep 0.5
+    done
+
+    # wait enough for having network stable
+    sleep 5 
+
+    # Reconnect wlan1
+    /snap/bin/network-manager.nmcli d wifi connect UbuntuWithGnome password ubuntuubuntu1 ifname wlan1
+    /snap/bin/network-manager.nmcli d | grep 'wlan1.*connected'
