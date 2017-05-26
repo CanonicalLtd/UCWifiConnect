@@ -19,9 +19,9 @@ package main
 
 import (
 	"fmt"
-//	"io/ioutil"
+	"io/ioutil"
 	"os"
-//	"strings"
+	"strings"
 	"time"
 
 	"github.com/CanonicalLtd/UCWifiConnect/avahi"
@@ -57,7 +57,6 @@ func setState(s int) {
 // to path and return true, else return false.
 func scanSsids(path string, c *netman.Client) bool {
 	manage(c)
-	/*
 	SSIDs, _, _ := c.Ssids()
 	//only write SSIDs when found
 	if len(SSIDs) > 0 {
@@ -74,7 +73,6 @@ func scanSsids(path string, c *netman.Client) bool {
 			return true
 		}
 	}
-	*/
 	fmt.Println("== wifi-connect: No SSID found")
 	return false
 }
@@ -198,10 +196,6 @@ func main() {
 	managementServerDown()
 	//operationalServerDown()
 
-	//remove possibly left over flag files
-	utils.RemoveFlagFile(waitFlagPath)
-	utils.RemoveFlagFile(manualFlagPath)
-
 	for {
 		if first {
 			fmt.Println("== wifi-connect: daemon STARTING")
@@ -210,7 +204,7 @@ func main() {
 			first = false
 			//clean start require wifi AP down so we can get SSIDs
 			cw.Disable()
-			//remove previous state flag, if any on deamon startup
+			//remove previous state flags
 			utils.RemoveFlagFile(waitFlagPath)
 			utils.RemoveFlagFile(manualFlagPath)
 			//TODO only wait if wlan0 is managed
