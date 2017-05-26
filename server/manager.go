@@ -20,8 +20,6 @@ package server
 import (
 	"os"
 
-	"fmt"
-
 	"github.com/CanonicalLtd/UCWifiConnect/utils"
 )
 
@@ -42,7 +40,7 @@ var Current = None
 func StartManagementServer() error {
 	if Current != None {
 		Current = None
-		return fmt.Errorf("Not in a valid status. Please stop first any other server instance before starting this one")
+		return Errorf("Not in a valid status. Please stop first any other server instance before starting this one")
 	}
 
 	// change current instance asap we manage this server
@@ -67,7 +65,7 @@ func StartManagementServer() error {
 // StartOperationalServer starts server in operational mode
 func StartOperationalServer() error {
 	if Current != None {
-		return fmt.Errorf("Not in a valid status. Please stop first any other server instance before starting this one")
+		return Errorf("Not in a valid status. Please stop first any other server instance before starting this one")
 	}
 
 	// change current instance asap we manage this server
@@ -85,7 +83,7 @@ func StartOperationalServer() error {
 // ShutdownManagementServer shutdown server management mode. If management server is not up, returns error
 func ShutdownManagementServer() error {
 	if Current != Management || (State != Running && State != Starting) {
-		return fmt.Errorf("Trying to stop management server when it is not running")
+		return Errorf("Trying to stop management server when it is not running")
 	}
 
 	err := stop()
@@ -100,7 +98,7 @@ func ShutdownManagementServer() error {
 // ShutdownOperationalServer shutdown server operational mode. If operational server is not up, returns error
 func ShutdownOperationalServer() error {
 	if Current != Operational || (State != Running && State != Starting) {
-		return fmt.Errorf("Trying to stop operational server when it is not running")
+		return Errorf("Trying to stop operational server when it is not running")
 	}
 
 	err := stop()
