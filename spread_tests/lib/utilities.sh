@@ -58,7 +58,6 @@ connect_interfaces() {
 	snap connect wifi-connect:network core:network
 	snap connect wifi-connect:network-bind core:network-bind
 	snap connect wifi-connect:network-manager network-manager:service
-	snap connect wifi-connect:network-control core:network-control
 }
 
 install_snap_under_test() {
