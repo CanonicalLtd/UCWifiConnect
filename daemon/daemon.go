@@ -105,14 +105,12 @@ func checkWaitApConnect() bool {
 func checkManualMode() bool {
 	if _, err := os.Stat(manualFlagPath); os.IsNotExist(err) {
 		if state == MANUAL {
-			previousState = state
 			setState(STARTING)
 			fmt.Println("== wifi-connect: entering STARTING mode")
 		}
 		return false
 	}
 	if state != MANUAL {
-		previousState = state
 		setState(MANUAL)
 		fmt.Println("== wifi-connect: entering MANUAL mode")
 	}
@@ -138,10 +136,9 @@ func isApUpWithoutSSIDs(cw *wifiap.Client) bool {
 // managementServerUp starts the management server if it is
 // not running
 func managementServerUp() {
-	//if server.Running() != server.MANAGEMENT {
 	err = server.StartManagementServer()
 	if err != nil {
-		fmt.Println("== wifi-connect: Error start Mamagement portal:", err)
+		fmt.Println("== wifi-connect: Error starting Mamagement portal:", err)
 	}
 	// init mDNS
 	avahi.InitMDNS()
@@ -151,14 +148,12 @@ func managementServerUp() {
 // managementServerDown stops the management server if it is running
 // also remove the wait flag file, thus resetting proper state
 func managementServerDown() {
-	//if server.Running() == server.MANAGEMENT {
 	err = server.ShutdownManagementServer()
 	if err != nil {
 		fmt.Println("== wifi-connect: Error stopping the Management portal:", err)
 	}
 	//remove flag fie so daemon resumes normal control
 	utils.RemoveFlagFile(os.Getenv("SNAP_COMMON") + "/startingApConnect")
-	//}
 }
 
 // operationalServerUp starts the operational server if it is
@@ -253,8 +248,7 @@ func main() {
 			if previousState == MANAGING {
 				managementServerDown()
 			}
-			//comment out operational server as later phase of work
-			//operationalServerUp()
+			operationalServerUp()
 			continue
 		}
 
@@ -288,6 +282,9 @@ func main() {
 			}
 			fmt.Println("== wifi-connect: starting wifi-ap")
 			cw.Enable()
+			if previousState == OPERATING {
+				operationalServerDown()
+			}
 			managementServerUp()
 		}
 	}
