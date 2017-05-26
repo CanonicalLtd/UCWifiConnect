@@ -44,6 +44,7 @@ func operationalHandler() *mux.Router {
 
 	router.HandleFunc("/", OperationalHandler).Methods("GET")
 	router.HandleFunc("/disconnect", DisconnectHandler).Methods("GET")
+	router.HandleFunc("/hashit", HashItHandler).Methods("POST")
 
 	// Resources path
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(ResourcesPath)))

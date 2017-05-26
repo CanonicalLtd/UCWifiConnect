@@ -12,19 +12,38 @@
     <div class="wrapper">
         <div id="main-content" class="inner-wrapper">
             <div class="row no-border" id="grid">
-            <h3>Operational</h3>
-            <input type="button" id="disconnect" value="Disconnect from Wifi" class="button--primary" onclick="disconnect()"/>
+                 <h3>Operational</h3>
+                 <input type="text" id="hashme" />
+                 <p id="hashres">start</p>
+                 <input type="button" id="hash" value="Enter your password" class="button--primary" onclick="hashIt()"/>
+                 <input type="button" id="disconnect" value="Disconnect from Wifi" class="button--primary" onclick="disconnect()"/>
+            </div>
         </div>
     </div>
 
 
 <script>
+function hashIt() {
+    var send
+    send = document.getElementById("hashme").value
+    $.ajax({
+      type: "POST",
+      url: "/hashit",
+      data: {Hash: send}
+    }).done(function (hashRet) {
+        console.log("in ajax done.", hashRet);
+        hash = JSON.parse(hashRet);
+        document.getElementById("hashres").innerHTML = hash.Hash;
+    })
+} 
+
 
 function disconnect() {
     $.ajax({
       url: "/disconnect"
     }).done(function () {
         console.log("in ajax done.");
+
     })
 } 
 

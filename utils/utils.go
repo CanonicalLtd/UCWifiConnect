@@ -26,12 +26,22 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"time"
 
-	"strings"
-
 	telnet "github.com/reiver/go-telnet"
+
+	"golang.org/x/crypto/bcrypt"
 )
+
+func HashIt(s string) (string, error) {
+	fmt.Println("== in HashIt")
+	hash, err := bcrypt.GenerateFromPassword([]byte(s), 8)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), nil
+}
 
 // SsidsFile path to the file filled by daemon with available ssids in csv format
 var SsidsFile = filepath.Join(os.Getenv("SNAP_COMMON"), "ssids")

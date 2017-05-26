@@ -49,7 +49,7 @@ Commands:
 	return text
 }
 
-func handler() *mux.Router {
+func mgmtHandler() *mux.Router {
 	router := mux.NewRouter()
 
 	// Pages routes
@@ -57,6 +57,18 @@ func handler() *mux.Router {
 	router.HandleFunc("/connect", server.ConnectHandler).Methods("POST")
 
 	// Resources path
+	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(server.ResourcesPath)))
+	router.PathPrefix("/static/").Handler(fs)
+
+	return router
+}
+
+func operHandler() *mux.Router {
+	router := mux.NewRouter()
+
+	router.HandleFunc("/", server.OperationalHandler).Methods("GET")
+	router.HandleFunc("/hashit", server.HashItHandler).Methods("POST")
+
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(server.ResourcesPath)))
 	router.PathPrefix("/static/").Handler(fs)
 
@@ -221,8 +233,10 @@ func main() {
 		pw, _ := reader.ReadString('\n')
 		pw = strings.TrimSpace(pw)
 		c.ConnectAp(ssid, pw, ap2device, ssid2ap)
-	case "management-up":
-		http.ListenAndServe(":8081", handler())
+	case "mgmt-up":
+		http.ListenAndServe(":8081", mgmtHandler())
+	case "oper-up":
+		http.ListenAndServe(":8081", operHandler())
 	default:
 		fmt.Println("Error. Your command is not supported. Please try 'help'")
 	}

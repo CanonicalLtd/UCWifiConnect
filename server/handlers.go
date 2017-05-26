@@ -18,6 +18,7 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -30,8 +31,8 @@ import (
 )
 
 const (
-	ssidsTemplatePath      = "/templates/ssids.html"
-	connectingTemplatePath = "/templates/connecting.html"
+	ssidsTemplatePath       = "/templates/ssids.html"
+	connectingTemplatePath  = "/templates/connecting.html"
 	operationalTemplatePath = "/templates/operational.html"
 )
 
@@ -130,11 +131,34 @@ type DisconnectData struct {
 
 // OperationalHandler display Opertational mode page
 func OperationalHandler(w http.ResponseWriter, r *http.Request) {
-
-	data := DisconnectData{Hey:true}
-
-	// parse template
+	data := DisconnectData{Hey: true}
 	execTemplate(w, operationalTemplatePath, data)
+}
+
+type HashResponse struct {
+	Err  string
+	Hash string
+}
+
+// HashItHandler returns a hash of the password as json
+func HashItHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("== in HashHandler")
+	r.ParseForm()
+	hashMe := r.Form["Hash"]
+	hashed, errH := utils.HashIt(hashMe[0])
+	if errH != nil {
+		fmt.Println("== error hashing:", errH)
+		return
+	}
+	res := &HashResponse{}
+	res.Hash = hashed
+	res.Err = "no error"
+	b, err := json.Marshal(res)
+	if err != nil {
+		fmt.Println("== wifi-connect/HashIt: error mashaling json")
+		return
+	}
+	w.Write(b)
 }
 
 // DisconnectHandler allows user to disconnect from external AP
@@ -142,5 +166,3 @@ func DisconnectHandler(w http.ResponseWriter, r *http.Request) {
 	c := netman.DefaultClient()
 	c.DisconnectWifi(c.GetWifiDevices(c.GetDevices()))
 }
-
-
