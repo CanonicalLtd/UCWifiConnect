@@ -313,7 +313,7 @@ More info in https://golang.org/pkg/testing
 ## Spread tests
 
 We have a set of spread (https://github.com/snapcore/spread) tests which
-can be executed on a virtual machine or real hardware.
+are executed on a virtual machine
 
 In order to run those tests you need the follow things
 
@@ -331,7 +331,7 @@ For now, then, let's install spread from sources, this way:
 
 ```bash
 # Note: here I use a temp folder as workdir but you can use 
-# any other path, temporal or permanent
+# any other path, temporary or permanent
 WORKDIR=`mktemp -d`
 export GOPATH=$WORKDIR
 go get -d -v github.com/snapcore/spread/...
@@ -352,7 +352,7 @@ Now you have everything to run the test suite.
 ./run-tests
 ```
 
-The script will create an image via ubuntu-image and make it available
+The script creates an image via ubuntu-image and makes it available
 to spread by copying it to ~/.spread/qemu or ~/snap/spread/<version>/.spread/qemu
 depending on if you're using a local spread version or the one from the
 snap.
