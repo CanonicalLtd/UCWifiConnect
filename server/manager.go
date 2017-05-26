@@ -18,112 +18,94 @@
 package server
 
 import (
-	"io"
 	"os"
 
 	"github.com/CanonicalLtd/UCWifiConnect/utils"
 )
 
+// Enum of available server options
 const (
-	address = ":8080"
+	None Server = 0 + iota
+	Management
+	Operational
 )
 
-const (
-	// NONE any server is up
-	NONE RunningServer = 0 + iota
-	// MANAGEMENT only management portal is up. Rest are down
-	MANAGEMENT
-	// OPERATIONAL only operational portal is up. Rest are down
-	OPERATIONAL
-)
+// Server defines an enum of servers
+type Server int
 
-// RunningServer enum defining which server is up and running
-type RunningServer int
-
-var currentlyRunning = NONE
-var managementCloser io.Closer
-var operationalCloser io.Closer
-
-// Running returns RunningServer enum value saying which server is running
-func Running() RunningServer {
-	return currentlyRunning
-}
+// Current active server instance. None if any is enabled at this moment
+var Current = None
 
 // StartManagementServer starts server in management mode
 func StartManagementServer() error {
+	if Current != None {
+		Current = None
+		return Errorf("Not in a valid status. Please stop first any other server instance before starting this one")
+	}
+
+	// change current instance asap we manage this server
+	Current = Management
+
 	waitPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
-	var err error
-	err = utils.WriteFlagFile(waitPath)
+	err := utils.WriteFlagFile(waitPath)
 	if err != nil {
+		Current = None
 		return err
 	}
-	managementCloser, err = listenAndServe(address, managementHandler())
+
+	err = listenAndServe(address, managementHandler())
 	if err != nil {
-		managementCloser = nil
+		Current = None
 		return err
 	}
-	currentlyRunning = MANAGEMENT
+
 	return nil
 }
 
 // StartOperationalServer starts server in operational mode
 func StartOperationalServer() error {
-	var err error
-	operationalCloser, err = listenAndServe(address, operationalHandler())
+	if Current != None {
+		return Errorf("Not in a valid status. Please stop first any other server instance before starting this one")
+	}
+
+	// change current instance asap we manage this server
+	Current = Operational
+
+	err := listenAndServe(address, operationalHandler())
 	if err != nil {
-		operationalCloser = nil
+		Current = None
 		return err
 	}
-	currentlyRunning = OPERATIONAL
+
 	return nil
 }
 
-// ShutdownManagementServer shutdown server management mode. If server is in operational mode, it does nothing
+// ShutdownManagementServer shutdown server management mode. If management server is not up, returns error
 func ShutdownManagementServer() error {
-	if managementCloser == nil {
-		return nil
+	if Current != Management || (State != Running && State != Starting) {
+		return Errorf("Trying to stop management server when it is not running")
 	}
 
-	err := managementCloser.Close()
+	err := stop()
 	if err != nil {
 		return err
 	}
-	managementCloser = nil
-	// TODO for now we only have one server up at a time. Later, if happens
-	// that more than one can be up at the same time it would be needed manage this
-	// state changes in a better way
-	currentlyRunning = NONE
+
+	Current = None
 	return nil
 }
 
-// ShutdownOperationalServer shutdown server operational mode. If server is up in management mode, it does nothing
+// ShutdownOperationalServer shutdown server operational mode. If operational server is not up, returns error
 func ShutdownOperationalServer() error {
-	if operationalCloser == nil {
-		return nil
+	if Current != Operational || (State != Running && State != Starting) {
+		return Errorf("Trying to stop operational server when it is not running")
 	}
 
-	err := operationalCloser.Close()
+	err := stop()
 	if err != nil {
 		return err
 	}
-	operationalCloser = nil
-	// TODO for now we only have one server up at a time. Later, if happens
-	// that more than one can be up at the same time it would be needed manage this
-	// state changes in a better way
-	currentlyRunning = NONE
-	return nil
-}
 
-// ShutdownServer shutdown server no matter the mode it is up
-func ShutdownServer() error {
-	err := ShutdownManagementServer()
-	err2 := ShutdownOperationalServer()
-	if err != nil {
-		return err
-	}
-	if err2 != nil {
-		return err2
-	}
-	currentlyRunning = NONE
+	Current = None
 	return nil
 }
