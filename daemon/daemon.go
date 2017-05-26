@@ -190,7 +190,6 @@ func main() {
 	c := netman.DefaultClient()
 	cw := wifiap.DefaultClient()
 
-	// stop servers if running at start
 	managementServerDown()
 	operationalServerDown()
 
