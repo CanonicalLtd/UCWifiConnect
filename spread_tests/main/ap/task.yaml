@@ -10,13 +10,6 @@ prepare: |
     snap connect wireless-tools:network-control core
 
 execute: |
-    . $TESTSLIB/utilities.sh
-    # Service should be up an running
-    wait_for_daemon_ready
-
-    # Services should be up and running
-    systemctl is-active snap.wifi-connect.daemon.service
-
     # Ensure all necessary plugs/slots are connected
     snap interfaces | grep -Pzq "wifi-ap:control +[a-z,\-,:\,]*wifi-connect"
     snap interfaces | grep -Pzq ":network +[a-z,\-,:\,]*wifi-connect"
@@ -45,10 +38,17 @@ execute: |
     [[ "$config" =~ .*wifi.security-passphrase:\ .* ]]
     [[ "$config" =~ .*wifi.ssid:\ Ubuntu.* ]]
 
-    # stop the daemon. 
-    #NOTE: as far as no external wifi aps are found, daemon never enters in manual mode
-    # as it remains searching for external wifis forever
-    systemctl stop snap.wifi-connect.daemon.service
+    #NOTE: Initially, daemon remains 40 seconds slept waiting for external networks to be
+    # available. During that time there is no way to enter in manual mode. It is needed
+    # here to retry until happening. 
+    #
+    # This is a known issue, see comments here https://github.com/CanonicalLtd/UCWifiConnect/issues/38
+    sleep 40
+    wifi-connect stop
+    until journalctl | grep '== wifi-connect: entering MANUAL mode' ; do
+        sleep 5
+        wifi-connect stop
+    done
 
     # test manage and unmanage wlan0
     wifi-connect manage-iface wlan0
