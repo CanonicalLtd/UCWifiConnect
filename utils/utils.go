@@ -26,9 +26,8 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"time"
-
 	"strings"
+	"time"
 
 	telnet "github.com/reiver/go-telnet"
 )
