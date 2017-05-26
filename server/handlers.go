@@ -32,6 +32,7 @@ import (
 const (
 	ssidsTemplatePath      = "/templates/ssids.html"
 	connectingTemplatePath = "/templates/connecting.html"
+	disconnectTemplatePath = "/templates/disconnect.html"
 )
 
 // ResourcesPath absolute path to web static resources
@@ -122,3 +123,18 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 	waitPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
 	utils.RemoveFlagFile(waitPath)
 }
+
+type DisconnectData struct {
+	Hey bool
+}
+
+// DisconnectHandler allows user to disconnect from external AP
+func DisconnectHandler(w http.ResponseWriter, r *http.Request) {
+
+	data := DisconnectData{Hey:true}
+
+	// parse template
+	execTemplate(w, disconnectTemplatePath, data)
+}
+
+

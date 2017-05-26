@@ -40,7 +40,12 @@ func managementHandler() *mux.Router {
 
 // operationalHandler handles request for web UI when connected to external WIFI
 func operationalHandler() *mux.Router {
+	router := mux.NewRouter()
 
-	//TODO IMPLEMENT
-	return nil
+	router.HandleFunc("/", DisconnectHandler).Methods("GET")
+
+	// Resources path
+	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(ResourcesPath)))
+	router.PathPrefix("/static/").Handler(fs)
+	return router
 }
