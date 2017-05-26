@@ -42,7 +42,8 @@ func managementHandler() *mux.Router {
 func operationalHandler() *mux.Router {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/", DisconnectHandler).Methods("GET")
+	router.HandleFunc("/", OperationalHandler).Methods("GET")
+	router.HandleFunc("/disconnect", DisconnectHandler).Methods("GET")
 
 	// Resources path
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(ResourcesPath)))

@@ -32,7 +32,7 @@ import (
 const (
 	ssidsTemplatePath      = "/templates/ssids.html"
 	connectingTemplatePath = "/templates/connecting.html"
-	disconnectTemplatePath = "/templates/disconnect.html"
+	operationalTemplatePath = "/templates/operational.html"
 )
 
 // ResourcesPath absolute path to web static resources
@@ -128,13 +128,19 @@ type DisconnectData struct {
 	Hey bool
 }
 
-// DisconnectHandler allows user to disconnect from external AP
-func DisconnectHandler(w http.ResponseWriter, r *http.Request) {
+// OperationalHandler display Opertational mode page
+func OperationalHandler(w http.ResponseWriter, r *http.Request) {
 
 	data := DisconnectData{Hey:true}
 
 	// parse template
-	execTemplate(w, disconnectTemplatePath, data)
+	execTemplate(w, operationalTemplatePath, data)
+}
+
+// DisconnectHandler allows user to disconnect from external AP
+func DisconnectHandler(w http.ResponseWriter, r *http.Request) {
+	c := netman.DefaultClient()
+	c.DisconnectWifi(c.GetWifiDevices(c.GetDevices()))
 }
 
 

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Operational.</title>
+        <link rel="stylesheet" href="/static/css/application.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div id="main-content" class="inner-wrapper">
+            <div class="row no-border" id="grid">
+            <h3>Operational</h3>
+            <input type="button" id="disconnect" value="Disconnect from Wifi" class="button--primary" onclick="disconnect()"/>
+        </div>
+    </div>
+
+
+<script>
+
+function disconnect() {
+    $.ajax({
+      url: "/disconnect"
+    }).done(function () {
+        console.log("in ajax done.");
+    })
+} 
+
+</script>
+
+</body>
+</html>
