@@ -78,7 +78,16 @@ execute: |
     wifi-connect check-connected-wifi | grep -Pzq "Device is not connected to external wifi AP"
 
     # connect wlan1 to that network available at wlan0 and verify
-    nmcli d wifi connect Ubuntu ifname wlan1
+    i=0
+    while [ $i -lt $MAX_ITERATIONS ] ; do
+        if ! nmcli d wifi connect Ubuntu ifname wlan1 | grep 'Error' ; then
+            break
+        fi
+        sleep 10
+        let i=i+1
+    done
+    test $i -lt $MAX_ITERATIONS
+
     nmcli d | grep 'wlan1.*connected'
 
     #NOTE: next are tests for common commands when AP is up
@@ -129,5 +138,14 @@ execute: |
     test $i -lt $MAX_ITERATIONS
 
     # Reconnect wlan1
-    nmcli d wifi connect UbuntuWithGnome password ubuntuubuntu1 ifname wlan1
+    i=0
+    while [ $i -lt $MAX_ITERATIONS ] ; do
+        if ! nmcli d wifi connect UbuntuWithGnome password ubuntuubuntu1 ifname wlan1 | grep 'Error' ; then
+            break
+        fi
+        sleep 10
+        let i=i+1
+    done
+    test $i -lt $MAX_ITERATIONS
+
     nmcli d | grep 'wlan1.*connected'
