@@ -14,7 +14,7 @@ confinement: strict
 apps:
   wifi-connect: 
     command: cmd 
-    plugs: [network, network-control, network-bind, network-manager, control]
+    plugs: [network, network-bind, network-manager, control]
   daemon:
     command: daemon
     daemon: simple
