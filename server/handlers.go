@@ -104,7 +104,7 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 		pwd = pwds[0]
 	}
 
-	fmt.Printf("== wifi-connect/handler: Connecting to %v\n.", ssid)
+	fmt.Printf("== wifi-connect/handler: Connecting to %v\n", ssid)
 
 	cw := wifiap.DefaultClient()
 	cw.Disable()
