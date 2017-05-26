@@ -194,10 +194,6 @@ func main() {
 	managementServerDown()
 	operationalServerDown()
 
-	//remove possibly left over flag files
-	utils.RemoveFlagFile(waitFlagPath)
-	utils.RemoveFlagFile(manualFlagPath)
-
 	for {
 		if first {
 			fmt.Println("== wifi-connect: daemon STARTING")
@@ -207,11 +203,11 @@ func main() {
 			//clean start require wifi AP down so we can get SSIDs
 			cw.Disable()
 			//TODO only wait if wlan0 is managed
-			//wait time period (TBD) on first run to allow wifi connections
-			time.Sleep(40000 * time.Millisecond)
 			//remove previous state flag, if any on deamon startup
 			utils.RemoveFlagFile(waitFlagPath)
 			utils.RemoveFlagFile(manualFlagPath)
+			//wait time period (TBD) on first run to allow wifi connections
+			time.Sleep(40000 * time.Millisecond)
 		}
 
 		// wait 5 seconds on each iter
