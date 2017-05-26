@@ -189,7 +189,7 @@ func main() {
 
 	// stop servers if running at start
 	managementServerDown()
-	//operationalServerDown()
+	operationalServerDown()
 
 	//remove possibly left over flag files
 	utils.RemoveFlagFile(waitFlagPath)
@@ -260,10 +260,6 @@ func main() {
 		// if wlan0 managed, set unmanaged so that we can bring up wifi-ap
 		// properly
 		unmanage(c)
-
-		// stop operational portal
-		//comment out operational server as later phase of work
-		//operationalServerDown()
 
 		//wifi-ap UP?
 		wifiUp, err := cw.Enabled()
