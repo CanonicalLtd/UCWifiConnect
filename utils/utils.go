@@ -34,13 +34,34 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func HashIt(s string) (string, error) {
-	fmt.Println("== in HashIt")
-	hash, err := bcrypt.GenerateFromPassword([]byte(s), 8)
+var	hashPath = filepath.Join(os.Getenv("SNAP_COMMON"), "hash")
+
+func HashIt(s string) ([]byte, error) {
+	var b []byte
+	var err error
+	b, err = bcrypt.GenerateFromPassword([]byte(s), 8)
 	if err != nil {
-		return "", err
+		return b, err
 	}
-	return string(hash), nil
+	errW := ioutil.WriteFile(hashPath, b, 0644)
+	if errW != nil {
+		fmt.Println("== wifi-connect/HashIt write Error.", err)
+		return b, errW
+	}
+	return b, nil
+}
+
+func  MatchingHash(pword string) (bool, error) {
+	savedHash, err := ioutil.ReadFile(hashPath)
+	if err != nil {
+		fmt.Println("== wifi-connect/matchingHash read Error.", err)
+		return false, err
+	}
+	if bcrypt.CompareHashAndPassword(savedHash, []byte(pword)) == nil {
+		return true, nil
+	} else {
+		return false, nil
+	}
 }
 
 // SsidsFile path to the file filled by daemon with available ssids in csv format
