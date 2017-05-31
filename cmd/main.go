@@ -237,6 +237,16 @@ func main() {
 		http.ListenAndServe(":8081", mgmtHandler())
 	case "oper-up":
 		http.ListenAndServe(":8081", operHandler())
+	case "set-hash":
+		if len(os.Args) < 3 {
+			fmt.Println("Error: no string to hash provided")
+			return
+		}
+	        b, err := utils.HashIt(os.Args[2])
+		if err != nil {
+			fmt.Println("Error hashing:", err)
+		}
+		fmt.Println(string(b))
 	default:
 		fmt.Println("Error. Your command is not supported. Please try 'help'")
 	}

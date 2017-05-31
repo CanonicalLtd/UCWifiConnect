@@ -137,25 +137,25 @@ func OperationalHandler(w http.ResponseWriter, r *http.Request) {
 
 type HashResponse struct {
 	Err  string
-	Hash string
+	HashMatch bool
 }
 
 // HashItHandler returns a hash of the password as json
 func HashItHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("== in HashHandler")
+	fmt.Println("== in HashItHandler")
 	r.ParseForm()
 	hashMe := r.Form["Hash"]
-	hashed, errH := utils.HashIt(hashMe[0])
+	hashed, errH := utils.MatchingHash(hashMe[0])
 	if errH != nil {
-		fmt.Println("== error hashing:", errH)
+		fmt.Println("== wifi-connect/HashitHandler: error hashing:", errH)
 		return
 	}
 	res := &HashResponse{}
-	res.Hash = hashed
+	res.HashMatch = hashed
 	res.Err = "no error"
 	b, err := json.Marshal(res)
 	if err != nil {
-		fmt.Println("== wifi-connect/HashIt: error mashaling json")
+		fmt.Println("== wifi-connect/HashItHandler: error mashaling json")
 		return
 	}
 	w.Write(b)

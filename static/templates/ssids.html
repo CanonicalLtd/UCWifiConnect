@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<title>Select WIFI</title>
 
     <link rel="stylesheet" href="/static/css/application.css" />
@@ -12,7 +12,13 @@
 <body>
     <div class="wrapper">
         <div id="main-content" class="inner-wrapper">
-            <div class="row no-border" id="grid">
+	   <div id="login">
+		<input type="text" id="password"/>
+		<input type="button" onclick="authenticate()"/>
+	   </div>
+
+           <div class="row no-border" id="grid">
+
                 <h2>Select WIFI to connect to</h2>
                 <fieldset>
                 <div class="twelve-col">
@@ -67,6 +73,41 @@
         <input type="hidden" name="ssid"/>
         <input type="hidden" name="pwd"/>
     </form>
+
+<script>
+        $(document).ready(function(){
+                $('#grid').css('visibility', 'hidden')      
+	})
+	function authenticate(){
+   	    hashIt();
+	}
+	function showSsids() {
+	    $('#login').css('visibility', 'hidden');      
+	    $('#grid').css('visibility', 'visible');     
+	}
+        function hashIt() {
+            var pw = $('#password').val();
+	    if ( pw.length < 8) {
+		alert("Password must be at least 8 characters long");
+	    } else {
+	        $.ajax({
+	          type: "POST",
+	          url: "/hashit",
+	          data: {Hash: pw}
+	        }).done(function (hashRet) {
+		    console.log("in ajax done.", hashRet);
+		    hash = JSON.parse(hashRet);
+		    console.log(hash)
+		    if (hash.HashMatch) {
+			showSsids();
+		    } else {
+			alert("Your password does not match, please try again");
+		    }
+	        })
+            }
+	}    
+</script>
+
 
 <script>
 function clear_row(i) {
