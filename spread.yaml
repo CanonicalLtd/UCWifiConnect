@@ -1,0 +1,53 @@
+#
+# Copyright (C) 2015-2017 Canonical Ltd
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+project: wifi-connect
+
+environment:
+    PROJECT_PATH: /home/wifi-connect
+    TESTSLIB: $PROJECT_PATH/spread_tests/lib
+    SNAP_NAME: wifi-connect
+    SNAP_ARCH: amd64
+    # Allow the host to pass the channel to use for the test the snap
+    SNAP_CHANNEL: $(HOST:echo $SNAP_CHANNEL)
+    # Channel from where install any additional snap to use in the tests
+    ADDITIONAL_SNAPS_CHANNEL: stable
+
+backends:
+    qemu:
+        systems:
+            - ubuntu-core-16:
+                username: test
+                password: test
+
+# Put this somewhere where we have read-write access
+path: /home/wifi-connect
+
+exclude:
+  - .git
+
+prepare: |
+  . $TESTSLIB/prepare-all.sh
+
+suites:
+    spread_tests/main/:
+        summary: Full-system tests for the wifi-connect snap
+        systems:
+            - ubuntu-core-16
+        prepare: |
+            . $TESTSLIB/prepare.sh
+        restore: |
+            . $TESTSLIB/restore.sh

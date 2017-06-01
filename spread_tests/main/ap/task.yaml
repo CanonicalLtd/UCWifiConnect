@@ -1,0 +1,151 @@
+summary: Test default service is running at beginning, correct configuration at the beginning,
+    put wifi-connect in manual mode and see wlan1 can connect to it
+
+environment:
+    MAX_ITERATIONS: 10
+
+prepare: |
+    # We need some tools for scanning etc.
+    snap install wireless-tools
+    snap connect wireless-tools:network-control core
+
+execute: |
+    # Ensure all necessary plugs/slots are connected
+    snap interfaces | grep -Pzq "wifi-ap:control +[a-z,\-,:\,]*wifi-connect"
+    snap interfaces | grep -Pzq ":network +[a-z,\-,:\,]*wifi-connect"
+    snap interfaces | grep -Pzq ":network-bind +[a-z,\-,:\,]*wifi-connect"
+    snap interfaces | grep -Pzq "network-manager:service +[a-z,\-,:\,]*wifi-connect:network-manager"
+
+    # Ensure all initial config is correct
+    config="$(/snap/bin/wifi-connect show-ap)"
+    
+    [[ "$config" =~ .*debug:\ false.* ]]
+    [[ "$config" =~ .*dhcp.lease-time:\ 12h.* ]]
+    [[ "$config" =~ .*dhcp.range-start:\ 10.0.60.3.* ]]
+    [[ "$config" =~ .*dhcp.range-stop:\ 10.0.60.20.* ]]
+    [[ "$config" =~ .*disabled:\ true.* ]]
+    [[ "$config" =~ .*share.disabled:\ false.* ]]
+    [[ "$config" =~ .*share.network-interface:\ eth0.* ]]
+    [[ "$config" =~ .*wifi.address:\ 10.0.60.1.* ]]
+    [[ "$config" =~ .*wifi.channel:\ 6.* ]]
+    [[ "$config" =~ .*wifi.hostapd-driver:\ nl80211.* ]]
+    [[ "$config" =~ .*wifi.interface:\ wlan0.* ]]
+    [[ "$config" =~ .*wifi.interface-mode:\ direct.* ]]
+    [[ "$config" =~ .*wifi.netmask:\ 255.255.255.0.* ]]
+    [[ "$config" =~ .*wifi.operation-mode:\ g.* ]]
+    [[ "$config" =~ .*wifi.security:\ open.* ]]
+    [[ "$config" =~ .*wifi.security-passphrase:\ .* ]]
+    [[ "$config" =~ .*wifi.ssid:\ Ubuntu.* ]]
+
+    #NOTE: Initially, daemon remains 40 seconds slept waiting for external networks to be
+    # available. During that time there is no way to enter in manual mode. It is needed
+    # here to retry until happening. 
+    #
+    # This is a known issue, see comments here https://github.com/CanonicalLtd/UCWifiConnect/issues/38
+    sleep 40
+    wifi-connect stop
+    until journalctl | grep '== wifi-connect: entering MANUAL mode' ; do
+        sleep 5
+        wifi-connect stop
+    done
+
+    # test manage and unmanage wlan0
+    wifi-connect manage-iface wlan0
+    nmcli d | grep -Pzq .*wlan0.*disconnected
+
+    wifi-connect unmanage-iface wlan0
+    nmcli d | grep -Pzq .*wlan0.*managed
+
+    wifi-ap.config set disabled=false
+    until wifi-ap.status | grep "ap.active: true" ; do
+        sleep 0.5
+    done
+
+    i=0
+    while [ $i -lt $MAX_ITERATIONS ] ; do
+        if iw dev wlan1 scan | grep 'SSID: Ubuntu' ; then
+            break
+        fi
+        sleep 0.5
+        let i=i+1
+    done
+    test $i -lt $MAX_ITERATIONS
+
+     # Test check-connected returns "Device is not connected"
+    wifi-connect check-connected | grep -Pzq "Device is not connected"
+
+    # Test check-connected-wifi return that device is not connected to external wifi
+    wifi-connect check-connected-wifi | grep -Pzq "Device is not connected to external wifi AP"
+
+    # connect wlan1 to that network available at wlan0 and verify
+    i=0
+    while [ $i -lt $MAX_ITERATIONS ] ; do
+        if ! nmcli d wifi connect Ubuntu ifname wlan1 | grep 'Error' ; then
+            break
+        fi
+        sleep 10
+        let i=i+1
+    done
+    test $i -lt $MAX_ITERATIONS
+
+    nmcli d | grep 'wlan1.*connected'
+
+    #NOTE: next are tests for common commands when AP is up
+
+    # Test get-devices returns at least 2 devices (wlan0 and wlan1)
+    wifi-connect get-devices | grep -Pzq 1
+
+    # Test get--wifi-devices returns at least 2 devices (wlan0 and wlan1)
+    wifi-connect get-wifi-devices | grep -Pzq 1
+
+    # Test check-connected returns that the device is connected, as it will
+    # detect that wlan1 is connected to wlan0
+    wifi-connect check-connected | grep -Pzq "Device is connected"
+
+    # Test check-connected-wifi return that device is connected to external wifi, 
+    # as it will detect wlan1 connected to wlan0 AP
+    wifi-connect check-connected-wifi | grep -Pzq "Device is connected to external wifi AP"
+
+    # Test that at least wlan1 is managed
+    wifi-connect wifis-managed | grep -Pzq "wlan1"
+
+    # Change AP ssid and passphrase
+    wifi-connect ssid UbuntuWithGnome
+    wifi-connect passphrase ubuntuubuntu1
+
+    config="$(wifi-connect show-ap)"
+    [[ "$config" =~ .*wifi.ssid:\ UbuntuWithGnome.* ]]
+    [[ "$config" =~ .*wifi.security-passphrase:\ ubuntuubuntu1.* ]]
+
+    # Restart AP
+    wifi-connect unmanage-iface wlan0
+    nmcli d | grep -Pzq .*wlan0.*managed
+
+    wifi-ap.config set disabled=false
+    until wifi-ap.status | grep "ap.active: true" ; do
+        sleep 0.5
+    done
+
+    # wait until having available networks
+    i=0
+    while [ $i -lt $MAX_ITERATIONS ] ; do
+        if iw dev wlan1 scan | grep 'SSID: UbuntuWithGnome' ; then
+            break
+        fi
+        sleep 0.5
+        let i=i+1
+    done
+    test $i -lt $MAX_ITERATIONS
+
+    # Reconnect wlan1
+    i=0
+    while [ $i -lt $MAX_ITERATIONS ] ; do
+        if ! nmcli d wifi connect UbuntuWithGnome password ubuntuubuntu1 ifname wlan1 | grep 'Error' ; then
+            break
+        fi
+        sleep 10
+        let i=i+1
+    done
+    test $i -lt $MAX_ITERATIONS
+
+    nmcli d | grep 'wlan1.*connected'

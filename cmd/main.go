@@ -114,7 +114,11 @@ func main() {
 			return
 		}
 		wifiAPClient := wifiap.DefaultClient()
-		result, _ := wifiAPClient.Show()
+		result, err := wifiAPClient.Show()
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
 		if result != nil {
 			utils.PrintMapSorted(result)
 			return
