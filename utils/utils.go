@@ -81,7 +81,6 @@ func SetHashFile(p string) {
 	HashFile = p
 }
 
-
 // PrintMapSorted prints to stdout a map sorting content by keys
 func PrintMapSorted(m map[string]interface{}) {
 	sortedKeys := make([]string, 0, len(m))
