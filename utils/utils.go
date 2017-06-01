@@ -34,8 +34,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var	hashPath = filepath.Join(os.Getenv("SNAP_COMMON"), "hash")
+var HashFile = filepath.Join(os.Getenv("SNAP_COMMON"), "hash")
 
+// HashIt writes the hash of the passed password to the HashFile and
+// returns the hash and error
 func HashIt(s string) ([]byte, error) {
 	var b []byte
 	var err error
@@ -43,7 +45,7 @@ func HashIt(s string) ([]byte, error) {
 	if err != nil {
 		return b, err
 	}
-	errW := ioutil.WriteFile(hashPath, b, 0644)
+	errW := ioutil.WriteFile(HashFile, b, 0644)
 	if errW != nil {
 		fmt.Println("== wifi-connect/HashIt write Error.", err)
 		return b, errW
@@ -51,8 +53,10 @@ func HashIt(s string) ([]byte, error) {
 	return b, nil
 }
 
+// MatchingHash verifies the passed password against the saved hash,
+// returng true if they match, else false
 func  MatchingHash(pword string) (bool, error) {
-	savedHash, err := ioutil.ReadFile(hashPath)
+	savedHash, err := ioutil.ReadFile(HashFile)
 	if err != nil {
 		fmt.Println("== wifi-connect/matchingHash read Error.", err)
 		return false, err
@@ -71,6 +75,12 @@ var SsidsFile = filepath.Join(os.Getenv("SNAP_COMMON"), "ssids")
 func SetSsidsFile(p string) {
 	SsidsFile = p
 }
+
+// SetHashFile sets the HashFile var
+func SetHashFile(p string) {
+	HashFile = p
+}
+
 
 // PrintMapSorted prints to stdout a map sorting content by keys
 func PrintMapSorted(m map[string]interface{}) {

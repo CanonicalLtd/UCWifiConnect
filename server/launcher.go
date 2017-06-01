@@ -18,14 +18,12 @@
 package server
 
 import (
+	"log"
 	"net"
 	"net/http"
 	"time"
 
 	"github.com/CanonicalLtd/UCWifiConnect/utils"
-
-	"fmt"
-	"log"
 )
 
 const (
@@ -53,7 +51,7 @@ type tcpKeepAliveListener struct {
 	*net.TCPListener
 }
 
-// WaitForState waits for server reach certaing state
+// WaitForState waits for server reach certain state
 func WaitForState(state RunningState) bool {
 	retries := 10
 	idle := 10 * time.Millisecond
@@ -78,11 +76,11 @@ func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
 func listenAndServe(addr string, handler http.Handler) error {
 
 	if State != Stopped {
-		return fmt.Errorf("Server is not in proper stopped state before trying to start it")
+		return Errorf("Server is not in proper stopped state before trying to start it")
 	}
 
 	if utils.RunningOn(addr) {
-		return fmt.Errorf("Another instance is running in same address %v", addr)
+		return Errorf("Another instance is running in same address %v", addr)
 	}
 
 	State = Starting
@@ -108,7 +106,7 @@ func listenAndServe(addr string, handler http.Handler) error {
 		}
 
 		if retries == 0 {
-			log.Print("Server could not be started")
+			log.Print(Sprintf("Server could not be started"))
 			return
 		}
 
@@ -120,7 +118,7 @@ func listenAndServe(addr string, handler http.Handler) error {
 		if listener != nil {
 			err := srv.Serve(tcpKeepAliveListener{listener.(*net.TCPListener)})
 			if err != nil {
-				log.Printf("HTTP Server closing - %v", err)
+				log.Printf(Sprintf("HTTP Server closing - %v", err))
 			}
 			// notify server real stop
 			done <- true
@@ -135,12 +133,12 @@ func listenAndServe(addr string, handler http.Handler) error {
 func stop() error {
 
 	if State == Stopped {
-		return fmt.Errorf("Already stopped")
+		return Errorf("Already stopped")
 	}
 
 	if listener == nil {
 		State = Stopped
-		return fmt.Errorf("Already closed")
+		return Errorf("Already closed")
 	}
 
 	State = Stopping

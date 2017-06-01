@@ -13,8 +13,9 @@
     <div class="wrapper">
         <div id="main-content" class="inner-wrapper">
 	   <div id="login">
+		<p>Password:</p>
 		<input type="text" id="password"/>
-		<input type="button" onclick="authenticate()"/>
+		<input type="button" value="Continue" onclick="authenticate()"/>
 	   </div>
 
            <div class="row no-border" id="grid">
@@ -78,14 +79,11 @@
         $(document).ready(function(){
                 $('#grid').css('visibility', 'hidden')      
 	})
-	function authenticate(){
-   	    hashIt();
-	}
 	function showSsids() {
 	    $('#login').css('visibility', 'hidden');      
 	    $('#grid').css('visibility', 'visible');     
 	}
-        function hashIt() {
+	function authenticate(){
             var pw = $('#password').val();
 	    if ( pw.length < 8) {
 		alert("Password must be at least 8 characters long");

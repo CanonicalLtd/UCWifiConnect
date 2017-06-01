@@ -182,7 +182,18 @@ func operationalServerDown() {
 	}
 }
 
+// setDefaults sets defaults if not yet set. Currently the hash
+// for the portals password is set. 
+// TODO: set default password based on MAC addr or Serial number 
+func setDefaults() {
+	if _, err := os.Stat(utils.HashFile); os.IsNotExist(err) {
+		utils.HashIt("wifi-connect")
+	}
+}
+
 func main() {
+
+	setDefaults()
 	first := true
 	waitFlagPath = os.Getenv("SNAP_COMMON") + "/startingApConnect"
 	manualFlagPath = os.Getenv("SNAP_COMMON") + "/manualMode"
@@ -201,10 +212,10 @@ func main() {
 			first = false
 			//clean start require wifi AP down so we can get SSIDs
 			cw.Disable()
-			//TODO only wait if wlan0 is managed
-			//remove previous state flag, if any on deamon startup
+			//remove previous state flags
 			utils.RemoveFlagFile(waitFlagPath)
 			utils.RemoveFlagFile(manualFlagPath)
+			//TODO only wait if wlan0 is managed
 			//wait time period (TBD) on first run to allow wifi connections
 			time.Sleep(40000 * time.Millisecond)
 		}

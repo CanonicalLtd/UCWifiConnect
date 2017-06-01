@@ -53,7 +53,7 @@ func mgmtHandler() *mux.Router {
 	router := mux.NewRouter()
 
 	// Pages routes
-	router.HandleFunc("/", server.SsidsHandler).Methods("GET")
+	router.HandleFunc("/", server.ManagementHandler).Methods("GET")
 	router.HandleFunc("/connect", server.ConnectHandler).Methods("POST")
 
 	// Resources path
@@ -126,7 +126,11 @@ func main() {
 			return
 		}
 		wifiAPClient := wifiap.DefaultClient()
-		result, _ := wifiAPClient.Show()
+		result, err := wifiAPClient.Show()
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
 		if result != nil {
 			utils.PrintMapSorted(result)
 			return
@@ -241,6 +245,9 @@ func main() {
 		if len(os.Args) < 3 {
 			fmt.Println("Error: no string to hash provided")
 			return
+		}
+		if len(os.Args[2]) < 8 {
+			fmt.Println("Error: password must be at least 8 characters long")
 		}
 	        b, err := utils.HashIt(os.Args[2])
 		if err != nil {

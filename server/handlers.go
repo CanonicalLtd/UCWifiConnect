@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	ssidsTemplatePath       = "/templates/ssids.html"
+	managementTemplatePath       = "/templates/management.html"
 	connectingTemplatePath  = "/templates/connecting.html"
 	operationalTemplatePath = "/templates/operational.html"
 )
@@ -69,8 +69,8 @@ func execTemplate(w http.ResponseWriter, templatePath string, data Data) {
 	}
 }
 
-// SsidsHandler lists the current available SSIDs
-func SsidsHandler(w http.ResponseWriter, r *http.Request) {
+// ManagementHandler lists the current available SSIDs
+func ManagementHandler(w http.ResponseWriter, r *http.Request) {
 	// daemon stores current available ssids in a file
 	ssids, err := utils.ReadSsidsFile()
 	if err != nil {
@@ -82,7 +82,7 @@ func SsidsHandler(w http.ResponseWriter, r *http.Request) {
 	data := SsidsData{Ssids: ssids}
 
 	// parse template
-	execTemplate(w, ssidsTemplatePath, data)
+	execTemplate(w, managementTemplatePath, data)
 }
 
 // ConnectHandler reads form got ssid and password and tries to connect to that network
@@ -142,7 +142,6 @@ type HashResponse struct {
 
 // HashItHandler returns a hash of the password as json
 func HashItHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("== in HashItHandler")
 	r.ParseForm()
 	hashMe := r.Form["Hash"]
 	hashed, errH := utils.MatchingHash(hashMe[0])
