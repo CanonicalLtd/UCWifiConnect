@@ -10,8 +10,8 @@ env:
     - TEST_SUITE="--unit"
 before_install:
   - go get github.com/godbus/dbus
-  - go get gopkg.in/yaml.v2
   - go get github.com/gorilla/mux
+  - go get golang.org/x/crypto/bcrypt
 
 install:
   - echo "Skip. Install is done by the test script."
