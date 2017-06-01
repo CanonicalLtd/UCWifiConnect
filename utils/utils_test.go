@@ -5,7 +5,6 @@ import (
 	"testing"
 )
 
-
 func TestHashFile(t *testing.T) {
 	path := "./hash"
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
@@ -26,7 +25,7 @@ func TestHashIt(t *testing.T) {
 	pwd := "12341234"
 	_, e1 := HashIt(pwd)
 	if e1 != nil {
-		t.Errorf("Error %v HashIt returned an error",e1.Error())
+		t.Errorf("Error %v HashIt returned an error", e1.Error())
 	}
 }
 
@@ -40,9 +39,9 @@ func TestMatchingHash(t *testing.T) {
 	HashIt(pwd)
 	match, e1 := MatchingHash(pwd)
 	if e1 != nil {
-		t.Errorf("Error %v MatchingHash returned an error",e1.Error())
+		t.Errorf("Error %v MatchingHash returned an error", e1.Error())
 	}
 	if !match {
-		t.Errorf("Error %v MatchingHash should have matched but did not")
+		t.Error("Error MatchingHash should have matched but did not")
 	}
 }

@@ -183,8 +183,8 @@ func operationalServerDown() {
 }
 
 // setDefaults sets defaults if not yet set. Currently the hash
-// for the portals password is set. 
-// TODO: set default password based on MAC addr or Serial number 
+// for the portals password is set.
+// TODO: set default password based on MAC addr or Serial number
 func setDefaults() {
 	if _, err := os.Stat(utils.HashFile); os.IsNotExist(err) {
 		utils.HashIt("wifi-connect")

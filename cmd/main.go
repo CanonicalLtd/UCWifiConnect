@@ -249,7 +249,7 @@ func main() {
 		if len(os.Args[2]) < 8 {
 			fmt.Println("Error: password must be at least 8 characters long")
 		}
-	        b, err := utils.HashIt(os.Args[2])
+		b, err := utils.HashIt(os.Args[2])
 		if err != nil {
 			fmt.Println("Error hashing:", err)
 		}

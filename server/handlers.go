@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	managementTemplatePath       = "/templates/management.html"
+	managementTemplatePath  = "/templates/management.html"
 	connectingTemplatePath  = "/templates/connecting.html"
 	operationalTemplatePath = "/templates/operational.html"
 )
@@ -125,18 +125,17 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 	utils.RemoveFlagFile(waitPath)
 }
 
-type DisconnectData struct {
-	Hey bool
+type disconnectData struct {
 }
 
 // OperationalHandler display Opertational mode page
 func OperationalHandler(w http.ResponseWriter, r *http.Request) {
-	data := DisconnectData{Hey: true}
+	data := disconnectData{}
 	execTemplate(w, operationalTemplatePath, data)
 }
 
-type HashResponse struct {
-	Err  string
+type hashResponse struct {
+	Err       string
 	HashMatch bool
 }
 
@@ -149,7 +148,7 @@ func HashItHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("== wifi-connect/HashitHandler: error hashing:", errH)
 		return
 	}
-	res := &HashResponse{}
+	res := &hashResponse{}
 	res.HashMatch = hashed
 	res.Err = "no error"
 	b, err := json.Marshal(res)
