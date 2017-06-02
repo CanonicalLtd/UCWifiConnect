@@ -34,6 +34,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// OperFile is the path to the file whose existence signals whether the
+// operational portal is in use or not
+var OperationalFile = filepath.Join(os.Getenv("SNAP_COMMON"), "operational")
+
 // HashFile is the path to the file that stores the hash of the portals password
 var HashFile = filepath.Join(os.Getenv("SNAP_COMMON"), "hash")
 
@@ -74,6 +78,11 @@ var SsidsFile = filepath.Join(os.Getenv("SNAP_COMMON"), "ssids")
 // SetSsidsFile sets the SsidsFile var
 func SetSsidsFile(p string) {
 	SsidsFile = p
+}
+
+// SetOperationalFile sets the OperationFile var
+func SetOperationalFile(p string) {
+	OperationalFile = p
 }
 
 // SetHashFile sets the HashFile var

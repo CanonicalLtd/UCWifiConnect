@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/CanonicalLtd/UCWifiConnect/netman"
 	"github.com/CanonicalLtd/UCWifiConnect/server"
@@ -38,13 +39,16 @@ func help() string {
 		`Usage: sudo wifi-connect COMMAND [VALUE]
 
 Commands:
-	stop:	 		Disables wifi-connect from automatic control, leaving system 
-				in current state
-	start:	 		Enables wifi-connect as automatic controller, restarting from
-				a clean state
-	show-ap:		Show AP configuration
-	ssid VALUE: 		Set the AP ssid (causes AP restart if it is UP)
-	passphrase VALUE: 	Set the AP passphrase (cause AP restart if it is UP)
+	stop:	 			Disables wifi-connect from automatic control, leaving system 
+					in current state
+	start:	 			Enables wifi-connect as automatic controller, restarting from
+					a clean state
+	show-ap:			Show AP configuration
+	ssid VALUE: 			Set the AP ssid (causes AP restart if it is UP)
+	ap-passphrase VALUE: 		Set the AP passphrase (cause AP restart if it is UP)
+	portal-password VALUE: 		Set the portal passpword
+	enable-operational-portal: 	Turns on the operational portal
+	disable-operational-portal: 	Turns off the operational portal
 `
 	return text
 }
@@ -111,6 +115,8 @@ func main() {
 			return
 		}
 		fmt.Println("Entering MANUAL Mode. Wifi-connect has stopped managing state. Use 'start' to restore normal operations")
+		// pause to allow daemon time to achive state
+		time.Sleep(5000 * time.Millisecond)
 	case "start":
 		if !checkSudo() {
 			return
@@ -145,7 +151,7 @@ func main() {
 		}
 		wifiAPClient := wifiap.DefaultClient()
 		wifiAPClient.SetSsid(os.Args[2])
-	case "passphrase":
+	case "ap-passphrase":
 		if !checkSudo() {
 			return
 		}
@@ -241,7 +247,7 @@ func main() {
 		http.ListenAndServe(":8081", mgmtHandler())
 	case "oper-up":
 		http.ListenAndServe(":8081", operHandler())
-	case "set-hash":
+	case "portal-password":
 		if len(os.Args) < 3 {
 			fmt.Println("Error: no string to hash provided")
 			return
@@ -254,6 +260,17 @@ func main() {
 			fmt.Println("Error hashing:", err)
 		}
 		fmt.Println(string(b))
+	case "enable-operational-portal":
+		if !checkSudo() {
+			return
+		}
+		utils.WriteFlagFile(utils.OperationalFile)
+	case "disable-operational-portal":
+		if !checkSudo() {
+			return
+		}
+		utils.RemoveFlagFile(utils.OperationalFile)
+
 	default:
 		fmt.Println("Error. Your command is not supported. Please try 'help'")
 	}

@@ -44,6 +44,8 @@ var waitFlagPath string
 var previousState = STARTING
 var state = STARTING
 
+var usingOperationalPage bool
+
 //used to clase the operataional http server
 var err error
 
@@ -160,8 +162,13 @@ func managementServerDown() {
 }
 
 // operationalServerUp starts the operational server if it is
-// not running
+// not running and if config allows it
 func operationalServerUp() {
+	//update config
+	configure()
+	if !usingOperationalPage {
+		return
+	}
 	if server.Current != server.Operational && server.State == server.Stopped {
 		err = server.StartOperationalServer()
 		if err != nil {
@@ -191,6 +198,15 @@ func setDefaults() {
 	}
 }
 
+// configure reads persistent configuration and sets daemon to use it
+func configure() {
+	if _, err := os.Stat(utils.OperationalFile); os.IsNotExist(err) {
+		usingOperationalPage = false
+	} else {
+		usingOperationalPage = true
+	}
+}
+
 func main() {
 
 	setDefaults()
@@ -210,13 +226,15 @@ func main() {
 			previousState = STARTING
 			state = STARTING
 			first = false
-			//clean start require wifi AP down so we can get SSIDs
+			// clean start require wifi AP down so we can get SSIDs
 			cw.Disable()
-			//remove previous state flags
+			// remove previous state flags
 			utils.RemoveFlagFile(waitFlagPath)
 			utils.RemoveFlagFile(manualFlagPath)
-			//TODO only wait if wlan0 is managed
-			//wait time period (TBD) on first run to allow wifi connections
+			// TODO only wait if wlan0 is managed
+			// get and apply configuration
+			configure()
+			// wait time period (TBD) on first run to allow wifi connections
 			time.Sleep(40000 * time.Millisecond)
 		}
 
