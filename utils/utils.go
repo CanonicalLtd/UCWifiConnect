@@ -34,7 +34,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// OperFile is the path to the file whose existence signals whether the
+// OperationalFile is the path to the file whose existence signals whether the
 // operational portal is in use or not
 var OperationalFile = filepath.Join(os.Getenv("SNAP_COMMON"), "operational")
 
