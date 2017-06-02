@@ -90,13 +90,13 @@ If you skip these steps, the wifi-AP put up by the device has an SSID of "Ubuntu
 1. Set the wifi-ap AP SSID
 
 ```bash
-sudo  wifi-connect ssid digit
+sudo  wifi-connect ssid MYSSID 
 ```
 
 1. Set the AP passphrase:
 
 ```bash
-sudo  wifi-connect passphrase ubuntuubuntuubuntu
+sudo  wifi-connect passphrase MYPASSPHRASE
 ```
 
 ## Display the AP config
@@ -150,7 +150,7 @@ Wifi-connect pauses for about a minute at daemon start to allow any external AP 
 
 When connected to an external AP, the Operational portal is available on the device IP address (assigned by the external AP). Open it using IP:8080, enter the portal password, and you may then disconnect with the "Disconnect from Wifi" button.
 
-You can alos ssh to the device and:
+You can also ssh to the device and:
 
 * Use `nmcli c` to display connections.
 * Use `nmcli c delete CONNECTION_NAME` to disconnect and delete. This puts the device into management mode, bringing up the AP and portal.
