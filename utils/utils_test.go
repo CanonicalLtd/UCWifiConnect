@@ -7,7 +7,8 @@ import (
 
 func TestHashFile(t *testing.T) {
 	path := "./hash"
-	if _, err := os.Stat(path); !os.IsNotExist(err) {
+	_, err := os.Stat(path)
+	if err != nil {
 		os.Remove(path)
 	}
 	SetHashFile(path)
@@ -18,7 +19,8 @@ func TestHashFile(t *testing.T) {
 
 func TestHashIt(t *testing.T) {
 	path := "/tmp/hash"
-	if _, err := os.Stat(path); !os.IsNotExist(err) {
+	_, err := os.Stat(path)
+	if err != nil {
 		os.Remove(path)
 	}
 	SetHashFile(path)
@@ -31,7 +33,8 @@ func TestHashIt(t *testing.T) {
 
 func TestMatchingHash(t *testing.T) {
 	path := "/tmp/hash"
-	if _, err := os.Stat(path); !os.IsNotExist(err) {
+	_, err := os.Stat(path)
+	if err != nil {
 		os.Remove(path)
 	}
 	SetHashFile(path)
