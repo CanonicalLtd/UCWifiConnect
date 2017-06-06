@@ -12,10 +12,16 @@
 <body>
     <div class="wrapper">
         <div id="main-content" class="inner-wrapper">
-	   <div id="login">
-		<p>Password:</p>
-		<input type="text" id="password"/>
-		<input type="button" value="Continue" onclick="authenticate()"/>
+	   <div class="row no-border" id="login">
+		 <ul class="no-bullets">
+			 <li><p>Password:</p></li>
+			 <li><input type="password" id="passphrasePage"/></li>
+			 <li>
+				<input type="checkbox" id="showpassphrasePage" onchange="show_passphrase('Page')"/>
+				<label for="showpassphrasePage">show passphrase</label>
+			</li>
+			<li><input type="button" value="Continue" onclick="authenticate()"/></li>
+		</ul>
 	   </div>
 
            <div class="row no-border" id="grid">
@@ -77,14 +83,14 @@
 
 <script>
         $(document).ready(function(){
-                $('#grid').css('visibility', 'hidden')      
+                $('#grid').css('display', 'none')      
 	})
 	function showSsids() {
-	    $('#login').css('visibility', 'hidden');      
-	    $('#grid').css('visibility', 'visible');     
+	    $('#login').css('display', 'none');      
+	    $('#grid').css('display', 'block');     
 	}
 	function authenticate(){
-            var pw = $('#password').val();
+            var pw = $('#passphrasePage').val();
 	    if ( pw.length < 8) {
 		alert("Password must be at least 8 characters long");
 	    } else {

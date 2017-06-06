@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Operational.</title>
+	<title>Wifi Connected</title>
         <link rel="stylesheet" href="/static/css/application.css" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
@@ -12,9 +12,15 @@
     <div class="wrapper">
         <div id="main-content" class="inner-wrapper">
 	   <div class="row no-border" id="login">
-		<p>Password:</p>
-		<input type="text" id="password"/>
-		<input type="button" value="Continue" onclick="authenticate()"/>
+		 <ul class="no-bullets">
+			 <li><p>Password:</p></li>
+			 <li><input type="password" id="passphrasePage"/></li>
+			 <li>
+				<input type="checkbox" id="showpassphrasePage" onchange="show_passphrase('Page')"/>
+				<label for="showpassphrasePage">show passphrase</label>
+			</li>
+			<li><input type="button" value="Continue" onclick="authenticate()"/></li>
+		</ul>
 	   </div>
            <div class="row no-border" id="grid">
                 <h2>Connected!</h2>
@@ -27,14 +33,20 @@
 
 <script>
         $(document).ready(function(){
-                $('#grid').css('visibility', 'hidden')      
+                $('#grid').css('display', 'none')      
 	})
-	function showSsids() {
-	    $('#login').css('visibility', 'hidden');      
-	    $('#grid').css('visibility', 'visible');     
+	function showOper() {
+	    $('#login').css('display', 'none');      
+	    $('#grid').css('display', 'block');     
 	}
+
+	function show_passphrase(i) {
+	    var type = document.getElementById('showpassphrase'+i).checked ? 'text' : 'password' 
+	    document.getElementById('passphrase'+i).type = type
+	}
+
         function authenticate() {
-            var pw = $('#password').val();
+            var pw = $('#passphrasePage').val();
 	    if ( pw.length < 8) {
 		alert("Password must be at least 8 characters long");
 	    } else {
@@ -47,7 +59,7 @@
 		    hash = JSON.parse(hashRet);
 		    console.log(hash)
 		    if (hash.HashMatch) {
-			showSsids();
+			showOper();
 		    } else {
 			alert("Your password does not match, please try again");
 		    }
