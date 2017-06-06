@@ -15,18 +15,18 @@
  *
  */
 
-package daemonPkg 
+package daemonPkg
 
 import (
-	"testing"
 	"os"
+	"testing"
 
 	"github.com/CanonicalLtd/UCWifiConnect/utils"
-
 )
 
 func TestManualFlagPath(t *testing.T) {
-	client := GettClient()
+	mfpInit := "mfp"
+	client := GetClient()
 	client.SetManualFlagPath(mfpInit)
 	mfp := client.GetManualFlagPath()
 	if mfp != mfpInit {
@@ -63,12 +63,12 @@ func TestCheckWaitApConnect(t *testing.T) {
 	wfp := "thispathnevershouldexist"
 	client.SetWaitFlagPath(wfp)
 	if client.CheckWaitApConnect() {
-		t.Errorf("CheckWaitApConnect returns true but should return false", )
+		t.Errorf("CheckWaitApConnect returns true but should return false")
 	}
 	wfp = "../static/tests/waitFile"
 	client.SetWaitFlagPath(wfp)
 	if !client.CheckWaitApConnect() {
-		t.Errorf("CheckWaitApConnect returns false but should return true", )
+		t.Errorf("CheckWaitApConnect returns false but should return true")
 	}
 }
 
@@ -78,19 +78,19 @@ func TestManualMode(t *testing.T) {
 	client.SetManualFlagPath(mfp)
 	client.SetState(MANUAL)
 	if client.ManualMode() {
-		t.Errorf("ManualMode returns true but should return false", )
+		t.Errorf("ManualMode returns true but should return false")
 	}
 	if client.GetState() != STARTING {
-		t.Errorf("ManualMode should set state to STARTING when not in manual mode but does not", )
+		t.Errorf("ManualMode should set state to STARTING when not in manual mode but does not")
 	}
 	mfp = "../static/tests/manualMode"
 	client.SetManualFlagPath(mfp)
 	client.SetState(STARTING)
 	if !client.ManualMode() {
-		t.Errorf("ManualMode returns false but should return true", )
+		t.Errorf("ManualMode returns false but should return true")
 	}
 	if client.GetState() != MANUAL {
-		t.Errorf("ManualMode should set state to MANUAL when in manual mode but does not", )
+		t.Errorf("ManualMode should set state to MANUAL when in manual mode but does not")
 	}
 }
 
@@ -99,12 +99,12 @@ func TestSetDefaults(t *testing.T) {
 	hfp := "/tmp/hash"
 	utils.SetHashFile(hfp)
 	client.SetDefaults()
-	_, err := os.Stat(utils.HashFile); 
+	_, err := os.Stat(utils.HashFile)
 	if os.IsNotExist(err) {
 		t.Errorf("SetDefaults should have created %s but did not", hfp)
 	}
 	res, _ := utils.MatchingHash("wifi-connect")
-	if ! res {
+	if !res {
 		t.Errorf("SetDefaults password match did not match")
 	}
 }

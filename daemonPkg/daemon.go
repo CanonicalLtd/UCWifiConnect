@@ -47,6 +47,7 @@ var state = STARTING
 type Client struct {
 }
 
+// GetClient returns a client for runtime or testing
 func GetClient() *Client {
 	return &Client{}
 }
@@ -74,7 +75,7 @@ func (c *Client) SetWaitFlagPath(s string) {
 	waitFlagPath = s
 }
 
-// GetPreviousState returns the daemon previous state 
+// GetPreviousState returns the daemon previous state
 func (c *Client) GetPreviousState() int {
 	return previousState
 }
@@ -130,7 +131,7 @@ func (c *Client) Unmanage(nc *netman.Client) {
 	}
 }
 
-// manage sets wlan0 to not managed by network manager
+// Manage sets wlan0 to not managed by network manager
 func (c *Client) Manage(nc *netman.Client) {
 	nc.SetIfaceManaged("wlan0", true, nc.GetWifiDevices(nc.GetDevices()))
 }
@@ -164,6 +165,7 @@ func (c *Client) ManualMode() bool {
 	return true
 }
 
+// IsApUpWithoutSSIDs corrects an possible but unlikely case.
 // if wifiap is UP and there are no known SSIDs, bring it down so on next
 // loop iter we start again and can get SSIDs. returns true when ip is
 // UP and has no ssids
@@ -219,7 +221,7 @@ func (c *Client) OperationalServerUp() {
 	}
 }
 
-// operationalServerdown stops the operational server if it is running
+// OperationalServerDown stops the operational server if it is running
 func (c *Client) OperationalServerDown() {
 	if server.Current == server.Operational && (server.State == server.Running || server.State == server.Starting) {
 		err = server.ShutdownOperationalServer()
