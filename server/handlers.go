@@ -120,12 +120,14 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 
 	//TODO signal user in portal on failure to connect
 	if err != nil {
-		//remove flag file so that daemon starts checking state
-		//and takes control again
-
-		waitPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
-		utils.RemoveFlagFile(waitPath)
+		fmt.Printf("== wifi-connect/handler: Failed connecting to %v.\n", ssid)
+		return
 	}
+
+	//remove flag file so that daemon starts checking state
+	//and takes control again
+	waitPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
+	utils.RemoveFlagFile(waitPath)
 }
 
 type disconnectData struct {
