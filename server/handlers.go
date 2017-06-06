@@ -116,13 +116,16 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 	c.SetIfaceManaged("wlan0", true, c.GetWifiDevices(c.GetDevices()))
 	_, ap2device, ssid2ap := c.Ssids()
 
-	c.ConnectAp(ssid, pwd, ap2device, ssid2ap)
+	err := c.ConnectAp(ssid, pwd, ap2device, ssid2ap)
 
-	//remove flag file so that daemon starts checking state
-	//and takes control again
+	//TODO signal user in portal on failure to connect
+	if err != nil {
+		//remove flag file so that daemon starts checking state
+		//and takes control again
 
-	waitPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
-	utils.RemoveFlagFile(waitPath)
+		waitPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
+		utils.RemoveFlagFile(waitPath)
+	}
 }
 
 type disconnectData struct {

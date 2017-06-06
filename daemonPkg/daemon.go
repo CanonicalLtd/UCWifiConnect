@@ -15,7 +15,7 @@
  *
  */
 
-package deamonPkg
+package daemonPkg
 
 import (
 	"fmt"
@@ -30,7 +30,7 @@ import (
 	"github.com/CanonicalLtd/UCWifiConnect/wifiap"
 )
 
-// enum to track current system State
+// enum to track current system state
 const (
 	STARTING = 0 + iota
 	MANAGING
@@ -38,25 +38,70 @@ const (
 	MANUAL
 )
 
-var ManualFlagPath string
-var WaitFlagPath string
-var PreviousState = STARTING
-var State = STARTING
+var manualFlagPath string
+var waitFlagPath string
+var previousState = STARTING
+var state = STARTING
 
-//used to clase the operataional http server
+// Client is the base type for both testing and runtime
+type Client struct {
+}
+
+func GetClient() *Client {
+	return &Client{}
+}
+
+// used to clase the operational http server
 var err error
 
-func SetState(s int) {
-	PreviousState = State
-	State = s
+// GetManualFlagPath returns the current path
+func (c *Client) GetManualFlagPath() string {
+	return manualFlagPath
+}
+
+// SetManualFlagPath sets the current path
+func (c *Client) SetManualFlagPath(s string) {
+	manualFlagPath = s
+}
+
+// GetWaitFlagPath returns the current path
+func (c *Client) GetWaitFlagPath() string {
+	return waitFlagPath
+}
+
+// SetWaitFlagPath sets the current path
+func (c *Client) SetWaitFlagPath(s string) {
+	waitFlagPath = s
+}
+
+// GetPreviousState returns the daemon previous state 
+func (c *Client) GetPreviousState() int {
+	return previousState
+}
+
+// SetPreviousState sets daemon previous state
+func (c *Client) SetPreviousState(i int) {
+	previousState = i
+	return
+}
+
+// GetState returns the daemon state
+func (c *Client) GetState() int {
+	return state
+}
+
+// SetState sets the daemon state and updates the previous state
+func (c *Client) SetState(i int) {
+	previousState = state
+	state = i
 }
 
 // ScanSsids sets wlan0 to be managed and then scans
 // for ssids. If found, write the ssids (comma separated)
 // to path and return true, else return false.
-func ScanSsids(path string, c *netman.Client) bool {
-	manage(c)
-	SSIDs, _, _ := c.Ssids()
+func (c *Client) ScanSsids(path string, nc *netman.Client) bool {
+	c.Manage(nc)
+	SSIDs, _, _ := nc.Ssids()
 	//only write SSIDs when found
 	if len(SSIDs) > 0 {
 		var out string
@@ -78,39 +123,42 @@ func ScanSsids(path string, c *netman.Client) bool {
 
 // Unmanage sets wlan0 to be Unmanaged by network manager if it
 // is managed
-func Unmanage(c *netman.Client) {
-	ifaces, _ := c.WifisManaged(c.GetWifiDevices(c.GetDevices()))
+func (c *Client) Unmanage(nc *netman.Client) {
+	ifaces, _ := nc.WifisManaged(nc.GetWifiDevices(nc.GetDevices()))
 	if _, ok := ifaces["wlan0"]; ok {
-		c.SetIfaceManaged("wlan0", false, c.GetWifiDevices(c.GetDevices()))
+		nc.SetIfaceManaged("wlan0", false, nc.GetWifiDevices(nc.GetDevices()))
 	}
 }
 
 // manage sets wlan0 to not managed by network manager
-func manage(c *netman.Client) {
-	c.SetIfaceManaged("wlan0", true, c.GetWifiDevices(c.GetDevices()))
+func (c *Client) Manage(nc *netman.Client) {
+	nc.SetIfaceManaged("wlan0", true, nc.GetWifiDevices(nc.GetDevices()))
 }
 
 // CheckWaitApConnect returns true if the flag wait file exists
 // and false if it does not
-func CheckWaitApConnect() bool {
-	if _, err := os.Stat(WaitFlagPath); os.IsNotExist(err) {
+func (c *Client) CheckWaitApConnect() bool {
+	if _, err := os.Stat(waitFlagPath); os.IsNotExist(err) {
 		return false
 	}
 	return true
 }
 
-// CheckManualMode returns true if the manual mode flag wait file exists
-// and false if it does not
-func CheckManualMode() bool {
-	if _, err := os.Stat(ManualFlagPath); os.IsNotExist(err) {
-		if State == MANUAL {
-			SetState(STARTING)
+// ManualMode enables the daemon to loop without action if in manual mode
+// It returns true if the manual mode flag wait file exists
+// and false if it does not. If it does not exist and the mode is MANUAL, the
+// state is set to STARTING. If it does exist and the mode is not MANUAL, state
+// is set to MANUAL
+func (c *Client) ManualMode() bool {
+	if _, err := os.Stat(manualFlagPath); os.IsNotExist(err) {
+		if state == MANUAL {
+			c.SetState(STARTING)
 			fmt.Println("== wifi-connect: entering STARTING mode")
 		}
 		return false
 	}
-	if State != MANUAL {
-		SetState(MANUAL)
+	if state != MANUAL {
+		c.SetState(MANUAL)
 		fmt.Println("== wifi-connect: entering MANUAL mode")
 	}
 	return true
@@ -119,7 +167,7 @@ func CheckManualMode() bool {
 // if wifiap is UP and there are no known SSIDs, bring it down so on next
 // loop iter we start again and can get SSIDs. returns true when ip is
 // UP and has no ssids
-func IsApUpWithoutSSIDs(cw *wifiap.Client) bool {
+func (c *Client) IsApUpWithoutSSIDs(cw *wifiap.Client) bool {
 	wifiUp, _ := cw.Enabled()
 	if !wifiUp {
 		return false
@@ -134,7 +182,7 @@ func IsApUpWithoutSSIDs(cw *wifiap.Client) bool {
 
 // ManagementServerUp starts the management server if it is
 // not running
-func ManagementServerUp() {
+func (c *Client) ManagementServerUp() {
 	if server.Current != server.Management && server.State == server.Stopped {
 		err = server.StartManagementServer()
 		if err != nil {
@@ -147,7 +195,7 @@ func ManagementServerUp() {
 
 // ManagementServerDown stops the management server if it is running
 // also remove the wait flag file, thus resetting proper State
-func ManagementServerDown() {
+func (c *Client) ManagementServerDown() {
 	if server.Current == server.Management && (server.State == server.Running || server.State == server.Starting) {
 		err = server.ShutdownManagementServer()
 		if err != nil {
@@ -160,7 +208,7 @@ func ManagementServerDown() {
 
 // OperationalServerUp starts the operational server if it is
 // not running
-func OperationalServerUp() {
+func (c *Client) OperationalServerUp() {
 	if server.Current != server.Operational && server.State == server.Stopped {
 		err = server.StartOperationalServer()
 		if err != nil {
@@ -172,7 +220,7 @@ func OperationalServerUp() {
 }
 
 // operationalServerdown stops the operational server if it is running
-func OperationalServerDown() {
+func (c *Client) OperationalServerDown() {
 	if server.Current == server.Operational && (server.State == server.Running || server.State == server.Starting) {
 		err = server.ShutdownOperationalServer()
 		if err != nil {
@@ -184,7 +232,7 @@ func OperationalServerDown() {
 // SetDefaults sets defaults if not yet set. Currently the hash
 // for the portals password is set.
 // TODO: set default password based on MAC addr or Serial number
-func SetDefaults() {
+func (c *Client) SetDefaults() {
 	if _, err := os.Stat(utils.HashFile); os.IsNotExist(err) {
 		utils.HashIt("wifi-connect")
 	}
