@@ -121,7 +121,6 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 	//TODO signal user in portal on failure to connect
 	if err != nil {
 		fmt.Printf("== wifi-connect/handler: Failed connecting to %v.\n", ssid)
-		return
 	}
 
 	//remove flag file so that daemon starts checking state

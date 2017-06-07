@@ -16,7 +16,7 @@ apps:
     command: cmd 
     plugs: [network, network-bind, network-manager, control]
   daemon:
-    command: daemon
+    command: service
     daemon: simple
     plugs: [network-manager, control, network-bind]
 

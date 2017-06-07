@@ -237,11 +237,11 @@ func main() {
 		pw, _ := reader.ReadString('\n')
 		pw = strings.TrimSpace(pw)
 		c.ConnectAp(ssid, pw, ap2device, ssid2ap)
-	case "mgmt-up":
+	case "management":
 		http.ListenAndServe(":8081", mgmtHandler())
-	case "oper-up":
+	case "operational":
 		http.ListenAndServe(":8081", operHandler())
-	case "set-hash":
+	case "set-portal-password":
 		if len(os.Args) < 3 {
 			fmt.Println("Error: no string to hash provided")
 			return

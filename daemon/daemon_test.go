@@ -15,7 +15,7 @@
  *
  */
 
-package daemonPkg
+package daemon
 
 import (
 	"os"
