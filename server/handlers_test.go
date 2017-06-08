@@ -26,7 +26,7 @@ import (
 	"github.com/CanonicalLtd/UCWifiConnect/utils"
 )
 
-func TestSsidsHandler(t *testing.T) {
+func TestManagementHandler(t *testing.T) {
 
 	ResourcesPath = "../static"
 	SsidsFile := "../static/tests/ssids"
@@ -34,7 +34,7 @@ func TestSsidsHandler(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/", nil)
-	http.HandlerFunc(SsidsHandler).ServeHTTP(w, r)
+	http.HandlerFunc(ManagementHandler).ServeHTTP(w, r)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("Expected status %d, got: %d", http.StatusOK, w.Code)
@@ -51,7 +51,7 @@ func TestConnectHandler(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("POST", "/connect", nil)
-	http.HandlerFunc(SsidsHandler).ServeHTTP(w, r)
+	http.HandlerFunc(ManagementHandler).ServeHTTP(w, r)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("Expected status %d, got: %d", http.StatusOK, w.Code)
@@ -68,7 +68,7 @@ func TestInvalidTemplateHandler(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "/", nil)
-	http.HandlerFunc(SsidsHandler).ServeHTTP(w, r)
+	http.HandlerFunc(ManagementHandler).ServeHTTP(w, r)
 
 	if w.Code != http.StatusInternalServerError {
 		t.Errorf("Expected status %d, got: %d", http.StatusInternalServerError, w.Code)

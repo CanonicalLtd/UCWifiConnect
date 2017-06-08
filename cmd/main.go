@@ -49,14 +49,26 @@ Commands:
 	return text
 }
 
-func handler() *mux.Router {
+func mgmtHandler() *mux.Router {
 	router := mux.NewRouter()
 
 	// Pages routes
-	router.HandleFunc("/", server.SsidsHandler).Methods("GET")
+	router.HandleFunc("/", server.ManagementHandler).Methods("GET")
 	router.HandleFunc("/connect", server.ConnectHandler).Methods("POST")
 
 	// Resources path
+	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(server.ResourcesPath)))
+	router.PathPrefix("/static/").Handler(fs)
+
+	return router
+}
+
+func operHandler() *mux.Router {
+	router := mux.NewRouter()
+
+	router.HandleFunc("/", server.OperationalHandler).Methods("GET")
+	router.HandleFunc("/hashit", server.HashItHandler).Methods("POST")
+
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(server.ResourcesPath)))
 	router.PathPrefix("/static/").Handler(fs)
 
@@ -225,8 +237,23 @@ func main() {
 		pw, _ := reader.ReadString('\n')
 		pw = strings.TrimSpace(pw)
 		c.ConnectAp(ssid, pw, ap2device, ssid2ap)
-	case "management-up":
-		http.ListenAndServe(":8081", handler())
+	case "management":
+		http.ListenAndServe(":8081", mgmtHandler())
+	case "operational":
+		http.ListenAndServe(":8081", operHandler())
+	case "set-portal-password":
+		if len(os.Args) < 3 {
+			fmt.Println("Error: no string to hash provided")
+			return
+		}
+		if len(os.Args[2]) < 8 {
+			fmt.Println("Error: password must be at least 8 characters long")
+		}
+		b, err := utils.HashIt(os.Args[2])
+		if err != nil {
+			fmt.Println("Error hashing:", err)
+		}
+		fmt.Println(string(b))
 	default:
 		fmt.Println("Error. Your command is not supported. Please try 'help'")
 	}

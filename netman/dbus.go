@@ -18,6 +18,7 @@
 package netman
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -181,7 +182,7 @@ func (c *Client) getSsids(APs []string, ssid2ap map[string]string) []SSID {
 }
 
 // ConnectAp attempts to Connect to an external AP
-func (c *Client) ConnectAp(ssid string, p string, ap2device map[string]string, ssid2ap map[string]string) {
+func (c *Client) ConnectAp(ssid string, p string, ap2device map[string]string, ssid2ap map[string]string) error {
 	inner1 := make(map[string]dbus.Variant)
 	inner1["security"] = dbus.MakeVariant("802-11-wireless-security")
 
@@ -204,12 +205,13 @@ func (c *Client) ConnectAp(ssid string, p string, ap2device map[string]string, s
 		idx++
 		time.Sleep(1000 * time.Millisecond)
 		if c.Connected(c.GetWifiDevices(c.GetDevices())) {
-			return
+			return nil
 		}
 		if idx == 19 {
-			fmt.Println("== wifi-connect: cannot connect to AP")
+			return errors.New("wifi-connect: cannot connect to AP")
 		}
 	}
+	return nil
 }
 
 func getSystemBus() *dbus.Conn {

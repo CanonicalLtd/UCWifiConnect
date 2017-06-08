@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Wifi Connected</title>
+        <link rel="stylesheet" href="/static/css/application.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div id="main-content" class="inner-wrapper">
+	   <div class="row no-border" id="login">
+		 <ul class="no-bullets">
+			 <li><p>Password:</p></li>
+			 <li><input type="password" id="passphrasePage"/></li>
+			 <li>
+				<input type="checkbox" id="showpassphrasePage" onchange="show_passphrase('Page')"/>
+				<label for="showpassphrasePage">show passphrase</label>
+			</li>
+			<li><input type="button" value="Continue" onclick="authenticate()"/></li>
+		</ul>
+	   </div>
+           <div class="row no-border" id="grid">
+                <h2>Connected!</h2>
+		<p>The device is connected to an external WiFi AP</p>
+                <p>Click below to disconnect. Then, join the device Wifi AP, where you can select a new external AP to connect to.</p>
+                 <input type="button" id="disconnect" value="Disconnect from Wifi" class="button--primary" onclick="disconnect()"/>
+            </div>
+        </div>
+    </div>
+
+<script>
+        $(document).ready(function(){
+                $('#grid').css('display', 'none')      
+	})
+	function showOper() {
+	    $('#login').css('display', 'none');      
+	    $('#grid').css('display', 'block');     
+	}
+
+	function show_passphrase(i) {
+	    var type = document.getElementById('showpassphrase'+i).checked ? 'text' : 'password' 
+	    document.getElementById('passphrase'+i).type = type
+	}
+
+        function authenticate() {
+            var pw = $('#passphrasePage').val();
+	    if ( pw.length < 8) {
+		alert("Password must be at least 8 characters long");
+	    } else {
+	        $.ajax({
+	          type: "POST",
+	          url: "/hashit",
+	          data: {Hash: pw}
+	        }).done(function (hashRet) {
+		    console.log("in ajax done.", hashRet);
+		    hash = JSON.parse(hashRet);
+		    console.log(hash)
+		    if (hash.HashMatch) {
+			showOper();
+		    } else {
+			alert("Your password does not match, please try again");
+		    }
+	        })
+            }
+	}    
+
+function disconnect() {
+    $.ajax({
+      url: "/disconnect"
+    }).done(function () {
+        console.log("in ajax done.");
+
+    })
+} 
+
+</script>
+
+</body>
+</html>

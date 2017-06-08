@@ -5,7 +5,7 @@ Wifi-connect snap allows you to connect the device to an external wifi AP. First
 * The wifi-ap snap provides the device AP.
 * The network-manager snap provides management and control of the wlan0 interface used for the AP and to connect to external APs. 
 
-## Release: Alpha 2 (0.9)
+## Release: Alpha 2 (0.10)
 
 * Raspberry pi3 with no additional wifi hardware is the only verified platform
 
@@ -48,10 +48,7 @@ snap connect wifi-connect:control wifi-ap:control
 snap connect wifi-connect:network core:network
 snap connect wifi-connect:network-bind core:network-bind
 snap connect wifi-connect:network-manager network-manager:service
-snap connect wifi-connect:network-control core:network-control
 ```
-
-(TODO: Configure interface auto connection.)
 
 Note: wifi-ap and network-manager interfaces auto-connect.
 
@@ -90,34 +87,16 @@ Rebooting also consolidates all networking into NetworkManager.
 
 If you skip these steps, the wifi-AP put up by the device has an SSID of "Ubuntu" and is unsecure (with no passphrase). 
 
-1. Stop wifi-connect
-
-```bash
-sudo  wifi-connect stop
-```
-
-1. Set the wlan0 interface to be unmanaged by NetworkManager
-
-```bash
-nmcli d set wlan0 managed n
-```
-
 1. Set the wifi-ap AP SSID
 
 ```bash
-sudo  wifi-connect ssid digit
+sudo  wifi-connect ssid MYSSID 
 ```
 
 1. Set the AP passphrase:
 
 ```bash
-sudo  wifi-connect passphrase ubuntuubuntuubuntu
-```
-
-1. Start wifi-connect
-
-```bash
-sudo  wifi-connect start
+sudo  wifi-connect passphrase MYPASSPHRASE
 ```
 
 ## Display the AP config
@@ -131,17 +110,27 @@ Note the DHCP range:
     dhcp.range-start: 10.0.60.2
     dhcp.range-stop: 10.0.60.199
 
+## Set the portal password
+
+The portal password must be entered to access wifi-connect web pages.
+
+```bash
+sudo  wifi-connect set-hash PASSWORD
+```
+
 ## Join the device AP
 
 When the device AP is up and available to you, join it.
 
-## Open the the Management Portal web page
+## Open the the Management portal web page
 
 This portal displays external wifi APs and let's you join them.
 
 After you connect to the device AP, you can open its http portal at the .1 IP address just before the start of the DHCP range (see previous steps) using port 8080: 
 
     10.0.60.1:8080
+
+You then need to enter the portal password to continue.
 
 ### Avahi and hostname
 
@@ -155,14 +144,18 @@ Note: The system trying to open the web page must support Avahi. Android systems
 
 ## Be patient, it takes minutes
 
-Wifi-connect pauses at daemon startup and at various times to allow state changes to settle. For example:
-
-* On boot and on daemon start, it takes a minute or so to determine the proper state
+Wifi-connect pauses for about a minute at daemon start to allow any external AP connections to complete.
 
 ## Disconnect from wifi
 
+When connected to an external AP, the Operational portal is available on the device IP address (assigned by the external AP). Open it using IP:8080, enter the portal password, and you may then disconnect with the "Disconnect from Wifi" button.
+
+You can also ssh to the device and:
+
 * Use `nmcli c` to display connections.
 * Use `nmcli c delete CONNECTION_NAME` to disconnect and delete. This puts the device into management mode, bringing up the AP and portal.
+
+Disconnecting sets the device back in Management mode. Its AP is started and you can open the portal (as discussed above) to see external APs and connect to one.
 
 ## Logs
 

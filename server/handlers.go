@@ -18,6 +18,7 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -30,8 +31,9 @@ import (
 )
 
 const (
-	ssidsTemplatePath      = "/templates/ssids.html"
-	connectingTemplatePath = "/templates/connecting.html"
+	managementTemplatePath  = "/templates/management.html"
+	connectingTemplatePath  = "/templates/connecting.html"
+	operationalTemplatePath = "/templates/operational.html"
 )
 
 // ResourcesPath absolute path to web static resources
@@ -67,8 +69,8 @@ func execTemplate(w http.ResponseWriter, templatePath string, data Data) {
 	}
 }
 
-// SsidsHandler lists the current available SSIDs
-func SsidsHandler(w http.ResponseWriter, r *http.Request) {
+// ManagementHandler lists the current available SSIDs
+func ManagementHandler(w http.ResponseWriter, r *http.Request) {
 	// daemon stores current available ssids in a file
 	ssids, err := utils.ReadSsidsFile()
 	if err != nil {
@@ -80,7 +82,7 @@ func SsidsHandler(w http.ResponseWriter, r *http.Request) {
 	data := SsidsData{Ssids: ssids}
 
 	// parse template
-	execTemplate(w, ssidsTemplatePath, data)
+	execTemplate(w, managementTemplatePath, data)
 }
 
 // ConnectHandler reads form got ssid and password and tries to connect to that network
@@ -104,7 +106,7 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 		pwd = pwds[0]
 	}
 
-	fmt.Printf("== wifi-connect/handler: Connecting to %v\n.", ssid)
+	fmt.Printf("== wifi-connect/handler: Connecting to %v\n", ssid)
 
 	cw := wifiap.DefaultClient()
 	cw.Disable()
@@ -114,11 +116,55 @@ func ConnectHandler(w http.ResponseWriter, r *http.Request) {
 	c.SetIfaceManaged("wlan0", true, c.GetWifiDevices(c.GetDevices()))
 	_, ap2device, ssid2ap := c.Ssids()
 
-	c.ConnectAp(ssid, pwd, ap2device, ssid2ap)
+	err := c.ConnectAp(ssid, pwd, ap2device, ssid2ap)
+
+	//TODO signal user in portal on failure to connect
+	if err != nil {
+		fmt.Printf("== wifi-connect/handler: Failed connecting to %v.\n", ssid)
+	}
 
 	//remove flag file so that daemon starts checking state
 	//and takes control again
-
 	waitPath := os.Getenv("SNAP_COMMON") + "/startingApConnect"
 	utils.RemoveFlagFile(waitPath)
+}
+
+type disconnectData struct {
+}
+
+// OperationalHandler display Opertational mode page
+func OperationalHandler(w http.ResponseWriter, r *http.Request) {
+	data := disconnectData{}
+	execTemplate(w, operationalTemplatePath, data)
+}
+
+type hashResponse struct {
+	Err       string
+	HashMatch bool
+}
+
+// HashItHandler returns a hash of the password as json
+func HashItHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	hashMe := r.Form["Hash"]
+	hashed, errH := utils.MatchingHash(hashMe[0])
+	if errH != nil {
+		fmt.Println("== wifi-connect/HashitHandler: error hashing:", errH)
+		return
+	}
+	res := &hashResponse{}
+	res.HashMatch = hashed
+	res.Err = "no error"
+	b, err := json.Marshal(res)
+	if err != nil {
+		fmt.Println("== wifi-connect/HashItHandler: error mashaling json")
+		return
+	}
+	w.Write(b)
+}
+
+// DisconnectHandler allows user to disconnect from external AP
+func DisconnectHandler(w http.ResponseWriter, r *http.Request) {
+	c := netman.DefaultClient()
+	c.DisconnectWifi(c.GetWifiDevices(c.GetDevices()))
 }

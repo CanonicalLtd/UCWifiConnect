@@ -30,7 +30,43 @@ import (
 	"time"
 
 	telnet "github.com/reiver/go-telnet"
+
+	"golang.org/x/crypto/bcrypt"
 )
+
+// HashFile is the path to the file that stores the hash of the portals password
+var HashFile = filepath.Join(os.Getenv("SNAP_COMMON"), "hash")
+
+// HashIt writes the hash of the passed password to the HashFile and
+// returns the hash and error
+func HashIt(s string) ([]byte, error) {
+	var b []byte
+	var err error
+	b, err = bcrypt.GenerateFromPassword([]byte(s), 8)
+	if err != nil {
+		return b, err
+	}
+	errW := ioutil.WriteFile(HashFile, b, 0644)
+	if errW != nil {
+		fmt.Println("== wifi-connect/HashIt write Error.", err)
+		return b, errW
+	}
+	return b, nil
+}
+
+// MatchingHash verifies the passed password against the saved hash,
+// returng true if they match, else false
+func MatchingHash(pword string) (bool, error) {
+	savedHash, err := ioutil.ReadFile(HashFile)
+	if err != nil {
+		fmt.Println("== wifi-connect/matchingHash read Error.", err)
+		return false, err
+	}
+	if bcrypt.CompareHashAndPassword(savedHash, []byte(pword)) == nil {
+		return true, nil
+	}
+	return false, nil
+}
 
 // SsidsFile path to the file filled by daemon with available ssids in csv format
 var SsidsFile = filepath.Join(os.Getenv("SNAP_COMMON"), "ssids")
@@ -38,6 +74,11 @@ var SsidsFile = filepath.Join(os.Getenv("SNAP_COMMON"), "ssids")
 // SetSsidsFile sets the SsidsFile var
 func SetSsidsFile(p string) {
 	SsidsFile = p
+}
+
+// SetHashFile sets the HashFile var
+func SetHashFile(p string) {
+	HashFile = p
 }
 
 // PrintMapSorted prints to stdout a map sorting content by keys
